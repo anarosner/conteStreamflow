@@ -1,0 +1,20 @@
+# Create weather grid using conteStreamflow package
+
+### Load package
+```{r pkgs}
+library(headwaters)
+```
+
+###Create weather grid polygons from file contents
+```{r create weather grid, cache=TRUE}
+
+#Will only need to do this very occassionally, when adding a new geographic region
+
+weather.grid.poly <- weather.grid.create( regions=c("east","glakes", "ohio"), shapefile.dir = "C:/ALR/Data/ClimateData/Mauer" )
+save(weather.grid.poly, file="C:/ALR/Data/ClimateData/Mauer/weather_grid_poly.rdata")
+weather.grid.coords<-weather.grid.poly@data
+save(weather.grid.coords, file="C:/ALR/Data/ClimateData/Mauer/weather_grid_coords.rdata")
+
+plot(weather.grid.poly)
+
+```

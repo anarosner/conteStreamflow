@@ -1,0 +1,246 @@
+---
+output:
+  html_document:
+    css: C:/ALR/Models/custom.css
+    highlight: textmate
+    theme: null
+---
+
+# conteStreamflow Vignette: Data retrieval and Preparation
+## Data prep for Massachusetts are monthly, seasonal, and annual data
+
+### load packages
+```{r load pkg, message=FALSE, warning=FALSE}
+
+
+library(conteStreamflow)
+
+```
+
+### Set up cache and set local dir
+```{r set up cache}
+
+#set up cache
+cache.setup( cache.dir="c:/alr/models/cache", quiet=T )
+cache.set( cache.dir="c:/alr/models/cache" )
+
+#local drive, for saving flow, weather, gage, and merged results
+local.dir <- "c:/alr/models/conteStreamflow/vignettes/temp"
+setwd(local.dir)
+
+```
+
+### Locate buffer file
+```{r buffer file locations, cache=TRUE}
+#this is the only input file needed, that is not accessed through a web service, or downloaded/cached from felek
+buffer.file <- "C:/ALR/Models/conteStreamflow/data/mass_buffer_poly"
+```
+
+### Load gages using a buffer (polygon outline of area of interest)
+```{r load gages, cache=TRUE}
+g.spatial <- gage.retrieve( buffer.file=buffer.file, max.da.sqkm=50, min.da.sqkm=0 )
+
+# number of records from initial retrieval
+nrow(g.spatial)
+
+```
+
+### Place gages into NHDplus catchments to pair w/ stream reaches and basin characteristics
+```{r place nhdplus, cache=TRUE}
+
+g.spatial <- gage.place.nhdplus( g.spatial )
+
+
+#all gages plotted to an nhdplus catchment
+sum(is.na(g.spatial$FEATUREID))
+
+```
+
+### Load impoundments
+```{r load impoundments, cache=TRUE}
+
+
+#Load impoundment info
+g.spatial<-impound.retrieve( gages.spatial=g.spatial, cols=char.columns.default( impound=T ) )
+
+
+#Check if gages are missing impoundment data 
+apply(g.spatial@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
+```
+
+### Remove gages missing impoundment data, and filter out gages on impounded streams
+```{r filter gages by impounded, cache=TRUE}
+
+#Remove gages with dams or large on channel (open water) impoundments
+#(and check #records before and after)
+# Number of columns BEFORE gages w/ impoundments are removed
+nrow(g.spatial)
+g.spatial<-g.spatial[g.spatial$TNC_DamCount==0,]
+g.spatial<-g.spatial[g.spatial$OnChannelWaterSqKM<.5,]
+# Number of columns AFTER gages w/ impoundments are removed
+nrow(g.spatial)
+
+
+```
+
+
+### Load basin characteristics
+```{r load basin char, cache=TRUE}
+
+#Let's use the default basin char columns
+# Basin characteristic columns being used
+print(char.columns.default()) 
+#and pick a subset of those to log transform
+log.cols <- c("Forest", "Herbacious","Agriculture","Developed","DevelopedNotOpen", "Impervious",  
+               "CONUSOpenWater","CONUSWetland", "DrainageClass","HydrologicGroupAB","SurficialCoarseC","PercentSandy",
+              "ReachElevationM", "BasinElevationM")
+
+#Load basin characteristics
+g.spatial<-char.retrieve( gages.spatial=g.spatial, cols=char.columns.default(), log.cols=log.cols )
+
+```
+
+### Remove gages/basins missing data
+```{r gages missing data, cache=TRUE}
+
+
+#See how many gages are missing each of the basin char
+apply(g.spatial@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
+
+
+# One is missing ReachSlopePCNT.  Which gages?
+g.spatial[is.na(g.spatial$ReachSlopePCNT),"station_nm"]
+
+
+#Limit to gages that have all basin data
+#(eliminate one missing ReachSlopePCNT, and recheck)
+g.spatial<-g.spatial[!is.na(g.spatial$ReachSlopePCNT),]
+apply(g.spatial@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
+
+
+# Total number of gages after removing those w/ missing basin char data
+nrow(g.spatial)
+
+#View sample of data
+# Sample of gage data
+head(g.spatial@data)
+class(g.spatial)
+str(g.spatial@data)  #structure of data slot, of sp object
+```
+
+### Look at mismatch of drainage area b/w NWIS gage info and NHDplus catchment
+```{r da mismatch, cache=TRUE}
+
+#since basin char are based on approximate mapping of gages to stream reaches using nhdplus catchments,
+# some will be off/ will be mapped to the wrong stream sections or wrong stream/river
+# look at mismatch between gage drainage area  and nhdplus drainage area
+
+plot(g.spatial$da_sqkm,g.spatial$NHDplusTotDASqKM, main="Drainage areas of NWIS vs assigned NHDplus streams")
+text(g.spatial$da_sqkm+1,g.spatial$NHDplusTotDASqKM-1,g.spatial$site_no,cex=.5)
+abline( a=0, b=1, lty=2, col="red" )
+abline( h=50, lty=2, col="black" )
+
+
+
+# Will decide later what to do about this.  
+# Not many problems in MA (after all, we have already removed dammed streams), but there are more problems elsewhere
+
+```
+
+
+
+### Place gages into weather grid
+```{r place weather grid, cache=TRUE}
+#Place gages into weather grid polygons 
+g.spatial<-gage.place.weather( gages.spatial=g.spatial, plot=T )
+
+#save rdata
+setwd(local.dir)
+save(g.spatial, file="gages_spatial.rdata")
+
+#export shapefile
+gage.export( g.spatial, shapefile.dir=local.dir )
+
+
+```
+
+
+
+### Load flow observations
+```{r load flow, cache=TRUE}
+
+#Load/calculate/aggregate flow data for seasonal and annual timesteps
+q.matrices<-flow.retrieve( gages.spatial = g.spatial, 
+                          periods = c("monthly","seasonal","annual") )
+
+#View sample of flow data
+# Sample flow data
+str(q.matrices)
+str(q.matrices[["monthly"]])
+# Single gage, all columns
+q.matrices[["monthly"]][360:370,2,]
+# Single column, several gages
+q.matrices[["monthly"]][360:370,1:10,1]
+
+
+#save locally
+setwd(local.dir)
+save(q.matrices, file="q_matrices.rdata")
+```
+
+
+### Load weather observations
+```{r load weather observations, cache=TRUE}
+
+
+#Load/calculate/aggregate weather data for seasonal and annual timesteps
+w.matrices <- weather.retrieve(gages.spatial=g.spatial, periods=c("monthly","seasonal","annual"))
+
+
+# Structure and sample weather data
+str(q.matrices)
+str(q.matrices[["monthly"]])
+# Single gage, all columns
+w.matrices[["monthly"]][1:10,1,]
+# Single column, several gages
+w.matrices[["monthly"]][1:10,1:5,1]
+
+#save locally
+setwd(local.dir)
+save(w.matrices, file="w_matrices.rdata")
+```
+
+### Merge flow, weather, and basin char data 
+```{r merge data, cache=TRUE}
+
+#merge
+d <- data.merge( g.spatial, q.matrices, w.matrices, periods=c("monthly","seasonal","annual") )
+#view sample and structure
+str(d)
+str(d[["monthly"]])
+head(d[["monthly"]])
+
+
+#save locally
+setwd(local.dir)
+d.annual <- d[["annual"]]
+save(d.annual, file="d_annual.rdata")
+d.seasonal <- d[["seasonal"]]
+save(d.seasonal, file="d_seasonal.rdata")
+d.monthly <- d[["monthly"]]
+save(d.monthly, file="d_monthly.rdata")
+
+
+```
+
+
+### Footnotes: r version and packages used
+```{r}
+#objects in session
+ls()
+
+#session info and package versions
+print(sessionInfo()) 
+
+```
+
