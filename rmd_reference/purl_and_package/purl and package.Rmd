@@ -1,13 +1,13 @@
 ```{r purl}
-base.dir<-"C:/ALR/Models/headwaters"
+base.dir<-"C:/ALR/Models/conteStreamflow"
 setwd(base.dir)
 list.files()
 
-
-###danger danger
-file.remove("NAMESPACE")
-list.files()
-
+# 
+# ###danger danger
+# file.remove("NAMESPACE")
+# list.files()
+# 
 # setwd(file.path(base.dir,"r"))
 # list.files()
 # file.remove(list.files())
@@ -20,8 +20,14 @@ list.files()
 
 ```
 
+
 ```{r}
 library(knitr)
+setwd(base.dir)
+
+```
+
+```{r}
 setwd(base.dir)
 
 
@@ -46,12 +52,17 @@ while (length(dirs)>0) {
      dirs<-dirs[-1]
 
 }
+rm(dirs, current.dir, rmd.files)
 list.files(path = file.path(base.dir,"r"))
 ```
 
-```{r document}
+```{r}
 library(devtools)
 library(roxygen2)
+
+```
+
+```{r document}
 
 setwd(base.dir)
 document(clean = T)
@@ -59,25 +70,10 @@ document(clean = T)
 
 ```{r install package}
 library(devtools)
-base.dir<-"C:/ALR/Models/headwaters"
+base.dir<-"C:/ALR/Models/conteStreamflow"
 
-setwd(base.dir)
-install()
+install( pkg=base.dir )
+library(conteStreamflow)
 
 ```
-
-```{r}
-#install rstudioapi for this to work
-library(devtools)
-library(roxygen2)
-
-setwd(base.dir)
-load_all(pkg = base.dir)
-
-#Everything in the package's data dir *should* load using load_all, or explicitly using load_data.  
-#But, that's not working... this is a temp fix
-for (i in list.files(path = "./data"))
-     load(file.path("data",i), verbose = T )
-```
-
 
