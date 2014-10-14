@@ -2,11 +2,10 @@
 output:
   html_document:
     css: C:/ALR/Models/custom.css
-    highlight: textmate
     theme: null
 ---
 
-# conteStreamflow Vignette: Data retrieval and Preparation
+# conteStreamflow Vignette: data prep
 ## Data prep for Massachusetts are monthly, seasonal, and annual data
 
 ### load packages
@@ -159,7 +158,7 @@ setwd(local.dir)
 save(g.spatial, file="gages_spatial.rdata")
 
 #export shapefile
-gage.export( g.spatial, shapefile.dir=local.dir )
+# gage.export( g.spatial, shapefile.dir=local.dir )
 
 
 ```
