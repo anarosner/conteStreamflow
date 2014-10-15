@@ -1,22 +1,5 @@
 
 ```{r}
-#' @title col names for flow stats
-#' @description col names for flow stats
-#' @export
-#stats to save from flow
-
-create.cols.flow <- function( agg.function.flow=(conteStreamflow::agg.function.flow) ) {
-     return(  names( agg.function.flow(data.frame(val=1,rolling7=1)) )  )
-}
-
-# create.cols.flow<-function() {
-#    cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
-#    return(cols.flow)   
-# } 
-```
-
-
-```{r}
 #' @title create the monster list of 3-d matrices for flow
 #' @description used to store aggregated flow data
 # no export

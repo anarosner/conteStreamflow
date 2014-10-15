@@ -358,11 +358,18 @@ gage.place.nhdplus<-function(gages.spatial) {
 #' @export
 # eventually move into a generic function for exporting shapefiles, make gage.export a wrapper function
 
-gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStreamflow" ) {
+gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStreamflow", overwrite=T ) {
           
           setwd(shapefile.dir)
-          if ( filename %in% list.files() )
-               stop( paste0("A shapefile with the name \"", filename, "\" already exists in this directory. Please specify a unique filename.") )
+          if ( paste0(filename,".shp") %in% list.files() ) {
+               if (!overwrite)
+                    stop( paste0("A shapefile with the name \"", filename, "\" already exists in this directory. Please specify a unique filename.") )
+               else {
+                    for ( i in c("shx","shp","dbf","prj") ) {
+                         file.remove(paste0(filename,".",i))
+                         }
+               }
+          }
           
           orig <- names( gages.spatial )
           names( gages.spatial ) <- gsub( pattern="[[:punct:]]", replacement="_", x=names( gages.spatial) )
