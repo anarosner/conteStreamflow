@@ -3,7 +3,8 @@
 \alias{gage.export}
 \title{Export shapefile of gage information}
 \usage{
-gage.export(gages.spatial, shapefile.dir, filename = "gages_conteStreamflow")
+gage.export(gages.spatial, shapefile.dir, filename = "gages_conteStreamflow",
+  overwrite = T)
 }
 \description{
 Export shapefile of gage information

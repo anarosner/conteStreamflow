@@ -3,9 +3,9 @@
 \alias{cache.load.data}
 \title{Downloads and/or loads data from cache directory}
 \usage{
-cache.load.data(object = NULL, file, dir, cache.only = F,
-  server.url = "http://felek.cns.umass.edu:9283", message = "default",
-  quiet = F)
+cache.load.data(object = NULL, file, dir, cache.only = F, is.rdata = T,
+  col.names = NULL, server.url = "http://felek.cns.umass.edu:9283",
+  message = "default", quiet = F)
 }
 \description{
 Load data from cache directory.  If it does not exist, download it first and then load it.  Reassign the object within the parent environment

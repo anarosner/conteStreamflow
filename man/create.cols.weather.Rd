@@ -3,7 +3,8 @@
 \alias{create.cols.weather}
 \title{col names for weather metrics}
 \usage{
-create.cols.weather()
+
+  create.cols.weather(agg.function.weather = (conteStreamflow::agg.function.weather))
 }
 \description{
 col names for our processed/saved weather metrics

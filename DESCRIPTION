@@ -1,11 +1,10 @@
 Package: conteStreamflow
 Title: Headwater Streamflow Data Wrangling and Analysis
 Description: Tools for collecting streamflow data, meteorological data, and
-    basin characteristics for hydrological modeling. (Note, check depends packages.  Not sure if I actually need foreign, MASS, dplyr at this point.  Maybe not xtable.) 
-Version: 0.1
+    basin characteristics for hydrological modeling.
+Version: 0.2
 Depends:
     DataCombine,
-    dplyr,
     EcoHydRology,
     foreign,
     ggplot2,
@@ -23,16 +22,17 @@ Depends:
     topmodel,
     USGSwsStats,
     waterData,
-    xtable,
     zoo
 Suggests:
     car,
     data.table,
+    dplyr,
     foreign,
     RColorBrewer,
     RJSONIO,
     RJSONLD,
-    VIF
+    VIF,
+    xtable
 Author: Ana Rosner <arosner@usgs.gov>, <ana@alumni.tufts.edu>
 Maintainer: Ana Rosner <arosner@usgs.gov>, <ana@alumni.tufts.edu>
 License: Public Domain

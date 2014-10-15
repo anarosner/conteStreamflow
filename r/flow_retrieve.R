@@ -28,7 +28,8 @@ agg.function.flow<-function(df,create.template.periods=(conteStreamflow::create.
 flow.retrieve<-function(gages.spatial, 
                          periods=c("seasonal","annual"),
                          agg.function.flow = (conteStreamflow::agg.function.flow), 
-                         template.date = NULL, template.period = NULL, cols.flow=NULL) {
+                         template.date = NULL, template.period = NULL, cols.flow=NULL,
+                         return.spatial=F) {
 #                         create.cols.function = create.cols.flow,
 #                          create.template.date = (conteStreamflow::create.template.date), 
 #                          create.template.periods = (conteStreamflow::create.template.periods),
@@ -38,8 +39,11 @@ flow.retrieve<-function(gages.spatial,
      
 #      gages<-gages.spatial@data  # match old code
 
-     gages.temp<-gages.spatial[,c("site_no","station_nm")] #data.frame that will store the number of records per period timestep
      
+     gages.temp<-gages.spatial[,c("site_no","station_nm")] #data.frame or spatial data frame that will store the number of records per period timestep
+     if (!return.spatial)
+          gages.temp <- gages.temp@data
+
      #create templates and lists of column names
      if (is.null(template.date))
           template.date<-create.template.date()
@@ -187,4 +191,19 @@ flow.retrieve<-function(gages.spatial,
      
 }
 
+
+## ------------------------------------------------------------------------
+#' @title col names for flow stats
+#' @description col names for flow stats
+#' @export
+#stats to save from flow
+
+create.cols.flow <- function( agg.function.flow=(conteStreamflow::agg.function.flow) ) {
+     return(  names( agg.function.flow(data.frame(val=1,rolling7=1)) )  )
+}
+
+# create.cols.flow<-function() {
+#    cols.flow<-c("mean","max","min","low","records.period","records.period.rolling")
+#    return(cols.flow)   
+# } 
 

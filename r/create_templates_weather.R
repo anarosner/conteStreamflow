@@ -22,6 +22,11 @@ create.template.date.mauer<-function(create.template.periods=(conteStreamflow::c
 
      
      cols.mauer<-create.cols.mauer()
+     cache.load.data( object="template.mauer",file="data_sample", dir="weather_data", 
+                      is.rdata=F, col.names=cols.mauer, cache.only=F, 
+                      quiet=F, message="default" )
+     
+     
      cache.load.data( file="data_sample", dir="weather_data", cache.only=T, quiet=T, message="default" )
      template.mauer<-read.table(file=file.path(cache.dir.global,"data","weather_data","data_sample"),
                                   col.names=cols.mauer)

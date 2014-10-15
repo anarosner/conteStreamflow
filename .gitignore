@@ -1,3 +1,6 @@
 .Rproj.user
+.Rproj
 .Rhistory
 .RData
+vignettes/temp/
+vignettes/data_prep_MA_cache/

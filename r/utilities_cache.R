@@ -120,12 +120,14 @@ cache.check <- function() {
 #' @description Load data from cache directory.  If it does not exist, download it first and then load it.  Reassign the object within the parent environment
 #' @export
 
-cache.load.data <- function( object=NULL, file, dir, cache.only=F, server.url="http://felek.cns.umass.edu:9283", message="default", quiet=F ) {
+cache.load.data <- function( object=NULL, file, dir, 
+                             cache.only=F, is.rdata=T, col.names=NULL,
+                             server.url="http://felek.cns.umass.edu:9283", message="default", quiet=F ) {
 #      print(file.path(cache.dir.global,"data",dir))
 #      print(list.files(path=file.path(cache.dir.global,"data",dir) ))
 #      print(file)
      
-     if ( !cache.only & is.null(object) )
+     if ( !cache.only & is.rdata & is.null(object) )
           stop( "Must specify an object within rdata file, unless using cache.only option")
      
      if ( !( file %in% list.files(path=file.path(cache.dir.global,"data",dir) ) ) ) {
@@ -144,11 +146,24 @@ cache.load.data <- function( object=NULL, file, dir, cache.only=F, server.url="h
                
      }
      
-     if (!cache.only) {     
-          load( file.path(cache.dir.global, "data", dir, file), verbose = F )
-          assign( x=object, 
-                  value=get( object, envir=environment() ), 
-                  envir=parent.frame() )
+     if (!cache.only) {  
+          
+          if (is.rdata) {
+               load( file.path(cache.dir.global, "data", dir, file), verbose = !(quiet) )
+               assign( x=object, 
+                       value=get( object, envir=environment() ), 
+                       envir=parent.frame() )               
+          }
+          else {
+               if (!is.null(col.names))
+                    temp <- read.table(file=file.path(cache.dir.global, "data", dir, file),
+                                   col.names=col.names)
+               else 
+                    temp <- read.table(file=file.path(cache.dir.global, "data", dir, file))
+               assign( x=object, 
+                       value=temp, 
+                       envir=parent.frame() ) 
+          }
      }
           
 }
