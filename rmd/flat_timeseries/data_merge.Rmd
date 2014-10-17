@@ -2,61 +2,170 @@
 #' @title melt 3d
 # no export
 
-melt.3d<-function(a, id.cols="site_no") {
+melt.3d<-function(a, id.col="site_no") {
 #      out<-melt(a[,,1])
 #      names(out)<-c("date","site_no",dimnames(a)[[3]][1])
 #      
-     x<-data.frame(id=1:dim(a)[[2]],site_no=dimnames(a)[[2]],stringsAsFactors=F)
+     x<-data.frame(id=1:dim(a)[[2]],id2=dimnames(a)[[2]],stringsAsFactors=F)
+     names(x)[2]<-id.col
      dimnames(a)[[2]]<-x$id
      out<-melt(a[,,1])
      names(out)<-c("date","id",dimnames(a)[[3]][1])
      out<-merge(out,x,by="id",sort=F)
-     out<-out[,c("date","site_no",dimnames(a)[[3]][1])]
+     out<-out[,c("date",id.col,dimnames(a)[[3]][1])]
      for (i in 2:dim(a)[3]) {
           m<-melt(a[,,i])
           out[,dimnames(a)[[3]][i]]<-m[,3]
      }
      return(out)     
      
-     if (id.cols!="site_no") {
-          names(out)[names(out)=="site_no"] <- id.cols
-     }
+#      if (id.col!="site_no") {
+#           names(out)[names(out)=="site_no"] <- id.col
+#      }
      #add option to change site_no to other id name
 }
 ```
 
 
+```{r}
+# #' @title data merge
+# #' @export
+# data.merge<-function( gages.spatial, q.matrices, w.matrices, periods=c("seasonal"), select.gages=NULL, template.period=NULL, id.col="site_no" ) {
+#      
+# #      cols.flow<-create.cols.flow()
+# #      cols.weather<-create.cols.weather()
+# #      template.date<-create.template.date()
+#      
+#      if ( is.null(template.period) )
+#          template.period<-create.template.periods()
+# 
+#      #create list the length of all periods
+#      #   but only create matrices for the periods specified
+#      #   this is so the index in the list for period x is consistent no matter how many periods are specified
+#      d.matrices<-list()
+#      
+#      cat("Merging flow, weather, and basin char data\n")
+#      for ( j in template.period$name ) {
+#           if ( j %in% periods ) {
+#                cat(paste("  --  Period",j," --  \n        Gage "))          
+#                
+#                d1 <- array(dim=c(dim(q.matrices[[j]])[1], #dates
+#                                    dim(gages.spatial)[1], #gages
+#                                    dim(w.matrices[[j]])[3]+dim(q.matrices[[j]])[3])) #climate and flow stats
+#                dimnames(d1)[[1]]<-dimnames(q.matrices[[j]])[[1]]
+#                dimnames(d1)[[2]]<-gages.spatial@data[,id.col]
+#                # dimnames(d.matrices[[j]]1)[[2]]<-dimnames(q.matrices[[j]])[[2]]
+#                dimnames(d1)[[3]]<-c(dimnames(w.matrices[[j]])[[3]],
+#                              paste0("flow.",dimnames(q.matrices[[j]])[[3]]))
+#                
+#                if ( !is.null(select.gages) )
+#                     g <- select.gages
+#                else 
+#                     g <- dimnames(d1)[[2]]
+#                
+#                for (i in g) {  #loop gages
+# #                     cat( paste0(" --  Gage ",which(g==i), " of ", length(g),"  --  \n") )
+#                     if (which(g==i)>1)
+#                          cat(", ") 
+#                     cat( which(g==i) )
+# #                for (i in dimnames(dseasonal1)[[2]]) {  #loop gages
+#                     d1[,i,
+#                        (dim(w.matrices[[j]])[3]+1):(dim(w.matrices[[j]])[3]+dim(q.matrices[[j]])[3])]<-
+#                          q.matrices[[j]][,i,]
+#                     m <- gages.spatial[gages.spatial$site_no==i, "weather.filename"][[1]]
+#                     if (length(m)>0) {
+#                          d1[,i,1:dim(w.matrices[[j]])[3]]<-
+#                               w.matrices[[j]][,m,]
+#                     }
+#                }     
+#                cat("\n")
+#                     
+#                d2<-melt.3d(d1)
+#                d2<-subset(d2,!is.na(flow.mean))
+#                d.matrices[[j]]<-merge(d2,gages.spatial@data)
+#                
+#                d.matrices[[j]]$season<-to.season(d=d.matrices[[j]]$date,"season")
+#                d.matrices[[j]]$year<-year(as.Date(as.character(d.matrices[[j]]$date)))
+#                
+#                
+#                
+#           }
+#           else
+#                d.matrices[[j]] <- NA
+#      }
+# 
+#      return(d.matrices)
+#      
+#      
+# }
+
+```
+
 
 ```{r}
 #' @title data merge
 #' @export
-data.merge<-function( gages.spatial, q.matrices, w.matrices, periods=c("seasonal"), select.gages=NULL, template.period=NULL, id.cols="site_no" ) {
+data.merge2<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c("seasonal"), 
+                       select.gages=NULL, 
+                       id.col="site_no", filter.by="flow.mean",
+                       template.period=NULL) {
      
+     
+     if( sum(is.null(q.matrices), is.null(w.matrices)) >1 )
+          stop( "Must specify at least two data sets to merge" )
+
+     if ( is.null(template.period) )
+         template.period<-create.template.periods()
 #      cols.flow<-create.cols.flow()
 #      cols.weather<-create.cols.weather()
 #      template.date<-create.template.date()
-     
-     if ( is.null(template.period) )
-         template.period<-create.template.periods()
 
-     #create list the length of all periods
-     #   but only create matrices for the periods specified
-     #   this is so the index in the list for period x is consistent no matter how many periods are specified
+
+
      d.matrices<-list()
      
+
      cat("Merging flow, weather, and basin char data\n")
      for ( j in template.period$name ) {
           if ( j %in% periods ) {
                cat(paste("  --  Period",j," --  \n        Gage "))          
                
-               d1 <- array(dim=c(dim(q.matrices[[j]])[1], #dates
+               
+               
+               ##
+               dim3 <- 0
+               dimnames3 <- c()
+               j<-periods[1]
+          
+               if ( !is.null(q.matrices) ) {
+                    dim1 <- dim(q.matrices[[j]])[1]
+                    dimnames1 <- dimnames(q.matrices[[j]])[[1]]
+                    
+                    q.start <- dim3+1
+                    dim3 <- dim3 + dim(q.matrices[[j]])[3] 
+                    q.end <- dim3
+                    dimnames3 <- c( dimnames3, paste0("flow.",dimnames(q.matrices[[j]])[[3]]) )
+               }
+          
+               if ( !is.null(w.matrices) ) {
+                    dim1 <- dim(w.matrices[[j]])[1]
+                    dimnames1 <- dimnames(w.matrices[[j]])[[1]]
+          
+                    w.start <- dim3+1
+                    dim3 <- dim3 + dim(w.matrices[[j]])[3]
+                    dimnames3 <- c(dimnames3, dimnames(w.matrices[[j]])[[3]])
+                    w.end <- dim3
+               }
+               ##
+               
+               
+               d1 <- array(dim=c(dim1, #dates
                                    dim(gages.spatial)[1], #gages
-                                   dim(w.matrices[[j]])[3]+dim(q.matrices[[j]])[3])) #climate and flow stats
-               dimnames(d1)[[1]]<-dimnames(q.matrices[[j]])[[1]]
-               dimnames(d1)[[2]]<-gages.spatial@data[,id.cols]
+                                   dim3)) #climate and flow stats
+               dimnames(d1)[[1]]<-dimnames1
+               dimnames(d1)[[2]]<-gages.spatial@data[,id.col]
                # dimnames(d.matrices[[j]]1)[[2]]<-dimnames(q.matrices[[j]])[[2]]
-               dimnames(d1)[[3]]<-c(dimnames(w.matrices[[j]])[[3]],
-                             paste0("flow.",dimnames(q.matrices[[j]])[[3]]))
+               dimnames(d1)[[3]]<-dimnames3
                
                if ( !is.null(select.gages) )
                     g <- select.gages
@@ -69,30 +178,53 @@ data.merge<-function( gages.spatial, q.matrices, w.matrices, periods=c("seasonal
                          cat(", ") 
                     cat( which(g==i) )
 #                for (i in dimnames(dseasonal1)[[2]]) {  #loop gages
-                    d1[,i,
-                       (dim(w.matrices[[j]])[3]+1):(dim(w.matrices[[j]])[3]+dim(q.matrices[[j]])[3])]<-
-                         q.matrices[[j]][,i,]
-                    m <- gages.spatial[gages.spatial$site_no==i, "weather.filename"][[1]]
-                    if (length(m)>0) {
-                         d1[,i,1:dim(w.matrices[[j]])[3]]<-
-                              w.matrices[[j]][,m,]
+
+                    if ( !is.null(q.matrices) ) {
+                         d1[,i,q.start:q.end]   <-   q.matrices[[j]][,i,]
                     }
-               }     
+                       
+                    if ( !is.null(w.matrices) ) {
+                         m <- gages.spatial[as.character(gages.spatial@data[,id.col])==i, "weather.filename"][[1]]
+                         
+                         if (    length(m)>0 & ( m %in% dimnames(w.matrices[[j]])[[2]] )   ) {
+                              d1[,i,w.start:w.end]   <-   w.matrices[[j]][,m,]
+                         }
+                         else
+                              stop(paste("Missing weather file",m, "or weather.filename for site",i))
+                    }
+#                     d1[,i,
+#                        (dim(w.matrices[[j]])[3]+1):(dim(w.matrices[[j]])[3]+dim(q.matrices[[j]])[3])]<-
+#                          q.matrices[[j]][,i,]
+#                     m <- gages.spatial[gages.spatial$site_no==i, "weather.filename"][[1]]
+#                     if (length(m)>0) {
+#                          d1[,i,1:dim(w.matrices[[j]])[3]]<-
+#                               w.matrices[[j]][,m,]
+#                     }
+               } #end loop gages     
                cat("\n")
                     
-               d2<-melt.3d(d1)
-               d2<-subset(d2,!is.na(flow.mean))
-               d.matrices[[j]]<-merge(d2,gages.spatial@data)
+
+               cat("Flattening 3 dimensional array\n")
+               d2<-melt.3d( d1, id.col=id.col )
+
+
+               if (!is.null(filter.by)) 
+                    d2<-d2[!is.na(d2[,filter.by]),]
                
+               cat("Merging with site information\n")
+               d.matrices[[j]]<-merge(d2,gages.spatial@data,by=id.col,all.x=T,all.y=F,sort=F)
+               head(d.matrices[[j]])
                d.matrices[[j]]$season<-to.season(d=d.matrices[[j]]$date,"season")
                d.matrices[[j]]$year<-year(as.Date(as.character(d.matrices[[j]]$date)))
                
                
                
-          }
+          }#end period included in requested periods
           else
                d.matrices[[j]] <- NA
-     }
+               #if period isn't those specified to include, add it to the list anyhow, but as NA
+               #   this is so the index in the list for period x is consistent no matter how many periods are specified
+     }#end loop periods
 
      return(d.matrices)
      
