@@ -15,6 +15,10 @@
 
 
 ```{r run cross validation of model}
+#' @title  cross validate
+#' @description x 
+#' @export
+
 cross.val<-function( d.records, model.list, iter=10, valid.fraction=0.5, dep.var="flow.mean", seed=NULL, bias.correction=NULL ) {
      
      #replace this w/ create template function

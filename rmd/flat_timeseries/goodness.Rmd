@@ -2,6 +2,10 @@
 
 
 ```{r calculate goodness of fit statistics}
+#' @title  goodness of fit statistics
+#' @description x 
+#' @export
+
 goodness<-function( obs.real=NULL, pred.log=NULL, bias.correction=NULL ) {
 
      residuals <- pred.log - log(obs.real)
@@ -35,6 +39,10 @@ goodness<-function( obs.real=NULL, pred.log=NULL, bias.correction=NULL ) {
 
 
 ```{r goodness of fit boxplots}
+#' @title  goodness of fit boxplots
+#' @description x 
+#' @export
+
 
 goodness.boxplot<-function( o.goodness, measure.vars=c("NSEff.real", "NSEff.log", "bias", "percent.bias"), period.name="season" ) {
      o.goodness[,"period.name"]<-o.goodness[,period.name]

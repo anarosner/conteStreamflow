@@ -105,7 +105,7 @@ melt.3d<-function(a, id.col="site_no") {
 ```{r}
 #' @title data merge
 #' @export
-data.merge2<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c("seasonal"), 
+data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c("seasonal"), 
                        select.gages=NULL, 
                        id.col="site_no", filter.by="flow.mean",
                        template.period=NULL) {

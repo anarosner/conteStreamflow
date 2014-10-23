@@ -2,6 +2,9 @@
 
 
 ```{r create calibration and validation sets}
+#' @title  create calibration and validation sets
+#' @description x 
+#' @export
 
 create.calib <-function( d.records, 
                          valid.type="gages.years", 

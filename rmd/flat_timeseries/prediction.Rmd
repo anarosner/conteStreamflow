@@ -2,6 +2,9 @@
 
 
 ```{r predict}
+#' @title  predict from list of models
+#' @description x 
+#' @export
 
 predict.model.list<-function( model.list, new.data, 
                       id.col="site_no", year.col="year", period.col="season", 
@@ -42,7 +45,7 @@ predict.model.list<-function( model.list, new.data,
 
 
 
-```{r predict}
+```{r predict old}
 
 predict.ts<-function( model.list, new.data, calib.data=NULL, dep.var.col=NULL, 
 #                       selected.sites=F,
@@ -106,6 +109,9 @@ predict.ts<-function( model.list, new.data, calib.data=NULL, dep.var.col=NULL,
 ```
 
 ```{r retransform}
+#' @title  retransform dependent variable
+#' @description usually rever from log scale.  option for smearing bias correction
+#' @export
 
 retransform <- function( o, bias.correction=NULL, residuals=NULL, group="site_no" ) {
      
