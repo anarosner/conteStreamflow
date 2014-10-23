@@ -137,15 +137,15 @@ gage.retrieve<-function( buffer.file=NULL,
 #      message(paste0("Gage retrieval complete\r",
 #                     nrow(gages.subset),  " gages identified","\r",
 #                     "Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
-     cat("Gage retrieval complete \n")
-     cat(paste(nrow(gages.subset),  "gages identified"))
-     cat(paste("(Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " square km)" ))
 
 
      gages.spatial<-gage.place(gages.df = gages.subset)
      if(!is.null(buffer.file)) 
           gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
 
+     cat("Gage retrieval complete \n")
+     cat(paste(nrow(gages.spatial),  "gages identified"))
+     cat(paste("(Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " square km)" ))
 
      return(gages.spatial)
 
@@ -306,31 +306,44 @@ gage.place.nhdplus<-function(gages.spatial) {
      g <- gages.spatial
      g$huc <- row.names(huc6)[ over( g, huc6 ) ]
 
-     ### download catchment files as needed
-     setwd( file.path(cache.dir, "data", "catchments"))
-     to.load <- unique( paste0(g$huc,".rdata") ) 
-     to.load <- to.load[ !(to.load %in% list.files()) ]
-
-     if ( length(to.load)>0 ) {
-          cat(paste( "Downloading", length(to.load), "spatial data files. (This will be cached locally for future use.)"  ))
-          for ( i in 1:length(to.load) ) {
-               cat(paste( "... now downloading file",i,"of",length(to.load)  ))
-               download.file( paste0(server.url,"/data/catchments/",to.load[i]),
-                              paste0(cache.dir, "/data/catchments/",to.load[i]), 
-                              method="wget", quiet=T)
-          }
-          cat("Download complete")
-     }
+#      ### download catchment files as needed
+#      setwd( file.path(cache.dir, "data", "catchments"))
+#      to.load <- unique( paste0(g$huc,".rdata") ) 
+#      to.load <- to.load[ !(to.load %in% list.files()) ]
+# 
+#      if ( length(to.load)>0 ) {
+#           cat(paste( "Downloading", length(to.load), "spatial data files. (This will be cached locally for future use.)"  ))
+#           for ( i in 1:length(to.load) ) {
+#                cat(paste( "... now downloading file",i,"of",length(to.load)  ))
+#                download.file( paste0(server.url,"/data/catchments/",to.load[i]),
+#                               paste0(cache.dir, "/data/catchments/",to.load[i]), 
+#                               method="wget", quiet=T)
+#           }
+#           cat("Download complete")
+#      }
 
 #      
 #      setwd( file.path(cache.dir, "data", "catchments"))
 #      load( paste0(data.dir, "/catchments/",i,".rdata") ) 
+#      cache.load.data( object="huc6", file="hucs.rdata", dir="hucs", 
+#                       message="Downloading regional spatial data files.  This may take a while. (Files will be cached locally for future use.)", quiet=F)
+
+
+     #first loop just to download/cache catchment files
+     for ( i in unique(g$huc) )  {
+          cache.load.data( file=paste0(i,".rdata"), dir="catchments", 
+                           cache.only=T, 
+                           quiet=T, message=paste0("Downloading catchment information for basins in region (HUC) ", i, ". ") )  
+     }
 
      ### place gages into catchments
           #loop through hucs, load its catchment files, and place gages into catchments
      cat("Matching gages to catchments")
      for ( i in unique(g$huc) ) { 
-          load( file=paste0(cache.dir, "/data/catchments/",i,".rdata"))
+          cache.load.data( object="catchments",
+                           file=paste0(i,".rdata"), dir="catchments", 
+                           cache.only=F, quiet=T )  
+#           load( file=paste0(cache.dir, "/data/catchments/",i,".rdata"))
           match<-over( g[g$huc==i,], catchments )          
           g@data[g$huc==i,"FEATUREID"]<-match$FEATUREID
           cat(paste("...completed matching",sum(!is.na(g@data$FEATUREID)),
