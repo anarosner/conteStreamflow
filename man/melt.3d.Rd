@@ -3,7 +3,7 @@
 \alias{melt.3d}
 \title{melt 3d}
 \usage{
-\method{melt}{3d}(a, id.cols = "site_no")
+\method{melt}{3d}(a, id.col = "site_no")
 }
 \description{
 melt 3d
