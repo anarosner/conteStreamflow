@@ -4,7 +4,9 @@
 \title{col names for weather metrics}
 \usage{
 
-  create.cols.weather(agg.function.weather = (conteStreamflow::agg.function.weather))
+  create.cols.weather(weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function),
+  weather.agg.function = (conteStreamflow::weather.agg.function),
+  weather.lag.function = (conteStreamflow::weather.lag.function))
 }
 \description{
 col names for our processed/saved weather metrics

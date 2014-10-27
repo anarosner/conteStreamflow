@@ -1,9 +1,48 @@
 ## ------------------------------------------------------------------------
+#' @title pre agg weather 
+#' @description x 
+#' @export
+
+weather.pre.agg.function <- function( x, centroid ) {
+     
+     #run snowmelt model
+     suppressWarnings(
+          x.snow<-SnowMelt( Date=x$date, lat_deg=centroid$y,
+                           precip_mm=x$precip.mm, Tmax_C=x$tmax, Tmin_C=x$tmin,
+                           windSp=x$wind,windHt=10 )  )
+     #calculate last doy w/ snow pack (snow melt)
+     x.snow$doy <- as.numeric(format(x.snow$Date,"%j"))
+     x.snow$snow.pack <- x.snow$SnowDepth_m>0
+     x.snow$snow.pack.doy <- 0
+     x.snow$snow.pack.doy[x.snow$snow.pack] <- x.snow$doy[x.snow$snow.pack]
+     x.snow$snow.pack.doy[x.snow$doy>200]<-0  #last day in the *spring* for which there is some snow pack
+     #i've gone back and forth on whether to save rain & melt, or just effective precip
+#                x[,c("rain","melt","melt.doy")]<-x.snow[,c("Rain_mm","SnowMelt_mm", "snow.pack.doy")]
+     x[,"melt.doy"]<-x.snow[,"snow.pack.doy"]
+     
+     #save effective precip
+     x[,"precip.e"] <- x.snow[,"Rain_mm"] + x.snow[,"SnowMelt_mm"]
+
+     #temperature metrics, including estimated potential evapotranspiration and gdd
+     x[,"pet"]<-PET_fromTemp(Jday=yday(x$date),Tmax_C=x$tmax ,Tmin_C=x$tmin, lat_radians=centroid$y*pi/180)
+     x[,"tavg"]<-(x$tmin+x$tmax)/2
+     x[,"gdd"]<-sapply(x$tavg, FUN=function(y) max( y-10, 0) )
+     x[,"frozen"]<-sapply(x$tmax, FUN=function(y) y<=0) 
+
+     #rename total precip
+     x[,"precip.total"] <-  x[,"precip.mm"]
+
+     return(x)
+
+}
+
+
+## ------------------------------------------------------------------------
 #' @title agg weather 
 #' @description x 
 #' @export
 
-agg.function.weather<-function(df) {
+weather.agg.function<-function(df) {
      j<-names(df)[1] #way to determine the period, w/o requiring it to be passed as parameter, so only one paramter is needed
      cutoff<-create.template.periods()[j,"min.records"] #determine number of records for this periods to be considered "complete"
      return( c(
@@ -24,22 +63,42 @@ agg.function.weather<-function(df) {
 
 
 ## ------------------------------------------------------------------------
+#' @title weather lag calculations
+#' @export
+
+weather.lag.function <- function (x) {
+     
+     for ( j in c("precip.e", "pet","gdd","tmax","tmin","melt.doy") ) {
+          
+          for ( i in 1:2 ) {    
+               x <- slide( x, Var=j, NewVar=paste0(j,".lag",i),
+                           slideBy=-i, reminder=F )
+          }
+     }
+     
+     return( x )
+
+}
+
+
+
+## ------------------------------------------------------------------------
 #' @title col names for weather metrics
 #' @description col names for our processed/saved weather metrics
 #' @export
 
-create.cols.weather<-function( agg.function.weather=(conteStreamflow::agg.function.weather) ) {
-          #      calculated.cols <- c("precip.total","precip.e","tmin","tmax","tavg","pet","gdd","frozen","melt.doy")
-          #      dummy <- data.frame(matrix(rep(1,length(calculated.cols)),nrow=1))
-          #      names(dummy) <- calculated.cols
-          #      cols.weather <- names( agg.function.weather(dummy) ) 
-     cols.weather<-c("precip.total","precip.e","precip.e.lag1","precip.e.lag2","precip.e.lag3",
-                     "tmin", "tmin.lag1","tmin.lag2",
-                     "tmax", "tmax.lag1","tmax.lag2",
-                     "tavg",
-                     "pet","pet.lag1","pet.lag2","gdd","gdd.lag1","gdd.lag2",
-                     "frozen","melt.doy","melt.doy.lag1","melt.doy.lag2")
-     return(cols.weather)
+create.cols.weather<-function( weather.pre.agg.function=(conteStreamflow::weather.pre.agg.function),
+                               weather.agg.function=(conteStreamflow::weather.agg.function),
+                               weather.lag.function=(conteStreamflow::weather.lag.function)
+                               ) {
+     
+     dummy <- data.frame( daily=as.Date(1:10, origin=now() ), date=as.Date(1:10, origin=now() ),
+                          precip.mm=c(1:10), tmax=1:10+5, tmin=1:10, wind=c(1:10) )
+     dummy2 <- weather.pre.agg.function( dummy, centroid=data.frame(x=-72,y=41) ) 
+     dummy3 <- ddply( dummy2,"daily",weather.agg.function )
+     dummy4 <- weather.lag.function( dummy3 )
+
+     return(  names( dummy4 )[-1]  )
 }
 
 
@@ -50,11 +109,17 @@ create.cols.weather<-function( agg.function.weather=(conteStreamflow::agg.functi
 #' @export
 weather.retrieve<-function(gages.spatial, 
                               periods=c("seasonal","annual"),
-                              agg.function.weather = (conteStreamflow::agg.function.weather), 
+                              weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function), 
+                              weather.agg.function = (conteStreamflow::weather.agg.function), 
+                              weather.lag.function = (conteStreamflow::weather.lag.function), 
                               template.date = NULL, template.period = NULL, cols.weather = NULL ) { 
 
-       
-          cache.check()
+      
+     ### set up
+     ##
+     #
+     
+     cache.check()
 
           #warn user if hasn't assigned weather grid.  
           #later, change to just call function to assign weather grid if it hasn't been done already
@@ -105,98 +170,69 @@ weather.retrieve<-function(gages.spatial,
 
 
      
+     ### load data
+     ## 
+     # 
+     
      #loop through weather grid cells and pull and aggregate observation records
      cat(paste( "Begin reading", nrow(selected.weather.files), "unique weather files used for",nrow(gages.spatial),"gages","\n" ))
      for (i in 1:nrow(selected.weather.files) ) {
      
           cat( paste( "  --  Loading file", i, "of", nrow(selected.weather.files), "  --  \n" ))
                     
+          centroid <- weather.grid.coords[i, c("x","y")]
+
+          #load mauer weather data, using static mauer column names
           cache.load.data( object="x", 
                            dir=file.path("weather_data",selected.weather.files$region[i]), 
                            file=selected.weather.files$weather.filename[i],
                            is.rdata=F, col.names = cols.mauer )
-#           weather.file<-file.path(cache.dir.global,"data","weather_data", 
-#                          selected.weather.files$region[i],
-#                          selected.weather.files$weather.filename[i])        
-                    
-#           if( file.exists(weather.file) ) { 
-               #check that file exists.  shouldn't be a problem, 
-               #   since polygon cells are generated from file names, but just want to make sure
+          # assign period and date from template
+          x[,c( "date", template.period$name )]<- 
+               template.date.mauer[,c( "date", template.period$name )]
+                              #date is date format  
+                              #others are characters, so they can be used as col names
                
-#                x<-read.table(file=weather.file,
-#                              col.names=cols.mauer)
-               x[,c( "date", template.period$name )]<- 
-                    template.date.mauer[,c( "date", template.period$name )]
-                                   #date is date format  
-                                   #others are characters, so they can be used as col names
-               centroid <- weather.grid.coords[i, c("x","y")]
+          ### weather calculations
+          ##
+          #
+          x <- weather.pre.agg.function( x, centroid )
+
+
+
+
+          ### loop through periods
+          ##
+          #
+
+          for (j in periods ){ 
+
+               ### weather aggregation
+               ##
+               #
+                         #replace this.  it's the columns, but can't use cols template, because doesn't include lags...
+               x.agg<-ddply(x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
+                                                                  #so column w/ name of period is first
+                            j, 
+                            weather.agg.function)
+#                x.agg<-ddply(x[,c(j,names(x)[names(x) %in% cols.weather])],
+#                               j, 
+#                               weather.agg.function)
+               x.agg[x.agg$complete==0,-which(names(x.agg) %in% c(j,"complete"))]<-NA 
+
+
+               ### weather lag values
+               ##
+               #
+               x.lag <- weather.lag.function( x.agg )
+
+               x.final<-as.matrix(x.lag[,cols.weather])
+               w.matrices[[j]][,selected.weather.files$weather.filename[i],]<-x.final
+
+          }#end loop periods
                
-               
-#                print("  --  calculating estimates of weather processes --  ")
-               #run snowmelt model
-               suppressWarnings(
-                    x.snow<-SnowMelt( Date=x$date, lat_deg=centroid$y,
-                                     precip_mm=x$precip.mm, Tmax_C=x$tmax, Tmin_C=x$tmin,
-                                     windSp=x$wind,windHt=10 )  )
-               x.snow$doy <- as.numeric(format(x.snow$Date,"%j"))
-               x.snow$snow.pack <- x.snow$SnowDepth_m>0
-               x.snow$snow.pack.doy <- 0
-               x.snow$snow.pack.doy[x.snow$snow.pack] <- x.snow$doy[x.snow$snow.pack]
-               x.snow$snow.pack.doy[x.snow$doy>200]<-0  #last day in the *spring* for which there is some snow pack
-               #i've gone back and forth on whether to save rain & melt, or just effective precip
-#                x[,c("rain","melt","melt.doy")]<-x.snow[,c("Rain_mm","SnowMelt_mm", "snow.pack.doy")]
-               x[,"melt.doy"]<-x.snow[,"snow.pack.doy"]
-               x[,"precip.e"] <- x.snow[,"Rain_mm"] + x.snow[,"SnowMelt_mm"]
 
-               #temperature metrics, including estimated potential evapotranspiration and gdd
-               x[,"pet"]<-PET_fromTemp(Jday=yday(x$date),Tmax_C=x$tmax ,Tmin_C=x$tmin, lat_radians=centroid$y*pi/180)
-               x[,"tavg"]<-(x$tmin+x$tmax)/2
-               x[,"gdd"]<-sapply(x$tavg, FUN=function(y) max( y-10, 0) )
-               x[,"frozen"]<-sapply(x$tmin, FUN=function(y) y<=0) #change to tmax
-
-               #rename total precip
-               x[,"precip.total"] <-  x[,"precip.mm"]
-
-               #aggregate for periods specified in function argument
-#                print("  --  starting aggregation  --  ")
-               for (j in periods ){ 
-                    #aggregate
-                              #replace this.  it's the columns, but can't use cols template, because doesn't include lags...
-#                     names(x)[names(x) %in% cols.weather]
-                    x.agg<-ddply(x[,c(j,names(x)[names(x) %in% cols.weather])],
-                                 j, 
-                                 agg.function.weather)
-     #                sum(x.agg[,1]!=sort(x.agg[,1]))
-                    x.agg[x.agg$complete==0,-which(names(x.agg) %in% c(j,"complete"))]<-NA 
-     
-                    #calculate lag precip values
-                    x.agg<-slide(x.agg,Var="precip.e",NewVar="precip.e.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="precip.e",NewVar="precip.e.lag2",slideBy=-2,reminder=F)
-                    x.agg<-slide(x.agg,Var="precip.e",NewVar="precip.e.lag3",slideBy=-3,reminder=F) #not really used, but might as well calculate it just in case
-                    
-                    #calculate lag temp values
-                    x.agg<-slide(x.agg,Var="pet",NewVar="pet.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="pet",NewVar="pet.lag2",slideBy=-2,reminder=F)
-                    x.agg<-slide(x.agg,Var="gdd",NewVar="gdd.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="gdd",NewVar="gdd.lag2",slideBy=-2,reminder=F)
-                    x.agg<-slide(x.agg,Var="tmax",NewVar="tmax.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="tmax",NewVar="tmax.lag2",slideBy=-2,reminder=F)
-                    x.agg<-slide(x.agg,Var="tmin",NewVar="tmin.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="tmin",NewVar="tmin.lag2",slideBy=-2,reminder=F)
-                    x.agg<-slide(x.agg,Var="melt.doy",NewVar="melt.doy.lag1",slideBy=-1,reminder=F)
-                    x.agg<-slide(x.agg,Var="melt.doy",NewVar="melt.doy.lag2",slideBy=-2,reminder=F)
-     
-#                     w.matrices[[j]][,i,] <- as.matrix(x.agg[,cols.weather])
-                    x.final<-as.matrix(x.agg[,cols.weather])
-                    w.matrices[[j]][,selected.weather.files$weather.filename[i],]<-x.final
-
-               }#end loop periods
-               
-#           }#end check that file exists
-#           else 
-#                warning(paste("MISSING FILE: can't find",i))
           
-          rm(x,x.snow,x.final,x.agg)
      }#end loop weather grids
 
      return(w.matrices)
