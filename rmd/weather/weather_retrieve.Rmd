@@ -32,6 +32,8 @@ weather.pre.agg.function <- function( x, centroid ) {
      #rename total precip
      x[,"precip.total"] <-  x[,"precip.mm"]
 
+     x[,"doy"] <- as.numeric(format(x$date, format="%j"))
+
      return(x)
 
 }
@@ -140,8 +142,12 @@ weather.retrieve<-function(gages.spatial,
           template.date<-create.template.date()
      if (is.null(template.period))
           template.period<-create.template.periods()
-     if (is.null(cols.weather))
-          cols.weather<-create.cols.weather()
+     if (is.null(cols.weather)) {
+          cols.weather<-create.cols.weather(
+                              weather.pre.agg.function = weather.pre.agg.function, 
+                              weather.agg.function = weather.agg.function, 
+                              weather.lag.function = weather.lag.function )
+          }
      #maybe later add a test here.  if user specifies custom cols.weather and agg.function, 
      #     need to make sure the columns match the agg function outputs
 

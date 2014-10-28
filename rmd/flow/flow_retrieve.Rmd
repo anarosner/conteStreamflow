@@ -242,7 +242,7 @@ flow.pre.agg.function <- function( x.all ) {
 #      x.roll <- x.roll[,c(ncol(x.roll),1:(ncol(x.roll)-1))] #reorder so date is first, val is second, all other follow
 
 
-
+     x$doy <- as.numeric(format(x$date, format="%j"))
 
      return(x.roll)
 }
