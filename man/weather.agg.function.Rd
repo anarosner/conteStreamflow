@@ -3,7 +3,7 @@
 \alias{weather.agg.function}
 \title{agg weather}
 \usage{
-weather.agg.function(df)
+weather.agg.function(df, ...)
 }
 \description{
 x

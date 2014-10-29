@@ -7,7 +7,7 @@ weather.retrieve(gages.spatial, periods = c("seasonal", "annual"),
   weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function),
   weather.agg.function = (conteStreamflow::weather.agg.function),
   weather.lag.function = (conteStreamflow::weather.lag.function),
-  template.date = NULL, template.period = NULL, cols.weather = NULL)
+  template.date = NULL, template.period = NULL, cols.weather = NULL, ...)
 }
 \description{
 import weather

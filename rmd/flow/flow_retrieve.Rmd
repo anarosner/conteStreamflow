@@ -56,7 +56,7 @@ flow.retrieve<-function(gages.spatial,
           template.period<-create.template.periods()
 #      if (is.null(cols.flow))
      cols.flow<-create.cols.flow( flow.pre.agg.function, flow.agg.function )
-     
+
      #create matrix for storing flow data
      q.matrices<-create.q.matrices(gages.spatial=gages.spatial, periods=periods, 
                                    template.date=template.date, template.period=template.period, cols.flow=cols.flow)
@@ -114,7 +114,8 @@ flow.retrieve<-function(gages.spatial,
                ##
                #
                x2 <- flow.pre.agg.function( x1 )  
-               cols <- unique(c("val",names(x2)[names(x2)!="date"]))
+#                cols <- unique(c("val",names(x2)[names(x2)!="date"]))
+#                cols <- unique(c("val",names(x2)))
                
                #assign dates representing different periods and years
                #change this to loop through specified periods and automatically 
@@ -137,7 +138,8 @@ flow.retrieve<-function(gages.spatial,
                     
                     #aggregate, i.e. mean, max, low, etc
                     suppressWarnings(
-                         x3<-ddply(x2[,c(j,cols)], j, flow.agg.function) #need to allow customization of periods template here
+                         x3<-ddply(x2[,c(which(names(x2)==j),which(names(x2)!=j))], j, flow.agg.function) #need to allow customization of periods template here
+#                          x3<-ddply(x2[,c(j,cols)], j, flow.agg.function) #need to allow customization of periods template here
                     )
                     
                     #set records that don't have min # records required for period to NA

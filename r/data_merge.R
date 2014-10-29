@@ -133,9 +133,9 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
                ##
                dim3 <- 0
                dimnames3 <- c()
-               j<-periods[1]
+#                j<-periods[1]
           
-               if ( !is.null(q.matrices) ) {
+               if ( !is.null(q.matrices) & !is.null(q.matrices[[j]])  ) {
                     dim1 <- dim(q.matrices[[j]])[1]
                     dimnames1 <- dimnames(q.matrices[[j]])[[1]]
                     
@@ -145,7 +145,7 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
                     dimnames3 <- c( dimnames3, paste0("flow.",dimnames(q.matrices[[j]])[[3]]) )
                }
           
-               if ( !is.null(w.matrices) ) {
+               if ( !is.null(w.matrices) & !is.null(w.matrices[[j]])  ) {
                     dim1 <- dim(w.matrices[[j]])[1]
                     dimnames1 <- dimnames(w.matrices[[j]])[[1]]
           

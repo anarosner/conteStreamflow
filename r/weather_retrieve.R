@@ -44,7 +44,7 @@ weather.pre.agg.function <- function( x, centroid ) {
 #' @description x 
 #' @export
 
-weather.agg.function<-function(df) {
+weather.agg.function<-function( df, ... ) {
      j<-names(df)[1] #way to determine the period, w/o requiring it to be passed as parameter, so only one paramter is needed
      cutoff<-create.template.periods()[j,"min.records"] #determine number of records for this periods to be considered "complete"
      return( c(
@@ -68,18 +68,14 @@ weather.agg.function<-function(df) {
 #' @title weather lag calculations
 #' @export
 
-weather.lag.function <- function (x) {
+weather.lag.function <- function( x ) {
      
-     for ( j in c("precip.e", "pet","gdd","tmax","tmin","melt.doy") ) {
-          
+     for ( j in c("precip.e", "pet","gdd","tmax","tmin","melt.doy") ) {          
           for ( i in 1:2 ) {    
                x <- slide( x, Var=j, NewVar=paste0(j,".lag",i),
-                           slideBy=-i, reminder=F )
-          }
-     }
+                           slideBy=-i, reminder=F )          }     }
      
      return( x )
-
 }
 
 
@@ -94,8 +90,9 @@ create.cols.weather<-function( weather.pre.agg.function=(conteStreamflow::weathe
                                weather.lag.function=(conteStreamflow::weather.lag.function)
                                ) {
      
-     dummy <- data.frame( daily=as.Date(1:10, origin=now() ), date=as.Date(1:10, origin=now() ),
-                          precip.mm=c(1:10), tmax=1:10+5, tmin=1:10, wind=c(1:10) )
+     dummy <- data.frame( daily=as.Date(1:100, origin=now() ), date=as.Date(1:10, origin=now() ),
+                          precip.mm=c(1:100), wind=rep(5,times=100), 
+                          tmax=rep(10,times=100), tmin=rep(0,times=100) )
      dummy2 <- weather.pre.agg.function( dummy, centroid=data.frame(x=-72,y=41) ) 
      dummy3 <- ddply( dummy2,"daily",weather.agg.function )
      dummy4 <- weather.lag.function( dummy3 )
@@ -114,7 +111,8 @@ weather.retrieve<-function(gages.spatial,
                               weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function), 
                               weather.agg.function = (conteStreamflow::weather.agg.function), 
                               weather.lag.function = (conteStreamflow::weather.lag.function), 
-                              template.date = NULL, template.period = NULL, cols.weather = NULL ) { 
+                              template.date = NULL, template.period = NULL, cols.weather = NULL,
+                           ...) { 
 
       
      ### set up
@@ -217,10 +215,11 @@ weather.retrieve<-function(gages.spatial,
                ##
                #
                          #replace this.  it's the columns, but can't use cols template, because doesn't include lags...
-               x.agg<-ddply(x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
+               x.agg<-ddply( .data=x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
                                                                   #so column w/ name of period is first
-                            j, 
-                            weather.agg.function)
+                            .variables=j, 
+                            .fun=weather.agg.function,
+                            ... )
 #                x.agg<-ddply(x[,c(j,names(x)[names(x) %in% cols.weather])],
 #                               j, 
 #                               weather.agg.function)
