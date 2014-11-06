@@ -132,14 +132,11 @@ flow.retrieve<-function(gages.spatial,
                #
           
                for (j in periods){     #loop through periods specified in function parameter
-                    #determine number of records for this periods to be considered "complete"
-#                     cutoff<-template.period[j,"min.records"]  
-#                     assign("cutoff",value = template.period[j,"min.records"], envir = )
                     
                     #aggregate, i.e. mean, max, low, etc
                     suppressWarnings(
-                         x3<-ddply(x2[,c(which(names(x2)==j),which(names(x2)!=j))], j, flow.agg.function) #need to allow customization of periods template here
-#                          x3<-ddply(x2[,c(j,cols)], j, flow.agg.function) #need to allow customization of periods template here
+                         x3<-ddply(x2[,c(which(names(x2)==j),which(names(x2)!=j))], j, flow.agg.function) 
+                                   #reorder columns, so column w/ period name is first 
                     )
                     
                     #set records that don't have min # records required for period to NA

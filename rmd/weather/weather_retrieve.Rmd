@@ -30,7 +30,7 @@ weather.pre.agg.function <- function( x, centroid ) {
      x[,"frozen"]<-sapply(x$tmax, FUN=function(y) y<=0) 
 
      #rename total precip
-     x[,"precip.total"] <-  x[,"precip.mm"]
+     x[,"precip.raw"] <-  x[,"precip.mm"]
 
      x[,"doy"] <- as.numeric(format(x$date, format="%j"))
 
@@ -50,7 +50,7 @@ weather.agg.function<-function( df, ... ) {
      j<-names(df)[1] #way to determine the period, w/o requiring it to be passed as parameter, so only one paramter is needed
      cutoff<-create.template.periods()[j,"min.records"] #determine number of records for this periods to be considered "complete"
      return( c(
-          precip.total=sum(df$precip.total),
+          precip.raw=sum(df$precip.raw),
           precip.e=sum(df$precip.e),
           tmin=mean(df$tmin),
           tmax=mean(df$tmax),
@@ -61,7 +61,7 @@ weather.agg.function<-function( df, ... ) {
 #           rain=sum(df$rain),
 #           melt=sum(df$melt),
           melt.doy=max(df$melt.doy),
-          complete=sum(!is.na(df$precip.total))>=cutoff) )
+          complete=sum(!is.na(df$precip.raw))>=cutoff) )
 }
 
 ```
@@ -218,15 +218,14 @@ weather.retrieve<-function(gages.spatial,
                ### weather aggregation
                ##
                #
-                         #replace this.  it's the columns, but can't use cols template, because doesn't include lags...
-               x.agg<-ddply( .data=x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
-                                                                  #so column w/ name of period is first
+                         
+               suppressWarnings(
+                    x.agg<-ddply( .data=x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
+                                             #so column w/ name of period is first
                             .variables=j, 
-                            .fun=weather.agg.function,
-                            ... )
-#                x.agg<-ddply(x[,c(j,names(x)[names(x) %in% cols.weather])],
-#                               j, 
-#                               weather.agg.function)
+                            .fun=weather.agg.function)
+               )
+             
                x.agg[x.agg$complete==0,-which(names(x.agg) %in% c(j,"complete"))]<-NA 
 
 
