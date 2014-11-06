@@ -3,8 +3,9 @@
 \alias{cross.val}
 \title{cross validate}
 \usage{
-cross.val(d.records, model.list, iter = 10, valid.fraction = 0.5,
-  dep.var = "flow.mean", seed = NULL, bias.correction = NULL)
+cross.val(d.records, model.list, dep.var = "flow.mean",
+  period.type = "season", iter = 10, valid.fraction = 0.1, seed = NULL,
+  correction.iter = 100)
 }
 \description{
 x

@@ -2,6 +2,7 @@
 
 
 ```{r predict}
+#' @title predict continuous timeseries from a set (list) of models by period
 #' @description x 
 #' @export
 
