@@ -18,8 +18,8 @@
 #' @export
 
 cross.val<-function( d.records, model.list, dep.var="flow.mean", 
-                     period.type="season",
-                     iter=10, valid.fraction=0.1, seed=NULL,
+                     period.type="month",
+                     iter=10, valid.fraction=0.1, valid.type="mixed", seed=NULL,
                      correction.iter=100 ) {
      
      d.records$index <- 1:nrow(d.records)
@@ -35,7 +35,7 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
      for ( i in 1:iter ) {
           cat(paste0(i,"... "))
           
-          sets <- create.calib( d.records, valid.type="mixed", 
+          sets <- create.calib( d.records, valid.type=valid.type, 
                                 valid.fraction=valid.fraction, seed=seed.list[i] )
 
           m <- model.list
@@ -45,12 +45,14 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
           }
 
           p <- predict.model.list( m, new.data=sets$valid, dep.var=dep.var, 
+                    period.type=period.type,
                     correction.seed=seed.list[i], correction.iter=correction.iter,
                     correction.summary="median",
                     smearing.correction=T, rnorm.correction=T,
                     bootstrap.correction=T )
 
           c <- predict.model.list( m, new.data=sets$calib, dep.var=dep.var,
+                    period.type=period.type,
                     smearing.correction=T, rnorm.correction=T,
                     bootstrap.correction=T )
 
@@ -67,16 +69,18 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
 #                     g.fit( obs=p$obs, pred=p$pred.rnorm.mean, set="validation", correction="rnorm", i, j ),
 #                     g.fit( obs=p$obs, pred=p$pred.boostrap.mean, set="validation", correction="bootstrap", i, j )
 #                )
+               c.j<-c[c[,period.type]==j,]
+               p.j<-p[p[,period.type]==j,]
                goodness.temp <- rbind( 
-                    g.fit( obs=log(c$obs), pred=c$pred.log, set="Calibration log-scale", i, j ),
-                    g.fit( obs=log(p$obs), pred=p$pred.log, set="Log-scale", i, j ),
-                    g.fit( obs=c$obs, pred=c$pred.real, set="Calibration no correction", i, j ),
-                    g.fit( obs=p$obs, pred=p$pred.real, set="No correction", i, j ),
-                    g.fit( obs=p$obs, pred=p$pred.smearing, set="Smearing correction", i, j ),
-                    g.fit( obs=p$obs, pred=p$pred.rnorm.mean, set="Stochastic rnorm correction", i, j ),
-                    g.fit( obs=p$obs, pred=p$pred.boostrap.mean, set="Stochastic bootstrap correction", i, j )
+                    g.fit( obs=log(c.j$obs), pred=c.j$pred.log, set="Calibration log-scale", i, j ),
+                    g.fit( obs=log(p.j$obs), pred=p.j$pred.log, set="Log-scale", i, j ),
+                    g.fit( obs=c.j$obs, pred=c.j$pred.real, set="Calibration no correction", i, j ),
+                    g.fit( obs=p.j$obs, pred=p.j$pred.real, set="No correction", i, j ),
+                    g.fit( obs=p.j$obs, pred=p.j$pred.smearing, set="Smearing correction", i, j ),
+                    g.fit( obs=p.j$obs, pred=p.j$pred.rnorm.mean, set="Stochastic rnorm correction", i, j ),
+                    g.fit( obs=p.j$obs, pred=p.j$pred.boostrap.mean, set="Stochastic bootstrap correction", i, j )
                )
-               if( is.null(goodness) ) {
+               if( nrow(goodness)==0 ) {
                     goodness<-goodness.temp
                     goodness$set <- factor(goodness$set,levels=unique(goodness.temp$set))
                }

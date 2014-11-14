@@ -49,6 +49,8 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
                               proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
                               shapefile.dir=NULL) {
      
+     orig.dir <- getwd()
+     
      weather.filenames<-as.data.frame( matrix( ncol=2, nrow=0 ) )
      names(weather.filenames)<-c("weather.filename", "region")
      for (i in regions) {
@@ -91,6 +93,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
      }
 
      cat("Completed creating weather grid")
+     setwd( orig.dir )
      return( weather.grid.poly )
 
 }

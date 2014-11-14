@@ -19,7 +19,7 @@ char.columns.retrieve <- function(id=F,impoundment=F) {
           return( c("TNC_DamCount", "deg_barr_1", "deg_barr_2", "deg_barr_3", "deg_barr_4", "deg_barr_6", "deg_barr_7", 
                   "OnChannelWaterSqKM", "OnChannelWetlandSqKM", "OffChannelWaterSqKM", "OffChannelWetlandSqKM") )
      else 
-          return( c("TotDASqMI", "TotDASqKM", "ReachLengthKM",         
+          return( c("NHDplusTotDASqKM", "NHDplusTotDASqMI", "ReachLengthKM",         
                "Forest", "Herbacious","Agriculture","Developed","DevelopedNotOpen", "Impervious",  
                "CONUSOpenWater","CONUSWetland",
                "DrainageClass","HydrologicGroupA","HydrologicGroupAB","HydrologicGroupCD","HydrologicGroupD4","HydrologicGroupD1",
@@ -89,14 +89,14 @@ char.retrieve<-function(gages.spatial, cols=NULL,
      # just loads rdata w/ data.frame's given to me by kyle
      
      if ( !impound ) {
-          cache.load.data( object="UpstreamStats", dir="basin_char", file="NENY_CovariateData_2014-01-23_upstream.rdata")
+          cache.load.data( object="UpstreamStats", dir="basin_char", file="NENY_CovariateData_2014-01-23_upstream.rdata", quiet=T)
           all.char<-get("UpstreamStats")
           names(all.char)[names(all.char)=="TotDASqKM"]<-"NHDplusTotDASqKM"
           names(all.char)[names(all.char)=="TotDASqMI"]<-"NHDplusTotDASqMI"
      }
 
      else { 
-          cache.load.data( object="UpstreamStats", dir="basin_char", file="NENY_Impound_renamed_2014-01-23.rdata")
+          cache.load.data( object="UpstreamStats", dir="basin_char", file="NENY_Impound_renamed_2014-01-23.rdata", quiet=T)
           all.char<-get("UpstreamStats")          
      }
      
@@ -206,7 +206,7 @@ char.columns.default <- function( impound=F ) {
                "Forest", "Herbacious","Agriculture","Developed","DevelopedNotOpen", "Impervious",  
                "CONUSOpenWater","CONUSWetland",
                "DrainageClass","HydrologicGroupAB","SurficialCoarseC","PercentSandy", 
-               "ReachElevationM","BasinElevationM","ReachSlopePCNT","BasinSlopePCNT", "NHDplusTotDASqKM") )
+               "BasinElevationM","BasinSlopePCNT","NHDplusTotDASqKM") )
      else 
           return( c( char.columns.retrieve(id=T), 
                       "TNC_DamCount", "OnChannelWaterSqKM", "OnChannelWetlandSqKM"))
@@ -468,5 +468,46 @@ char.columns.default <- function( impound=F ) {
 # 
 #      return(gages.char.spatial)
 # }
+```
+
+```{r}
+col.transform <- function(x, log.cols, id.col="FEATUREID") {
+          
+     if ( sum( !(log.cols %in% names(x)) )>0 )
+          stop( "Not all specified columns are in provided data.frame" )
+     
+     is.spatial <- attr(class(x),"package") == "sp"
+
+     
+     if ( is.spatial ) {
+          if (length(log.cols)>1)
+               x@data[,paste0("log.",log.cols)] <- apply( x@data[,log.cols], MARGIN=c(1,2), FUN=function(x) log(non.zero(x)) )
+          else
+               x@data[,paste0("log.",log.cols)] <- log(non.zero(x@data[,log.cols]))
+     }
+     else {
+          if (length(log.cols)>1)
+               x[,paste0("log.",log.cols)] <- apply( x[,log.cols], MARGIN=c(1,2), FUN=function(x) log(non.zero(x)) )
+          else
+               x[,paste0("log.",log.cols)] <- log(non.zero(x[,log.cols]))
+     }
+               
+     return( x )     
+#      for (i in log.cols)
+#           d.monthly[,paste0("log.",i)] <- log(non.zero(d.monthly[,i])) 
+#      
+#       names(temp) <- 
+# 
+#      if ( is.spatial ) {
+#           temp <- rbind( x[,id.col], temp )
+#           temp2 <- merge.sp( x, temp, by=id.col )
+#      }
+#      else
+#           temp2 <- cbind(df,temp)
+# 
+#      return( temp2 )
+
+}
+
 ```
 

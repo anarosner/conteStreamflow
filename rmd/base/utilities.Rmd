@@ -144,6 +144,7 @@ save.log <- function(text, filename, ext="txt") {
 
      cache.check()
      
+     orig.dir <- getwd()
      setwd(file.path(cache.dir.global,"logs"))
      x<-list.files()
      if ( length(x)==0 )
@@ -172,6 +173,8 @@ save.log <- function(text, filename, ext="txt") {
      else                     #if (is.vector)
           writeLines( text=text, con=x6 )
      }
+     
+     setwd(orig.dir)
 }
 ```
 
@@ -240,6 +243,39 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
+
+```
+
+```{r}
+#' @title see.missing
+#' @export
+
+see.missing <- function(x) {
+     if ( !is.null(attr(class(x),"package")) && attr(class(x),"package") == "sp")    
+          apply(x@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
+     else 
+          apply(x, MARGIN=2, FUN=function(x) sum(is.na(x)))
+}
+
+```
+
+```{r}
+#' @title cols.change.name
+#' @export
+col.change.name <- function( df, col.old, col.new ) {
+     i<-which(names(df)==col.old)
+     names(df)[i]<-col.new
+     return(df)
+}
+```
+
+```{r}
+#' @title cols.remove
+#' @export
+cols.remove <- function( df, cols ) {
+     df<-df[,!(names(df) %in% cols)]
+     return(df)
+}
 
 ```
 

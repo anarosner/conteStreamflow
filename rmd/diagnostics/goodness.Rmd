@@ -1,3 +1,24 @@
+
+```{r}
+#' @title Nash Sutcliffe Efficiency Criterion
+NSeff2 <- function (q, col.obs="obs", col.pred="pred") {
+     if (!(col.obs %in% names(q) & col.pred %in% names(q) ))
+          stop( "Must provide data frame with observed and predicted columns")
+     
+     q <- q[ !is.na(q[,col.obs]) & !is.na(q[,col.obs]), c(col.obs, col.pred)]
+     names(q) <- c("obs","pred")
+#      if (length(Qob))
+#      Qsim <- Qsim[!is.na(Qobs) & !is.na(Qsim)]
+#      Qobs <- Qobs[!is.na(Qobs) & !is.na(Qsim)]
+
+     if (nrow(q)==0) 
+          return(NA)
+     m <- mean(q$obs)
+     NS <- 1 - (sum((q$obs - q$pred)^2)/sum((q$obs - m)^2))
+     return(NS)
+}
+```
+
 ```{r goodness of fit/validation functions}
 #' @title Calculate coefficient of variation of error
 #' @description Calculates CV of error, given 2 vectors of observed and predicted values
@@ -72,8 +93,9 @@ g.fit<-function( obs=NULL, pred=NULL, set, iteration, period ) {
      
      f<-data.frame( NSEff=NSeff(obs,pred) )
      f$bias<-mean(pred)-mean(obs)
-     f$percent.bias<-(mean(pred)-mean(obs))/mean(obs)*100
      f$mean<-mean(obs)
+     f$percent.bias<-(mean(pred)-mean(obs))/mean(obs)*100
+     f$RMSE<-rmse(obs,pred)
      f<-round(f,3)
      f$set <- set
      f$iteration <- iteration

@@ -35,6 +35,8 @@ cache.setup <- function(cache.dir, quiet=T) {
      if ( !is.na(file.info(cache.dir)$isdir) && file.info(cache.dir)$isdir==TRUE ) {
           #check for write permissions, too?
           
+          orig.dir <- getwd()
+          
           setwd(cache.dir) 
                               
           dir.conditional.create("logs", quiet=quiet)
@@ -51,6 +53,7 @@ cache.setup <- function(cache.dir, quiet=T) {
           if ( !quiet )
                message("Cache directory creation complete")
                
+          setwd(orig.dir)
      }
      
      else

@@ -21,7 +21,8 @@ gage.retrieve<-function( buffer.file=NULL,
                          states=NULL, 
                          max.da.sqkm=50, min.da.sqkm=0, 
 #                          cache.dir,
-                         proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs") {
+                         proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
+                         keep.other.coords=F, keep.sv.data=F) {
 #                          temp.dir="C:/ALR/Models_processed_data/flow_timeseries", ,log.dir=NULL
 #                          ) {     
      cache.check()
@@ -83,6 +84,7 @@ gage.retrieve<-function( buffer.file=NULL,
 
 
      #use wget to save into temporary folder, and then read it in and parse.  probably there's a better way to do this, but this works for now.  
+     orig.dir <- getwd()
      setwd(file.path(cache.dir, "temp"))
      system(paste("wget -O ./raw_gage_info.txt",gage.info.url) )
 
@@ -93,6 +95,7 @@ gage.retrieve<-function( buffer.file=NULL,
      clean <- gsub( pattern="\'", replacement="-", x=clean)
      clean <- gsub( pattern="\"", replacement="-", x=clean)
      clean <- gsub( pattern="#", replacement="no. ", x=clean)
+     setwd(orig.dir)
 
      #save metadata from raw nwis file 
 #      if (!is.null(log.dir)) {    
@@ -121,18 +124,32 @@ gage.retrieve<-function( buffer.file=NULL,
      #make sure all gage info includes IDs, coords
      if (sum(is.na(gages.all$site_no))>0)
           warning(paste("Missing site identifiers:\n", sum(is.na(gages.all$site_no)), "sites do not have site_no values and are being ignored"))
-     if (sum(is.na(gages.all$dec_lat_va),is.na(gages.all$dec_long_va))>0)
-          warning(paste("NWIS gage data missing geographic coordinates:\n", 
+     if (sum(is.na(gages.all$dec_lat_va),is.na(gages.all$dec_long_va))>0) {
+          warning(paste("NWIS gage data missing geographic coordinates (decimal, NAD83 coordinates):\n", 
                         sum(is.na(gages.all$dec_lat_va)), "sites do not have lat coordinates and are being ignored\n",
                         sum(is.na(gages.all$dec_long_va)), "sites do not have long coordinates and are being ignored\n",
                         paste0(gages.all$site_no[is.na(gages.all$dec_long_va)], collapse = ", ") ))
+#           warning(paste(gages.all[is.na(gages.all$dec_long_va),c("site_no","station_nm","coord_datum_cd","lat_va","long_va")]),collapse="\t",sep="\n")
+     }
 
-     gages.all<-subset(gages.all,
-                       subset=(!is.na(gages.all$site_no) & !is.na(gages.all$dec_lat_va) & !is.na(gages.all$dec_long_va) ))
+     #convert to sq km and rename drainage area column in sq mi
+     gages.all$da_nwis_sqmi<-gages.all$drain_area_va
+     gages.all$da_nwis_sqkm<-gages.all$drain_area_va*2.58999
+#      gages.all$da_sqkm<-gages.all$da_nwis_sqkm #to comply with older code
+
+     #remove extraneous columns
+     gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("agency_cd","coord_acy_cd","coord_acy_cd.1","drain_area_va"))]
+     if (!keep.other.coords)
+          gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("coord_datum_cd","lat_va","long_va"))]
+     if (!keep.sv.data)
+          gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("sv_begin_date","sv_end_date","sv_count_nu"))]
+
+     #filter by da size
+     gages.subset<-subset(x=gages.all,  gages.all$da_nwis_sqkm<=max.da.sqkm & gages.all$da_nwis_sqkm>min.da.sqkm )
+     #filter by missing coordinates or site identifier
+     gages.subset<-subset(gages.subset,
+                       subset=(!is.na(gages.subset$site_no) & !is.na(gages.subset$dec_lat_va) & !is.na(gages.subset$dec_long_va) ))
      
-     #convert to sq km, and filter by size
-     gages.all$da_sqkm<-gages.all$drain_area_va*2.58999
-     gages.subset<-subset(x=gages.all,  gages.all$da_sqkm<=max.da.sqkm & gages.all$da_sqkm>min.da.sqkm )
 
 #      message(paste0("Gage retrieval complete\r",
 #                     nrow(gages.subset),  " gages identified","\r",
@@ -372,7 +389,8 @@ gage.place.nhdplus<-function(gages.spatial) {
 # eventually move into a generic function for exporting shapefiles, make gage.export a wrapper function
 
 gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStreamflow", overwrite=T ) {
-          
+     
+          orig.dir <- getwd()
           setwd(shapefile.dir)
           if ( paste0(filename,".shp") %in% list.files() ) {
                if (!overwrite)
@@ -404,6 +422,8 @@ gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStre
           names(gages.spatial)[ nchar(names(gages.spatial)) >10 ] <- x
           writeOGR( gages.spatial,  ".", layer=filename, driver="ESRI Shapefile" )
           write.csv( data.frame( orig_names=orig, esri_names=names(gages.spatial) ), file=paste0(filename,"_col_names.csv"), row.names=F )
+          
+          setwd(orig.dir)
 }
 
 ```
