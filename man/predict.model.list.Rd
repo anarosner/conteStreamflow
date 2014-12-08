@@ -7,7 +7,7 @@
   period.type = "season", dep.var = "flow.mean", retransform = exp,
   smearing.correction = T, rnorm.correction = T, bootstrap.correction = T,
   correction.summary = "mean", correction.iter = 100,
-  correction.seed = NULL)
+  correction.seed = NULL, ...)
 }
 \description{
 x

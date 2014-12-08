@@ -26,13 +26,6 @@ voronoipolygons = function(layer) {
      voronoi@data$weather.filename <-apply( voronoi@data, MARGIN=1, FUN=function(df) paste0("data_",df["y"],"_",df["x"]) )
      voronoi <- merge.sp( voronoi, layer@data[ , c("weather.filename","region")], by = "weather.filename", all.x=T )
      
-#      length(voronoi$weather.filename)
-#      length(unique(voronoi$weather.filename))
-#      length(layer$weather.filename)
-#      length(unique(layer$weather.filename))
-#      head(layer@data)
-#      head(voronoi@data)
-     
      return( voronoi )
     
 }
@@ -48,48 +41,64 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
                               proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
                               shapefile.dir=NULL) {
      
+     # note about mauer data structure
+     # mauer data is split into regions, each region given its own directory
+     #    and then split into cells
+     # within the region directory, there is a file for each grid cell
+     # the filename is a concatenation of the lat and long, 
+     #    so this is where the spatial info is extracted from
+     
+     orig.dir <- getwd() #save starting working directory, so we can return to it at the end, it's only polite
+     
+     #set up table to store weather file info
      weather.filenames<-as.data.frame( matrix( ncol=2, nrow=0 ) )
      names(weather.filenames)<-c("weather.filename", "region")
-     for (i in regions) {
+     
+     #extract coordinate info from filenames
+     for (i in regions) { #loop through regions (directories)
           cat( paste( "Retrieving grid centroids for region", i, "from file names...\n" ) )
           setwd( file.path( weather.dir, i ) )
-          temp.files<-list.files()
+          temp.files<-list.files() 
+          #save filename and region name to table
           weather.filenames[ (nrow(weather.filenames)+1):(nrow(weather.filenames)+length(temp.files)),]<-
                cbind( temp.files, rep( i, times=length(temp.files)) )
+               #(there was a reason that I did this the tedious way 
+               #    by specifying the row # instead of rbind... )
      }
      weather.filenames <- weather.filenames[ !(duplicated(weather.filenames$weather.filename)), ]
      
+     #pull out each lat and long coordinates from concatenated filename character, 
+     #    and convert to numeric
      weather.filenames$y <- as.vector( sapply( weather.filenames$weather.filename,  
                    FUN=function(x) as.numeric( unlist(strsplit( x, "[_]" ))[2] )  ) )
      weather.filenames$x <- as.vector( sapply( weather.filenames$weather.filename,  
                    FUN=function(x) as.numeric( unlist(strsplit( x, "[_]" ))[3] )  ) )
 
-#      grid.y<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,6,12 ) )
-#      grid.x<-as.numeric( sapply( X=weather.filenames$weather.filename, FUN=substr,14,21 ) )
-
+     #turn numeric lat/long coordinates into r spatial object 
      cat("Creating spatial object of grid centroids...\n")
      grid.points<-SpatialPointsDataFrame(coords=weather.filenames[ , c("x","y") ],
                                              data=weather.filenames,
                                              proj4string=CRS( proj4 ) )
-     #      grid.points<-SpatialPointsDataFrame(coords=cbind( grid.x, grid.y ),
-     #                                              data=weather.filenames,
-     #                                              proj4string=CRS( proj4 ) )
           
+     #finally, using spatial points of centroids, create grid polygons 
      cat("Creating Voronoi polygons around grid centroids...\n")
      cat("    (this part could take a while)    \n")
      weather.grid.poly<-voronoipolygons(grid.points)
 #      weather.grid.poly@data<-weather.grid.poly@data[,c(3,1,2)]
      
-     
+     #if user opted to save grid as shapefile (by specifying shapefile directory), save it
      if ( !is.null( shapefile.dir) ) {
           print("Saving grid shapefile...")
           grid.temp<-weather.grid.poly
-          names(grid.temp)[1]<-"filename"
+          names(grid.temp)[1]<-"filename" #make column names esri-friendly
           setwd(shapefile.dir)
           writeOGR(grid.temp,  ".", layer="weather_grid", driver="ESRI Shapefile")
      }
 
      cat("Completed creating weather grid")
+
+     setwd( orig.dir ) #clean up
+
      return( weather.grid.poly )
 
 }
@@ -97,6 +106,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 
 
 ## ------------------------------------------------------------------------
+#replaced by cache functions
 # #' @title load weather grid
 # #' @export
 # weather.grid.load<-function( weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid", 
@@ -108,6 +118,7 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 
 
 ## ------------------------------------------------------------------------
+#replaced by cache functions
 # #' @title load weather grids coords only
 # #' @export
 # weather.grid.coords.load<-function( weather.grid.poly=NULL,

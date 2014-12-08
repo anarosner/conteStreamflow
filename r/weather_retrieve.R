@@ -120,7 +120,8 @@ weather.retrieve<-function(gages.spatial,
      #
      
      cache.check()
-
+     orig.dir <- getwd()
+     
           #warn user if hasn't assigned weather grid.  
           #later, change to just call function to assign weather grid if it hasn't been done already
      if ( !("weather.filename" %in% names(gages.spatial)) )
@@ -159,6 +160,7 @@ weather.retrieve<-function(gages.spatial,
      w.matrices<-create.w.matrices(selected.weather.files$weather.filename, periods=periods,
                                    template.date=template.date, template.period=template.period, cols.weather=cols.weather)
 
+     
      #downloads weather data as needed
      for (j in unique(selected.weather.files$region)) {
           #set up directory for weather region, if it doesn't exist
@@ -239,6 +241,7 @@ weather.retrieve<-function(gages.spatial,
           
      }#end loop weather grids
 
+     setwd( orig.dir )
      return(w.matrices)
 
 }

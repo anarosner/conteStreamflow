@@ -4,8 +4,8 @@
 \title{cross validate}
 \usage{
 cross.val(d.records, model.list, dep.var = "flow.mean",
-  period.type = "season", iter = 10, valid.fraction = 0.1, seed = NULL,
-  correction.iter = 100)
+  period.type = "month", iter = 10, valid.fraction = 0.1,
+  valid.type = "mixed", seed = NULL, correction.iter = 100)
 }
 \description{
 x

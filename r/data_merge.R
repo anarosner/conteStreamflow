@@ -212,8 +212,8 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
                cat("Merging with site information\n")
                d.matrices[[j]]<-merge(d2,gages.spatial@data,by=id.col,all.x=T,all.y=F,sort=F)
                head(d.matrices[[j]])
-               d.matrices[[j]]$season<-to.season(d=d.matrices[[j]]$date,"season")
-               d.matrices[[j]]$year<-year(as.Date(as.character(d.matrices[[j]]$date)))
+#                d.matrices[[j]]$season<-to.season(d=d.matrices[[j]]$date,"season")
+#                d.matrices[[j]]$year<-year(as.Date(as.character(d.matrices[[j]]$date)))
                
                
                

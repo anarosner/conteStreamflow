@@ -174,6 +174,7 @@ flow.retrieve<-function(gages.spatial,
      ##
      #
 
+     orig.dir <- getwd()
      setwd( file.path(cache.dir.global, "logs") )
      log<-c("flow data retrieval log", format.Date(now()),"\r")
      
@@ -202,7 +203,7 @@ flow.retrieve<-function(gages.spatial,
           }
      
      save.log( text=log, filename="flow_retrieval_log", ext="txt" )
-          
+     setwd(orig.dir)
 
      ### finish up
      ##  

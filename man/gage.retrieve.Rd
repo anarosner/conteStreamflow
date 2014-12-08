@@ -5,7 +5,8 @@
 \usage{
 gage.retrieve(buffer.file = NULL, sites = NULL, states = NULL,
   max.da.sqkm = 50, min.da.sqkm = 0,
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")
+  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
+  keep.other.coords = F, keep.sv.data = F)
 }
 \arguments{
 \item{buffer.file}{\code{character} file name and location of a shapefile (polygon) that outlines area to find gages within}

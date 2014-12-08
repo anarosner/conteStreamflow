@@ -10,7 +10,7 @@ predict.model.list<-function( model.list, new.data,
                       retransform=exp, 
                       smearing.correction=T, rnorm.correction=T,
                       bootstrap.correction=T, correction.summary="mean",
-                      correction.iter=100, correction.seed=NULL ) {
+                      correction.iter=100, correction.seed=NULL, ... ) {
 
      #check on index column, is this needed?
      
@@ -19,17 +19,17 @@ predict.model.list<-function( model.list, new.data,
      
      for ( j in periods ) {
           
-          season.new.data <- new.data[ new.data[,period.type]==j, ]
+          season.new.data <- new.data[ as.character(new.data[,period.type])==j, ]
           pred.temp <- season.new.data[ , c(id.col, "date", period.type) ]
           pred.temp$obs <- season.new.data[,dep.var]
 #           pred.temp <- season.new.data[ ,c(id.col, "date", period.col, year.col) ] 
           {
           if ( class(model.list[[j]]) == "lm" )
-               pred.temp$pred.log <- predict(  model.list[[j]], newdata=season.new.data  )
+               pred.temp$pred.log <- predict(  model.list[[j]], newdata=season.new.data, ...  )
           else if ( class(model.list[[j]]) == "lmerMod" )
                pred.temp$pred.log <- predict(  model.list[[j]], 
                                                newdata=season.new.data, 
-                                               allow.new.levels=T  )
+                                               allow.new.levels=T, ...  )
           else
                stop( "Model is not of class lm or lmerMod" )
           }
