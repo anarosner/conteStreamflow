@@ -10,7 +10,7 @@
 
 pairs.custom<-function(df, main=NULL, flag=0.5) {
 
-     panel.pearson <- function(x, y, flag, ...) {
+     panel.pearson <- function(x, y, ...) {
           horizontal <- (par("usr")[1] + par("usr")[2]) / 2; 
           vertical <- (par("usr")[3] + par("usr")[4]) / 2; 
           col<-rep("black",length(cor(x,y)))
