@@ -19,7 +19,7 @@
 gage.retrieve<-function( buffer.file=NULL, 
                          sites=NULL,
                          states=NULL, 
-                         max.da.sqkm=50, min.da.sqkm=0, 
+                         max.da.sqkm=NULL, min.da.sqkm=NULL, 
 #                          cache.dir,
                          proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
                          keep.other.coords=F, keep.sv.data=F) {
@@ -144,19 +144,23 @@ gage.retrieve<-function( buffer.file=NULL,
      if (!keep.sv.data)
           gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("sv_begin_date","sv_end_date","sv_count_nu"))]
 
-     #filter by da size
-     gages.subset<-subset(x=gages.all,  gages.all$da_nwis_sqkm<=max.da.sqkm & gages.all$da_nwis_sqkm>min.da.sqkm )
-     #filter by missing coordinates or site identifier
-     gages.subset<-subset(gages.subset,
-                       subset=(!is.na(gages.subset$site_no) & !is.na(gages.subset$dec_lat_va) & !is.na(gages.subset$dec_long_va) ))
-     
+          #filter by missing coordinates or site identifier
+          gages.subset<-subset(gages.subset,
+                            subset=(!is.na(gages.subset$site_no) & !is.na(gages.subset$dec_lat_va) & !is.na(gages.subset$dec_long_va) ))
 
-#      message(paste0("Gage retrieval complete\r",
-#                     nrow(gages.subset),  " gages identified","\r",
-#                     "Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " sq km)" ))
+     #filter by da size
+     gages.subset <- gages.all
+     if ( !is.null(max.da.sqkm)  ) {
+          gages.subset<-subset(x=gages.subset,  gages.all$da_nwis_sqkm<=max.da.sqkm )
+     }
+     if ( !is.null(min.da.sqkm) ) {
+          gages.subset<-subset(x=gages.subset,  gages.all$da_nwis_sqkm>min.da.sqkm )
+     }
+
 
 
      gages.spatial<-gage.place(gages.df = gages.subset)
+     
      if(!is.null(buffer.file)) 
           gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
 

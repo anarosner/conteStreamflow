@@ -45,7 +45,7 @@ flow.retrieve<-function(gages.spatial,
      #
      cache.check()
      #set up data.frame for counting # records     
-     gages.temp<-gages.spatial[,c("site_no","station_nm")] #data.frame or spatial data frame that will store the number of records per period timestep
+     gages.temp<-gages.spatial[,c("site_no","station_nm","da_nwis_sqkm")] #data.frame or spatial data frame that will store the number of records per period timestep
      if (!return.spatial)
           gages.temp <- gages.temp@data
 
@@ -242,7 +242,8 @@ flow.pre.agg.function <- function( x.all ) {
 #      x.roll <- x.roll[,c(ncol(x.roll),1:(ncol(x.roll)-1))] #reorder so date is first, val is second, all other follow
 
 
-     x$doy <- as.numeric(format(x$date, format="%j"))
+     x.roll$doy <- as.numeric(format(x.roll$date, format="%j"))
+#      x$doy <- as.numeric(format(x$date, format="%j"))
 
      return(x.roll)
 }

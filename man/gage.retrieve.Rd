@@ -4,7 +4,7 @@
 \title{Get gage location and information from NWIS}
 \usage{
 gage.retrieve(buffer.file = NULL, sites = NULL, states = NULL,
-  max.da.sqkm = 50, min.da.sqkm = 0,
+  max.da.sqkm = NULL, min.da.sqkm = NULL,
   proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
   keep.other.coords = F, keep.sv.data = F)
 }
