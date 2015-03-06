@@ -10,7 +10,6 @@
 #' @param sites \code{character vector} of NWIS gage ID's ("gage_no")
 #' @param max.da.sqkm \code{numeric} filter gages by min and max drainage area
 #' @param min.da.sqkm
-####' @param cache.dir \code{character} directory to store cached data files, save temporary files, and save gage retrieval logs/metadata
 #' @return \code{SpatialPointsDataFrame} of gages within the buffer, with gage info from NWIS
 #' @keywords nwis, gage
 #' @export
@@ -19,24 +18,25 @@ gage.retrieve<-function( buffer.file=NULL,
                          sites=NULL,
                          states=NULL, 
                          max.da.sqkm=NULL, min.da.sqkm=NULL, 
-#                          cache.dir,
                          proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
                          keep.other.coords=F, keep.sv.data=F) {
-#                          temp.dir="C:/ALR/Models_processed_data/flow_timeseries", ,log.dir=NULL
-#                          ) {     
+ 
+     ### checks
+     ##
+     #
+     
+     # check cache
      cache.check()
-                         
+     
+     # check inputs for specifying geographic range
      if ( sum( !is.null(buffer.file), !is.null(sites), !is.null(states)) != 1 )
           stop("Must provide one and only one of method of selecting gages; either specify buffer shapefile, list of sites, or list of states.")
      
-     #      if ( !cache.check() )
-#           stop("Please run setup.cache function first to create directories for local, cached files")
-
+     # using buffer
      if(!is.null(buffer.file)) {
           buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
           cache.load.data( object="states.poly",file="states.rdata", dir="general_spatial" )
           match<-gIntersects(states.poly,buffer, byid=T)
-#           states<-states.spatial$STATE_ABB[match]
           states<-states.poly$STUSPS[match]
      }
      
@@ -74,6 +74,11 @@ gage.retrieve<-function( buffer.file=NULL,
                        buffer.file,states,sites,sep="      ")  )
 
 
+     ### get gage info
+     ##
+     #
+     
+     #assemble url
      gage.info.url<-paste0("http://nwis.waterdata.usgs.gov/nwis/dvstat?referred_module=sw",
           gage.info.url1,
           "&site_tp_cd=ST&index_pmcode_00060=1&group_key=NONE&format=sitefile_output&sitefile_output_format=rdb",
@@ -97,9 +102,7 @@ gage.retrieve<-function( buffer.file=NULL,
      setwd(orig.dir)
 
      #save metadata from raw nwis file 
-#      if (!is.null(log.dir)) {    
-          save.log( text=raw[1:(line-1)], filename="gages_meta", ext="txt" )
-#           writeLines(raw[1:(line-1)],"gages_meta.txt")
+     save.log( text=raw[1:(line-1)], filename="gages_meta", ext="txt" )
           # [13] "#  agency_cd       -- Agency"                                              
           # [14] "#  site_no         -- Site identification number"                          
           # [15] "#  station_nm      -- Site name"                                           
@@ -112,7 +115,6 @@ gage.retrieve<-function( buffer.file=NULL,
           # [22] "#  sv_begin_date   -- Site-visit data begin date"                          
           # [23] "#  sv_end_date     -- Site-visit data end date"                            
           # [24] "#  sv_count_nu     -- Site-visit data count"
-#      }
      
      #read back in raw file saved in temp directory
      #change from raw "lines" to table
@@ -121,39 +123,71 @@ gage.retrieve<-function( buffer.file=NULL,
                                     "sv_begin_date"="Date", "sv_end_date"="Date"))
      
      #make sure all gage info includes IDs, coords
-     if (sum(is.na(gages.all$site_no))>0)
-          warning(paste("Missing site identifiers:\n", sum(is.na(gages.all$site_no)), "sites do not have site_no values and are being ignored"))
-     if (sum(is.na(gages.all$dec_lat_va),is.na(gages.all$dec_long_va))>0) {
+     if (sum(!is.na(gages.all$site_no))==0)
+          warning(paste("Missing site identifiers:\n", 
+                        sum(is.na(gages.all$site_no)), "of approximately", nrow(gages.all), 
+                        "sites do not have site_no values and are being ignored"))
+     if (sum(!is.na(gages.all$dec_lat_va),is.na(gages.all$dec_long_va))==0) {
           warning(paste("NWIS gage data missing geographic coordinates (decimal, NAD83 coordinates):\n", 
-                        sum(is.na(gages.all$dec_lat_va)), "sites do not have lat coordinates and are being ignored\n",
-                        sum(is.na(gages.all$dec_long_va)), "sites do not have long coordinates and are being ignored\n",
+                        sum(is.na(gages.all$dec_lat_va)), 
+                        "sites do not have lat coordinates and are being ignored\n",
+                        sum(is.na(gages.all$dec_long_va)),  
+                        "sites do not have long coordinates and are being ignored\n",
                         paste0(gages.all$site_no[is.na(gages.all$dec_long_va)], collapse = ", ") ))
-#           warning(paste(gages.all[is.na(gages.all$dec_long_va),c("site_no","station_nm","coord_datum_cd","lat_va","long_va")]),collapse="\t",sep="\n")
      }
 
      #convert to sq km and rename drainage area column in sq mi
      gages.all$da_nwis_sqmi<-gages.all$drain_area_va
      gages.all$da_nwis_sqkm<-gages.all$drain_area_va*2.58999
-#      gages.all$da_sqkm<-gages.all$da_nwis_sqkm #to comply with older code
+               #      gages.all$da_sqkm<-gages.all$da_nwis_sqkm #to comply with older code
 
      #remove extraneous columns
-     gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("agency_cd","coord_acy_cd","coord_acy_cd.1","drain_area_va"))]
+     gages.all <- gages.all[,!(names(gages.all) %in% c("agency_cd","coord_acy_cd","coord_acy_cd.1","drain_area_va"))]
      if (!keep.other.coords)
-          gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("coord_datum_cd","lat_va","long_va"))]
+          gages.all <- gages.all[,!(names(gages.all) %in% c("coord_datum_cd","lat_va","long_va"))]
      if (!keep.sv.data)
-          gages.all <- gages.all<-gages.all[,!(names(gages.all) %in% c("sv_begin_date","sv_end_date","sv_count_nu"))]
+          gages.all <- gages.all[,!(names(gages.all) %in% c("sv_begin_date","sv_end_date","sv_count_nu"))]
 
-          #filter by missing coordinates or site identifier
-          gages.subset<-subset(gages.subset,
-                            subset=(!is.na(gages.subset$site_no) & !is.na(gages.subset$dec_lat_va) & !is.na(gages.subset$dec_long_va) ))
+#           #filter by missing coordinates or site identifier
+#           gages.subset<-subset(gages.subset,
+#                             subset=(!is.na(gages.subset$site_no) & !is.na(gages.subset$dec_lat_va) & !is.na(gages.subset$dec_long_va) ))
+
+     ### filter gages
+     ##
+     #
+     gages.subset <- gages.all
+
+     #filter by missing coordinates 
+     if ( sum( !( is.na(gages.subset$dec_lat_va) | is.na(gages.subset$dec_long_va) ) ) == 0 )
+          stop("No gages found with lat and long coordinates")
+     gages.subset<-subset(gages.subset, subset=!is.na(gages.subset$site_no) )
+
+     if ( sum( !is.na(gages.subset$site_no) ) == 0 )
+          stop("No gages found with site id")
+     gages.subset<-subset(gages.subset,
+                       subset=!(is.na(gages.subset$dec_lat_va) | is.na(gages.subset$dec_long_va) ) )
 
      #filter by da size
-     gages.subset <- gages.all
-     if ( !is.null(max.da.sqkm)  ) {
-          gages.subset<-subset(x=gages.subset,  gages.all$da_nwis_sqkm<=max.da.sqkm )
-     }
-     if ( !is.null(min.da.sqkm) ) {
-          gages.subset<-subset(x=gages.subset,  gages.all$da_nwis_sqkm>min.da.sqkm )
+     if ( !is.null(max.da.sqkm) | !is.null(min.da.sqkm) ) {
+          #if limiting by drainage area, first eliminate gages w/ NA drainage area
+          if ( sum( !is.na(gages.subset$da_nwis_sqkm) ) == 0 )
+               stop("No gages found with drainage area")
+          gages.subset<-subset(gages.subset,
+                               subset=!is.na(gages.subset$da_nwis_sqkm) )
+     
+          if ( !is.null(max.da.sqkm)  ) {
+               if ( sum( gages.subset$da_nwis_sqkm<=max.da.sqkm ) == 0 ) 
+                    stop( paste0("No gages found with drainage area below ", max.da.sqkm,". \n",
+                               "Minimum drainage area found is ", min(gages.subset$da_nwis_sqkm), "." ) )
+               gages.subset<-subset(x=gages.subset,  gages.subset$da_nwis_sqkm<=max.da.sqkm )
+          }
+          if ( !is.null(min.da.sqkm) ) {
+               if ( sum( gages.subset$da_nwis_sqkm>=min.da.sqkm ) == 0 ) 
+                    stop( paste0("No gages found with drainage area above ", min.da.sqkm,". \n",
+                               "Maximum drainage area found is ", max(gages.subset$da_nwis_sqkm), "." ) )
+               gages.subset<-subset(x=gages.subset,  gages.subset$da_nwis_sqkm>min.da.sqkm )
+          }
+          
      }
 
 
@@ -165,7 +199,7 @@ gage.retrieve<-function( buffer.file=NULL,
 
      cat("Gage retrieval complete \n")
      cat(paste(nrow(gages.spatial),  "gages identified"))
-     cat(paste("(Drainage area >", min.da.sqkm, " and <=", max.da.sqkm, " square km)" ))
+     cat(paste("(Drainage area", min.da.sqkm, " and <=", max.da.sqkm, " square km)" ))
 
      return(gages.spatial)
 
