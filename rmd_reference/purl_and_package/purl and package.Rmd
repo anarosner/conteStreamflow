@@ -3,7 +3,7 @@ base.dir<-"C:/ALR/Models/conteStreamflow"
 setwd(base.dir)
 list.files()
 
-
+# 
 # ###danger danger
 # file.remove("NAMESPACE")
 # list.files()
@@ -70,10 +70,16 @@ document(clean = T)
 
 ```{r install package}
 library(devtools)
-base.dir<-"C:/ALR/Models/conteStreamflow"
 
-install( pkg=base.dir )
-library(conteStreamflow)
+# base.dir<-"C:/ALR/Models/conteStreamflow"
+# install( pkg=base.dir )
+# library(conteStreamflow)
+
+```
+
+```{r}
+
+install_github( repo="conteStreamflow", username="anarosner" )
 
 ```
 
