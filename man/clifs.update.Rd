@@ -3,7 +3,8 @@
 \alias{clifs.update}
 \title{CliFSSS model, updates model for specified months.  Other months remain as is}
 \usage{
-clifs.update(ml, periods, terms, df, period.type = "month")
+clifs.update(ml, periods, terms = "", dep.var = ".", clear.terms = F, df,
+  period.type = "month")
 }
 \arguments{
 \item{ml}{\code{list} model list, of  \code{lm} or \code{merMod} class models}

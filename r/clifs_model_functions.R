@@ -58,10 +58,16 @@ clifs.summary<- function(ml) {
 #' @param  period.type \code{character} 
 #' @export
 
-clifs.update <- function( ml, periods, terms, df, period.type="month" ) {
-     ml[periods] <- lapply( periods,
-                            function(j) update( ml[[j]],
-                                                formula=as.formula(paste0(".~.",terms)) )  )
+clifs.update <- function( ml, periods, terms="", dep.var=".", clear.terms=F,
+                          df, period.type="month") {
+     if (clear.terms)
+          ind.var=""
+     else 
+          ind.var="."
+     ml[periods] <- lapply(  periods,
+                             function(j) update(  ml[[j]],
+                                                 formula=as.formula(paste0(
+                                                     dep.var, "~", ind.var, terms  ))  )  )
      return(ml)
 }
 
@@ -104,5 +110,84 @@ clifs.periods.summary <- function(ml, periods=NULL, generic=T, pause=F) {
                readline("press \"enter\" to continue")
      }
 }
+
+
+
+## ------------------------------------------------------------------------
+clifs.coefficients <- function( ml, periods=NULL, by.variable=T ) {
+     
+     all.coef <- NULL
+     for ( j in names(ml) ) {
+          suppressMessages(   
+               temp <- melt( as.data.frame(t(  coefficients(ml[[j]])  )) )
+          )
+          temp$month <- j
+          if ( is.null(all.coef) )
+               all.coef <- temp
+          else
+               all.coef <- rbind( all.coef, temp)
+     }
+     all.coef$month <- as.numeric(all.coef$month)
+
+     if (by.variable) {
+          coef.table  <- dcast( all.coef, month ~ variable )
+          row.names(coef.table) <- month.name[as.numeric(row.names(coef.table))]
+     }
+     else {
+          coef.table <- dcast( all.coef, variable ~ month )
+          names(coef.table)[-1] <- month.name[as.numeric(names(coef.table)[-1])]       
+     }
+
+     return( coef.table )
+}
+     
+
+
+## ------------------------------------------------------------------------
+###quick and dirty of function for now
+#maybe later remove copy/paste and get better model names in there
+
+
+clifs.aic.compare <- function( all.ml, press=F, plot=F ) {
+#      print(length(all.ml))
+#      print(names(all.ml))
+#      print(names(all.ml[[1]]))
+     compare <- as.data.frame(matrix(as.numeric(names(all.ml[[1]])),ncol=1))
+     names(compare)[[1]]<-"period"
+
+     for ( j in 1:length(all.ml) ) {
+          if (!press)
+               temp <-data.frame( clifs.summary(all.ml[[j]])[,"aic"] )
+          else
+               temp <-data.frame( clifs.summary(all.ml[[j]])[,"press"] )
+          if (is.null(compare)) {
+               compare <- temp
+               names(compare)[[1]] <- as.character(j)
+          }
+          else
+              compare[,as.character(j)] <- temp
+     }
+     
+     if (plot) {
+          dd <- suppressMessages( melt( compare, id.vars="period" ) )
+          names(dd)[[2]] <- "model"
+          if (!press) {
+               names(dd)[[3]] <- "AIC"
+               print( ggplot(dd, aes( x=period, y=AIC, colour=model ) ) + 
+                    geom_point() + geom_line() + scale_x_continuous(breaks=compare$period) )
+               }
+          else {
+               names(dd)[[3]] <- "press"
+               print( ggplot(dd, aes( x=period, y=AIC, colour=model ) ) + 
+                    geom_point() + geom_line() + scale_x_continuous(breaks=compare$period)) 
+          }
+     }
+     
+
+     return(compare)
+}
+
+
+
 
 

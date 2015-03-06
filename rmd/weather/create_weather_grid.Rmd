@@ -32,6 +32,43 @@ voronoipolygons = function(layer) {
 
 ```
 
+```{r}
+
+
+voronoipolygons2 = function(layer) {
+     crds = layer@coords
+     z = deldir(crds[,1], crds[,2])
+     w = tile.list(z)
+     polys = vector(mode='list', length=length(w))
+     for (i in seq(along=polys)) {
+        pcrds = cbind(w[[i]]$x, w[[i]]$y)
+        pcrds = rbind(pcrds, pcrds[1,])
+        polys[[i]] = Polygons(list(Polygon(pcrds)), ID=as.character(i))
+     }
+     SP = SpatialPolygons(polys,proj4string=layer@proj4string)
+     
+     voronoi = SpatialPolygonsDataFrame(
+                    SP, 
+                    data=data.frame( 
+                         x=z$summary$x, 
+                         y=z$summary$y,
+                         row.names=sapply( slot(SP, 'polygons'), 
+                                           function(x) slot(x, 'ID'))))
+     
+#      voronoi@data$weather.filename <-
+#           apply( voronoi@data, MARGIN=1, 
+#                  FUN=function(df) paste0("data_",df["y"],"_",df["x"]) )
+#      voronoi <- merge.sp( voronoi, layer@data[ , c("weather.filename","region")], by = "weather.filename", all.x=T )
+     
+     voronoi <- merge.sp( voronoi, layer@data, by = c("x","y"), all.x=T )
+
+     head(voronoi@data)
+     return( voronoi )
+    
+}
+
+```
+
 
 ```{r}
 #' @title create weather grid

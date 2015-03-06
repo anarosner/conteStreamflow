@@ -1,0 +1,246 @@
+```{r}
+library("RCurl") 
+library("reshape2")
+
+###
+##  Set up
+# 
+
+# working directory
+working.dir <- "C:/ALR/Models/conteStreamflow_new_england/data_prep/livneh_temporary"
+
+#create blank data.frame for all coordinates
+coords.all <- as.data.frame( matrix( nrow=0, ncol=4 ) )
+# names(coords.all) <- c("region", "lat", "long")
+
+#define ext and index as null
+index <- NULL
+ext <- NULL
+
+#ftp site
+ftp.url <- "ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/"
+
+###
+##  Directories
+# 
+
+#get names of all directories of latitudes
+dir.names1 <- getURL( ftp.url, dirlistonly = TRUE )
+dir.names <- unlist(strsplit( dir.names1, "\\r\\n" ))
+str(dir.names)
+head(dir.names)
+
+#for dataset on washington server, also need to deal with the extra file sitting in that directory
+#maybe just manually remove it
+#shouldn't be a problem for the ucllnl.org data set
+
+
+###
+##  Files
+# 
+
+#loop through directory of latitudes
+for (i in 1:length(dir.names)) {
+# for (i in 1:10) {
+
+     #get coordinates for all filenames in selected latitude directory
+     
+     print(paste0( "Directory ", i, " of ", length(dir.names), ": ", dir.names[i] ))
+     coords <- NULL
+     
+     #pull all file names from ftp server, and store in array
+     #should turn this into a function, since it's used for directories, too...
+     file.names1 <- getURL( paste0( ftp.url, dir.names[i], "/"), dirlistonly = TRUE )
+     file.names2 <- unlist(strsplit( file.names1, "\\r\\n" ))
+               #           str(file.names2)
+                         head(file.names2)
+
+     #determine file extension     
+     #this should be same for all files, only do once, first loop iteration
+     if (is.null(ext)) {    
+          ext1 <- colsplit( file.names2, c("\\."), as.character(1:10) )[1,]
+          #           ext1
+          ext <- paste0( ".", ext1[max(which(!is.na(ext1)))] )
+     }
+          #           ext
+
+     #remove file extension from all names
+     file.names <- gsub( pattern=ext, replacement="", x=file.names2 )
+#                          head(file.names)
+     
+     #split name into columns, by "_"
+     split.names <- colsplit( file.names, c("_"), as.character(1:10) )
+#                        head(split.names)
+     
+     #identify last two columns, which store coordinates
+     #this should be same for all files, only do once, first loop iteration
+     if (is.null( index )) {
+          index <- max( which(!is.na(split.names[1,])) )
+          index <- c( index-1, index)
+     }
+#                        print(index)
+     
+     #create table of coordinates
+     coords <- cbind( split.names[,index], file.names2 )
+     coords$region <- dir.names[i]
+     names(coords) <- c( "lat", "long", "weather.filename", "region" )
+#                str(coords)
+#                head(coords)
+
+     #save to csv
+     write.table( coords, file=file.path(working.dir,"coords.csv"), 
+                append=(i>1), col.names=i==1, 
+                sep=",", row.names=F)
+     
+     #merge with master table of coorindates
+     coords.all <- rbind( coords.all, coords)
+     
+     print(paste0( "       added ", nrow(coords), " new rows"))
+     print(paste0( "       new total: ", nrow(coords.all), " rows"))
+}
+#end loop through latitdue directories
+
+# names(coords.all) <- c( "lat", "long", "weather.filename", "region" )
+str(coords.all)
+tail(coords.all)     
+
+grid.coords <- coords.all[!is.na(coords.all$lat),]
+summary(grid.coords$long)
+
+###
+##  Save coords as rdata
+#
+
+save( grid.coords, file=file.path(working.dir,"grid_coords.rdata") )
+# write.csv( coords.all, file="C:/ALR/Models/conteStreamflow_new_england/data_prep/livneh_temporary/coords.csv", row.names=F)
+
+
+
+
+```
+
+```{r}
+
+library(conteStreamflow)
+
+
+###
+##  Coordinates to spatial points
+# 
+#turn numeric lat/long coordinates into r spatial object 
+
+proj4 <- "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs"
+
+grid.coords2 <- grid.coords
+names(grid.coords2) <- c("y","x","weather.filename","region"   )
+grid.points <- SpatialPointsDataFrame(
+                    coords = grid.coords2[ , c("x","y") ], #x/long then y/lat
+                    data = grid.coords2,
+                    proj4string = CRS( proj4 ) )
+rm(grid.coords2)
+
+grid.points@bbox
+
+# layer <- grid.points
+
+plot(grid.points,col="red")
+head(coords.all)
+str(coords.all)
+summary(coords.all$lat)
+summary(coords.all$long)
+coords.all[is.na(coords.all$lat),]
+coords.all[is.na(coords.all$long),]
+
+# save( grid.coords, file=file.path(working.dir,"grid_coords.rdata") )
+save( grid.points, file=file.path(working.dir,"grid_points.rdata") )
+
+```
+
+
+```{r}
+#finally, using spatial points of centroids, create grid polygons 
+print("Creating Voronoi polygons around grid centroids...\n")
+print("    (this part could take a while)    \n")
+nrow(grid.points)
+weather.grid.poly<-voronoipolygons2( grid.points )
+
+
+
+plot( weather.grid.poly )
+plot( grid.points, col="red", add=T )
+head( weather.grid.poly@data )
+
+nrow( weather.grid.poly )
+plot( weather.grid.poly[c(5,12,3),] )
+plot( grid.points[c(5,12,3),], col="red", add=T )
+weather.grid.poly@data[c(5,12,3),]
+grid.points@data[c(5,12,3),]
+
+#      weather.grid.poly@data<-weather.grid.poly@data[,c(3,1,2)]
+
+#if user opted to save grid as shapefile (by specifying shapefile directory), save it
+if ( !is.null( shapefile.dir) ) {
+     print("Saving grid shapefile...")
+     grid.temp<-weather.grid.poly
+     names(grid.temp)[1]<-"filename" #make column names esri-friendly
+     setwd(shapefile.dir)
+     writeOGR(grid.temp,  ".", layer="weather_grid", driver="ESRI Shapefile")
+}
+
+
+```
+
+
+```{r}
+boo<- "ftp://ftp.hydro.washington.edu/pub/blivneh/CONUS/Meteorology.asc.v.1.2.1915.2011.bz2/VERSION_ID"
+
+
+file.names1 <- getURL( boo, dirlistonly = TRUE )
+scan(boo)
+file.names2 <- unlist(strsplit( file.names1, "\\r\\n" ))
+
+str(file.names1)
+
+str(file.names2)
+file.names2
+
+```
+
+
+```{r}
+
+#how many file names are we talking about?
+length(dir.names)
+#614 directories
+nrow(file.names)
+#with 819 files each
+length(dir.names)*nrow(file.names)
+#503,000 coordinate points
+
+
+# filename <- "Meteorology_Livneh_NAmerExt_15Oct2014_42.03125_-100.03125.bz2B"
+
+# boo <- colsplit( filename, c("\\."), as.character(1:10) )
+# boo
+# boo2 <- paste0( ".", boo[max(which(!is.na(boo)))] )
+# boo2
+# 
+# filename2 <- gsub( pattern=boo2[max(which(!is.na(boo2)))], replacement="", x=filename )
+# filename2
+# 
+# boo3 <- colsplit( filename2, c("_"), as.character(1:10) )
+# boo3
+# index <- max( which(!is.na(boo3)) )
+# index <- c( index-1, index)
+# index
+# 
+# boo4 <- boo3[,index]
+# boo4
+
+
+# 
+# weather.filenames$y <- as.vector( sapply( weather.filenames$weather.filename,  
+#                                           FUN=function(x) as.numeric( unlist(strsplit( x, "[_]" ))[2] )  ) )
+
+```
+

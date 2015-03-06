@@ -2,35 +2,34 @@ Package: conteStreamflow
 Title: Headwater Streamflow Data Wrangling and Analysis
 Description: Tools for collecting streamflow data, meteorological data, and
     basin characteristics for hydrological modeling.
-Version: 0.2
+Version: 0.3
 Depends:
     DataCombine,
     EcoHydRology,
-    foreign,
     ggplot2,
     lme4,
     lubridate,
     maptools,
-    MASS,
     nlme,
     plyr,
     reshape2,
     rgdal,
     rgeos,
     sp (>= 1.0-15),
-    deldir,
-    topmodel,
-    USGSwsStats,
     waterData,
     zoo
 Suggests:
     car,
     data.table,
+    deldir,
     dplyr,
     foreign,
+    MASS,
     RColorBrewer,
     RJSONIO,
     RJSONLD,
+    topmodel,
+    USGSwsStats,
     VIF,
     xtable
 Author: Ana Rosner <arosner@usgs.gov>, <ana@alumni.tufts.edu>
