@@ -61,9 +61,12 @@ create.template.date<-function (start.year=1949, end.year=2010) {
 #' @title define periods
 #' @description if we want to add different period (i.e. bkt bioperiod), can do it here
 #' @export
-create.template.periods<-function() {
-     template.period<-data.frame(name=c(        "daily",  "monthly",   "seasonal",    "annual"), 
-                                 min.records=c( 1,        25,          80,            345), 
+create.template.periods<-function( min.records.monthly=25, 
+                                   min.records.seasonal=80, min.records.annual=345 ) {
+     template.period<-data.frame(name=c(        "daily",                 "monthly",   
+                                                "seasonal",              "annual"), 
+                                 min.records=c( 1,                       min.records.monthly, 
+                                                min.records.seasonal, min.records.annual), 
                                  stringsAsFactors = F)
      row.names(template.period)<-template.period$name
      return( template.period )

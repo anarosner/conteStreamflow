@@ -3,10 +3,11 @@
 \alias{flow.retrieve}
 \title{import flow}
 \usage{
-flow.retrieve(gages.spatial, periods = c("seasonal", "annual"),
+flow.retrieve(gages.spatial, periods = c("monthly", "annual"),
   flow.pre.agg.function = (conteStreamflow::flow.pre.agg.function),
   flow.agg.function = (conteStreamflow::flow.agg.function),
-  template.date = NULL, template.period = NULL, return.spatial = F)
+  start.year = 1890, end.year = 2015, min.records.monthly = 25,
+  min.records.seasonal = 80, min.records.annual = 345, return.spatial = F)
 }
 \description{
 import flow from nwis web service, and aggregate to various metrics and by various periods

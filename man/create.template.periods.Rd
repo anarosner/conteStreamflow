@@ -3,7 +3,8 @@
 \alias{create.template.periods}
 \title{define periods}
 \usage{
-create.template.periods()
+create.template.periods(min.records.monthly = 25, min.records.seasonal = 80,
+  min.records.annual = 345)
 }
 \description{
 if we want to add different period (i.e. bkt bioperiod), can do it here
