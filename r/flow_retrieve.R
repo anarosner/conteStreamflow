@@ -252,6 +252,8 @@ flow.retrieve<-function(gages.spatial,
      ##  
      #
 
+     rm( template.period, envir=.GlobalEnv )
+
      
      return(q.matrices)
      
