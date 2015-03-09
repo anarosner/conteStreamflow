@@ -22,7 +22,7 @@ gage.retrieve<-function( buffer.file=NULL,
                          proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
                          keep.other.coords=F, keep.sv.data=F) {
  
-     ### checks
+     ### check parameters, etc
      ##
      #
      
@@ -33,7 +33,15 @@ gage.retrieve<-function( buffer.file=NULL,
      if ( sum( !is.null(buffer.file), !is.null(sites), !is.null(states)) != 1 )
           stop("Must provide one and only one of method of selecting gages; either specify buffer shapefile, list of sites, or list of states.")
      
-     # using buffer
+     ### create request to nwis
+     ##
+     #
+     
+     # creates url to retrieve gage info from nwis 
+               # (at time of writing, can't do this using waterData package 
+               # or other webservices I know of, so we're creating/using a url)
+
+     # if retrieving sites using buffer, determine which states to request from NWIS
      if(!is.null(buffer.file)) {
           buffer<-readShapePoly(buffer.file,proj4string=CRS(proj4))
           cache.load.data( object="states.poly",file="states.rdata", dir="general_spatial" )
@@ -41,13 +49,8 @@ gage.retrieve<-function( buffer.file=NULL,
           states<-states.poly$STUSPS[match]
      }
      
-     # #get gage info, sites w/ daily flow
-
-     # write url to retrieve gage info from nwis 
-               # (at time of writing, can't do this using waterData package 
-               # or other webservices I know of, so we're creating/using a url)
-
-     #if user specified one or more sites
+     
+     # if retrieving sites using site_no
      if (!is.null(sites)) {    
           #single site
           if ( length(sites)==1 ) {
@@ -59,26 +62,23 @@ gage.retrieve<-function( buffer.file=NULL,
           else {
                gage.info.url1 <- paste0("&multiple_site_no=", paste0(sites, collapse="%2C"))
                gage.info.url2 <- "&list_of_search_criteria=multiple_site_no%2Csite_tp_cd%2Crealtime_parameter_selection"
-          }
-               
+          }               
      }
 
-     #if user specified either list of state, or buffer file (which is converted into list of states above)
+     # if retrieving sites using states or buffer
+          # (if using buffer, list of states has been determined above based on overlap w/ buffer)
      else if ( !is.null(states) ) {     
           gage.info.url1 <-  paste0("&state_cd=",states,collapse="")
           gage.info.url2 <- "&list_of_search_criteria=state_cd%2Csite_tp_cd%2Crealtime_parameter_selection"
      } 
      
-     #there is an error check on user's inputs above, so this should only catch errors converting buffer into states
+     # check for errors
+     # there is an error check on user's inputs above, 
+     #    so this should only catch errors converting buffer into states
      else
           stop(  paste("Unable to select by buffer, state, or site id",
                        buffer.file,states,sites,sep="      ")  )
 
-
-     ### get gage info
-     ##
-     #
-     
      #assemble url
      gage.info.url<-paste0("http://nwis.waterdata.usgs.gov/nwis/dvstat?referred_module=sw",
           gage.info.url1,
@@ -88,6 +88,11 @@ gage.retrieve<-function( buffer.file=NULL,
           gage.info.url2)
 
 
+
+     ### get gage info
+     ##
+     #
+     
      #use wget to save into temporary folder, and then read it in and parse.  probably there's a better way to do this, but this works for now.  
      orig.dir <- getwd()
      setwd(file.path(cache.dir, "temp"))
@@ -123,6 +128,10 @@ gage.retrieve<-function( buffer.file=NULL,
                        colClasses=c("site_no"="character","huc_cd"="character",
                                     "sv_begin_date"="Date", "sv_end_date"="Date"))
      
+     ### checks on gage info data completeness
+     ##
+     #
+ 
      #make sure all gage info includes IDs, coords
      if (sum(!is.na(gages.all$site_no))==0)
           warning(paste("Missing site identifiers:\n", 
@@ -191,12 +200,20 @@ gage.retrieve<-function( buffer.file=NULL,
           
      }
 
+     ### geographic placement/filtering
+     ##
+     #
 
-
+     # create spatial info from lat/long coordinates
      gages.spatial<-gage.place(gages.df = gages.subset)
      
+     # if buffer file was specified, filter by geographic overlay with that buffer
      if(!is.null(buffer.file)) 
           gages.spatial<-gage.buffer(gages.spatial, buffer=buffer)
+
+     ### finish up
+     ##
+     #
 
      cat("Gage retrieval complete \n")
      cat(paste(nrow(gages.spatial),  "gages identified"))
@@ -242,20 +259,7 @@ gage.place<-function(gages.df,
      return(gages.spatial)
 }
 
-# gage.place.spatial<-function(gages.df, proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",plot=F) {
-#      if (!("dec_long_va" %in% names(gages.df) & "dec_lat_va" %in% names(gages.df) ))
-#           stop("Input \"gages.df\" must include columns \"dec_long_va\" and \"dec_lat_va\"")
-#      gages.spatial<-SpatialPointsDataFrame(coords=as.matrix(gages.df[,c("dec_long_va","dec_lat_va")]), 
-#                       data=gages.df,
-#                       proj4string=CRS(proj4),
-#                       match.ID=F)
-#      if (plot) {
-#           plot(gages.spatial)
-#           plot(states.spatial,add=T,border="blue")
-#      }
-#      
-#      return(gages.spatial)
-# }
+
 ```
 
 
@@ -347,41 +351,10 @@ gage.place.nhdplus<-function(gages.spatial) {
      ### download huc file if needed
      cache.load.data( object="huc6", file="hucs.rdata", dir="hucs", 
                       message="Downloading regional spatial data files.  This may take a while. (Files will be cached locally for future use.)", quiet=F)
-#      assign( "huc6", value=huc6 )
-#      setwd( file.path(cache.dir, "data", "hucs"))
-#      if ( !("hucs.rdata" %in% list.files() ) ) {
-#           cat("Downloading regional spatial data files. (This will be cached locally for future use.)")
-#           download.file( paste0(server.url,"/data/hucs/hucs.rdata"),
-#                paste0(cache.dir, "/data/hucs/hucs.rdata"), 
-#                method="wget", quiet=F)
-# #           load( url(paste0(server.url,"/data/hucs/hucs.rdata")) )
-#      }
      
      #spatial query huc to determine which catchment files are needed
      g <- gages.spatial
      g$huc <- row.names(huc6)[ over( g, huc6 ) ]
-
-#      ### download catchment files as needed
-#      setwd( file.path(cache.dir, "data", "catchments"))
-#      to.load <- unique( paste0(g$huc,".rdata") ) 
-#      to.load <- to.load[ !(to.load %in% list.files()) ]
-# 
-#      if ( length(to.load)>0 ) {
-#           cat(paste( "Downloading", length(to.load), "spatial data files. (This will be cached locally for future use.)"  ))
-#           for ( i in 1:length(to.load) ) {
-#                cat(paste( "... now downloading file",i,"of",length(to.load)  ))
-#                download.file( paste0(server.url,"/data/catchments/",to.load[i]),
-#                               paste0(cache.dir, "/data/catchments/",to.load[i]), 
-#                               method="wget", quiet=T)
-#           }
-#           cat("Download complete")
-#      }
-
-#      
-#      setwd( file.path(cache.dir, "data", "catchments"))
-#      load( paste0(data.dir, "/catchments/",i,".rdata") ) 
-#      cache.load.data( object="huc6", file="hucs.rdata", dir="hucs", 
-#                       message="Downloading regional spatial data files.  This may take a while. (Files will be cached locally for future use.)", quiet=F)
 
 
      #first loop just to download/cache catchment files
@@ -467,39 +440,3 @@ gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStre
 ```
 
 
-
-```{r }
-# plot gages to nhdplus catchments and assign featureid
-
-
-
-
-# gage.place.nhdplusOLD<-function(gages.spatial,  
-#                             catchments=NULL,
-#                              catchment.file="C:/ALR/Data/StreamData/NHDplus/NHDPlusCatchment/NENY/Catchment", 
-#                             proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs", save.catch=T) {
-#                               #right now, using my local directory as the defaults.  this is bad, will replace later, etc.
-#      
-#      if (is.null(catchments)) {
-#           cat("Starting to load catchments...\r")
-#           cat("    (this part could take a while)    \r")
-#           catchments<-readShapePoly(catchment.file,proj4string=CRS(proj4),IDvar="FEATUREID")
-#           cat("Completed loading catchments...\r")
-#           if (save.catch)
-#                assign(x = "catchments",value = catchments,envir = .GlobalEnv)     
-#      }
-#           
-#      cat("Starting to plot gages to catchments\r")
-#      match<-over(gages.spatial,catchments)
-#      
-#      gages.spatial@data$FEATUREID<-match$FEATUREID
-#      cat("Completed plotting gages to catchments")
-# 
-#      if ( sum(is.na(gages.spatial$FEATUREID))>0 ) 
-#           warning(paste(sum(is.na(gages.spatial$FEATUREID)), "gages did not map to a NHDplus catchment:"))
-#           warning(paste(gages.spatial@data[is.na(gages.spatial$FEATUREID),"site_no"], collapse="; " ))     
-#      
-#      return(gages.spatial)
-#}
-
-```

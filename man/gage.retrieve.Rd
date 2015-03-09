@@ -18,8 +18,6 @@ gage.retrieve(buffer.file = NULL, sites = NULL, states = NULL,
 \item{max.da.sqkm}{\code{numeric} filter gages by min and max drainage area}
 
 \item{min.da.sqkm}{}
-
-\item{cache.dir}{\code{character} directory to store cached data files, save temporary files, and save gage retrieval logs/metadata}
 }
 \value{
 \code{SpatialPointsDataFrame} of gages within the buffer, with gage info from NWIS
