@@ -3,9 +3,7 @@
 \alias{weather.grid.livneh.create}
 \title{gather regions and coordinates for livneh weather grid(s)}
 \usage{
-weather.grid.livneh.create(grid.coords,
-  proj4 = "+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
-  shapefile.dir = NULL)
+weather.grid.livneh.create(grid.points, shapefile.dir = NULL)
 }
 \description{
 gather regions and coordinates for livneh weather grid(s)

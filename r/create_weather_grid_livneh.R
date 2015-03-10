@@ -1,5 +1,5 @@
 
-```{r}
+## ------------------------------------------------------------------------
 
 #' @title determine coordinates (and regions) livneh weather grid(s) from ftp dir and file names
 #' @export
@@ -107,17 +107,11 @@ weather.grid.livneh.coords<-function( ftp.url="ftp://gdo-dcp.ucllnl.org/pub/dcp/
 
 }
 
-```
 
 
-```{r}
-
-#' @title gather regions and coordinates for livneh weather grid(s)
-#' @export
-
-weather.grid.livneh.create<-function( grid.coords, 
-                                      proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
-                                      shapefile.dir=NULL ) {
+## ------------------------------------------------------------------------
+weather.grid.livneh.points<-function( grid.coords, 
+                                      proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
                                     
      names(grid.coords)[ names(grid.coords)=="lat" ] <- "y"
      names(grid.coords)[ names(grid.coords)=="long" ] <- "x"
@@ -126,6 +120,20 @@ weather.grid.livneh.create<-function( grid.coords,
                     coords = grid.coords[ , c("x","y") ], #x/long then y/lat
                     data = grid.coords,
                     proj4string = CRS( proj4 ) )
+
+     return(grid.points)
+}
+
+
+
+## ------------------------------------------------------------------------
+
+#' @title gather regions and coordinates for livneh weather grid(s)
+#' @export
+
+weather.grid.livneh.create<-function( grid.points, 
+                                      shapefile.dir=NULL ) {
+                                    
      
      print("Creating Voronoi polygons around grid centroids...\n")
      print("    (this part could take a while)    \n")
@@ -142,8 +150,8 @@ weather.grid.livneh.create<-function( grid.coords,
           setwd( orig.dir )
      }
      
-     return(grid.points)
+     return(weather.grid.poly)
 
 }
 
-```
+
