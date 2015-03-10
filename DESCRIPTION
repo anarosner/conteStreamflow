@@ -4,20 +4,20 @@ Description: Tools for collecting streamflow data, meteorological data, and
     basin characteristics for hydrological modeling.
 Version: 0.3
 Depends:
-    DataCombine,
+	DataCombine,
     EcoHydRology,
     ggplot2,
     lme4,
     lubridate,
     maptools,
     nlme,
-    plyr,
     reshape2,
     rgdal,
     rgeos,
     sp (>= 1.0-15),
     waterData,
-    zoo
+    zoo,
+    plyr
 Suggests:
     car,
     data.table,
@@ -26,6 +26,7 @@ Suggests:
     foreign,
     MASS,
     RColorBrewer,
+	RCurl,
     RJSONIO,
     RJSONLD,
     topmodel,
