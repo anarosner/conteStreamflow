@@ -1,33 +1,19 @@
----
-output:
-  html_document:
-    css: C:/ALR/Models/custom.css
-    theme: null
----
 
-# conteStreamflow Vignette: streamflow data prep 
-## Data prep for VT and NH, mean flows at monthly and annual time-steps
-## ALR 3-10-2015
-
-### load packages
-```{r load pkg, message=FALSE, warning=FALSE}
+## ----load pkg------------------------------
 
 library(conteStreamflow)
 
-```
 
-### Set up cache 
-```{r set up cache}
+
+## ----set up cache--------------------------------------------------------
 
 #set up cache
 cache.setup( cache.dir="c:/alr/models/cache", quiet=T )
 cache.set( cache.dir="c:/alr/models/cache" )
 
-```
 
 
-### Load gages using a list of states
-```{r load gages, cache=TRUE}
+## ----load gages----------------------------------------------
 g.spatial <- gage.retrieve( states=c("NH","VT"), max.da.sqkm=100, min.da.sqkm=0 )
 
 # number of records from initial retrieval
@@ -39,11 +25,9 @@ plot( g.spatial, pch=16, col="blue" )
 plot( states.poly, border="black", add=T )
 
 
-```
 
 
-### Load flow observations
-```{r load flow, cache=TRUE}
+## ----load flow-----------------------------------------------
 
 #Load/calculate/aggregate flow data for seasonal and annual timesteps
 q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.function, 
@@ -51,11 +35,9 @@ q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.f
                            periods=c("monthly","annual") )
 
 
-```
 
 
-### View sample of flow data
-```{r}
+## ------------------------------------------------------------------------
 # Sample flow data
 str(q.matrices)
 
@@ -77,17 +59,16 @@ q.matrices[["records"]]
 # setwd("c:/mydirectory")
 # save(q.matrices, file="q_matrices.rdata")
 
-```
 
 
-
-### Footnotes: r version and packages used
-```{r}
+## ------------------------------------------------------------------------
 #objects in session
 ls()
 
 #session info and package versions
 print(sessionInfo()) 
 
-```
+
+
+
 
