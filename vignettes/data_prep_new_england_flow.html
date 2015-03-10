@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title></title>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<link href="data:text/css,pre%20%2Eoperator%2C%0Apre%20%2Eparen%20%7B%0A%20color%3A%20rgb%28104%2C%20118%2C%20135%29%0A%7D%0A%0Apre%20%2Eliteral%20%7B%0A%20color%3A%20%23990073%0A%7D%0A%0Apre%20%2Enumber%20%7B%0A%20color%3A%20%23099%3B%0A%7D%0A%0Apre%20%2Ecomment%20%7B%0A%20color%3A%20%23998%3B%0A%20font%2Dstyle%3A%20italic%0A%7D%0A%0Apre%20%2Ekeyword%20%7B%0A%20color%3A%20%23900%3B%0A%20font%2Dweight%3A%20bold%0A%7D%0A%0Apre%20%2Eidentifier%20%7B%0A%20color%3A%20rgb%280%2C%200%2C%200%29%3B%0A%7D%0A%0Apre%20%2Estring%20%7B%0A%20color%3A%20%23d14%3B%0A%7D%0A" rel="stylesheet" type="text/css" />
+<script src="data:application/x-javascript,%0Avar%20hljs%3Dnew%20function%28%29%7Bfunction%20m%28p%29%7Breturn%20p%2Ereplace%28%2F%26%2Fgm%2C%22%26amp%3B%22%29%2Ereplace%28%2F%3C%2Fgm%2C%22%26lt%3B%22%29%7Dfunction%20f%28r%2Cq%2Cp%29%7Breturn%20RegExp%28q%2C%22m%22%2B%28r%2EcI%3F%22i%22%3A%22%22%29%2B%28p%3F%22g%22%3A%22%22%29%29%7Dfunction%20b%28r%29%7Bfor%28var%20p%3D0%3Bp%3Cr%2EchildNodes%2Elength%3Bp%2B%2B%29%7Bvar%20q%3Dr%2EchildNodes%5Bp%5D%3Bif%28q%2EnodeName%3D%3D%22CODE%22%29%7Breturn%20q%7Dif%28%21%28q%2EnodeType%3D%3D3%26%26q%2EnodeValue%2Ematch%28%2F%5Cs%2B%2F%29%29%29%7Bbreak%7D%7D%7Dfunction%20h%28t%2Cs%29%7Bvar%20p%3D%22%22%3Bfor%28var%20r%3D0%3Br%3Ct%2EchildNodes%2Elength%3Br%2B%2B%29%7Bif%28t%2EchildNodes%5Br%5D%2EnodeType%3D%3D3%29%7Bvar%20q%3Dt%2EchildNodes%5Br%5D%2EnodeValue%3Bif%28s%29%7Bq%3Dq%2Ereplace%28%2F%5Cn%2Fg%2C%22%22%29%7Dp%2B%3Dq%7Delse%7Bif%28t%2EchildNodes%5Br%5D%2EnodeName%3D%3D%22BR%22%29%7Bp%2B%3D%22%5Cn%22%7Delse%7Bp%2B%3Dh%28t%2EchildNodes%5Br%5D%29%7D%7D%7Dif%28%2FMSIE%20%5B678%5D%2F%2Etest%28navigator%2EuserAgent%29%29%7Bp%3Dp%2Ereplace%28%2F%5Cr%2Fg%2C%22%5Cn%22%29%7Dreturn%20p%7Dfunction%20a%28s%29%7Bvar%20r%3Ds%2EclassName%2Esplit%28%2F%5Cs%2B%2F%29%3Br%3Dr%2Econcat%28s%2EparentNode%2EclassName%2Esplit%28%2F%5Cs%2B%2F%29%29%3Bfor%28var%20q%3D0%3Bq%3Cr%2Elength%3Bq%2B%2B%29%7Bvar%20p%3Dr%5Bq%5D%2Ereplace%28%2F%5Elanguage%2D%2F%2C%22%22%29%3Bif%28e%5Bp%5D%29%7Breturn%20p%7D%7D%7Dfunction%20c%28q%29%7Bvar%20p%3D%5B%5D%3B%28function%28s%2Ct%29%7Bfor%28var%20r%3D0%3Br%3Cs%2EchildNodes%2Elength%3Br%2B%2B%29%7Bif%28s%2EchildNodes%5Br%5D%2EnodeType%3D%3D3%29%7Bt%2B%3Ds%2EchildNodes%5Br%5D%2EnodeValue%2Elength%7Delse%7Bif%28s%2EchildNodes%5Br%5D%2EnodeName%3D%3D%22BR%22%29%7Bt%2B%3D1%7Delse%7Bif%28s%2EchildNodes%5Br%5D%2EnodeType%3D%3D1%29%7Bp%2Epush%28%7Bevent%3A%22start%22%2Coffset%3At%2Cnode%3As%2EchildNodes%5Br%5D%7D%29%3Bt%3Darguments%2Ecallee%28s%2EchildNodes%5Br%5D%2Ct%29%3Bp%2Epush%28%7Bevent%3A%22stop%22%2Coffset%3At%2Cnode%3As%2EchildNodes%5Br%5D%7D%29%7D%7D%7D%7Dreturn%20t%7D%29%28q%2C0%29%3Breturn%20p%7Dfunction%20k%28y%2Cw%2Cx%29%7Bvar%20q%3D0%3Bvar%20z%3D%22%22%3Bvar%20s%3D%5B%5D%3Bfunction%20u%28%29%7Bif%28y%2Elength%26%26w%2Elength%29%7Bif%28y%5B0%5D%2Eoffset%21%3Dw%5B0%5D%2Eoffset%29%7Breturn%28y%5B0%5D%2Eoffset%3Cw%5B0%5D%2Eoffset%29%3Fy%3Aw%7Delse%7Breturn%20w%5B0%5D%2Eevent%3D%3D%22start%22%3Fy%3Aw%7D%7Delse%7Breturn%20y%2Elength%3Fy%3Aw%7D%7Dfunction%20t%28D%29%7Bvar%20A%3D%22%3C%22%2BD%2EnodeName%2EtoLowerCase%28%29%3Bfor%28var%20B%3D0%3BB%3CD%2Eattributes%2Elength%3BB%2B%2B%29%7Bvar%20C%3DD%2Eattributes%5BB%5D%3BA%2B%3D%22%20%22%2BC%2EnodeName%2EtoLowerCase%28%29%3Bif%28C%2Evalue%21%3D%3Dundefined%26%26C%2Evalue%21%3D%3Dfalse%26%26C%2Evalue%21%3D%3Dnull%29%7BA%2B%3D%27%3D%22%27%2Bm%28C%2Evalue%29%2B%27%22%27%7D%7Dreturn%20A%2B%22%3E%22%7Dwhile%28y%2Elength%7C%7Cw%2Elength%29%7Bvar%20v%3Du%28%29%2Esplice%280%2C1%29%5B0%5D%3Bz%2B%3Dm%28x%2Esubstr%28q%2Cv%2Eoffset%2Dq%29%29%3Bq%3Dv%2Eoffset%3Bif%28v%2Eevent%3D%3D%22start%22%29%7Bz%2B%3Dt%28v%2Enode%29%3Bs%2Epush%28v%2Enode%29%7Delse%7Bif%28v%2Eevent%3D%3D%22stop%22%29%7Bvar%20p%2Cr%3Ds%2Elength%3Bdo%7Br%2D%2D%3Bp%3Ds%5Br%5D%3Bz%2B%3D%28%22%3C%2F%22%2Bp%2EnodeName%2EtoLowerCase%28%29%2B%22%3E%22%29%7Dwhile%28p%21%3Dv%2Enode%29%3Bs%2Esplice%28r%2C1%29%3Bwhile%28r%3Cs%2Elength%29%7Bz%2B%3Dt%28s%5Br%5D%29%3Br%2B%2B%7D%7D%7D%7Dreturn%20z%2Bm%28x%2Esubstr%28q%29%29%7Dfunction%20j%28%29%7Bfunction%20q%28x%2Cy%2Cv%29%7Bif%28x%2Ecompiled%29%7Breturn%7Dvar%20u%3Bvar%20s%3D%5B%5D%3Bif%28x%2Ek%29%7Bx%2ElR%3Df%28y%2Cx%2El%7C%7Chljs%2EIR%2Ctrue%29%3Bfor%28var%20w%20in%20x%2Ek%29%7Bif%28%21x%2Ek%2EhasOwnProperty%28w%29%29%7Bcontinue%7Dif%28x%2Ek%5Bw%5D%20instanceof%20Object%29%7Bu%3Dx%2Ek%5Bw%5D%7Delse%7Bu%3Dx%2Ek%3Bw%3D%22keyword%22%7Dfor%28var%20r%20in%20u%29%7Bif%28%21u%2EhasOwnProperty%28r%29%29%7Bcontinue%7Dx%2Ek%5Br%5D%3D%5Bw%2Cu%5Br%5D%5D%3Bs%2Epush%28r%29%7D%7D%7Dif%28%21v%29%7Bif%28x%2EbWK%29%7Bx%2Eb%3D%22%5C%5Cb%28%22%2Bs%2Ejoin%28%22%7C%22%29%2B%22%29%5C%5Cs%22%7Dx%2EbR%3Df%28y%2Cx%2Eb%3Fx%2Eb%3A%22%5C%5CB%7C%5C%5Cb%22%29%3Bif%28%21x%2Ee%26%26%21x%2EeW%29%7Bx%2Ee%3D%22%5C%5CB%7C%5C%5Cb%22%7Dif%28x%2Ee%29%7Bx%2EeR%3Df%28y%2Cx%2Ee%29%7D%7Dif%28x%2Ei%29%7Bx%2EiR%3Df%28y%2Cx%2Ei%29%7Dif%28x%2Er%3D%3D%3Dundefined%29%7Bx%2Er%3D1%7Dif%28%21x%2Ec%29%7Bx%2Ec%3D%5B%5D%7Dx%2Ecompiled%3Dtrue%3Bfor%28var%20t%3D0%3Bt%3Cx%2Ec%2Elength%3Bt%2B%2B%29%7Bif%28x%2Ec%5Bt%5D%3D%3D%22self%22%29%7Bx%2Ec%5Bt%5D%3Dx%7Dq%28x%2Ec%5Bt%5D%2Cy%2Cfalse%29%7Dif%28x%2Estarts%29%7Bq%28x%2Estarts%2Cy%2Cfalse%29%7D%7Dfor%28var%20p%20in%20e%29%7Bif%28%21e%2EhasOwnProperty%28p%29%29%7Bcontinue%7Dq%28e%5Bp%5D%2EdM%2Ce%5Bp%5D%2Ctrue%29%7D%7Dfunction%20d%28B%2CC%29%7Bif%28%21j%2Ecalled%29%7Bj%28%29%3Bj%2Ecalled%3Dtrue%7Dfunction%20q%28r%2CM%29%7Bfor%28var%20L%3D0%3BL%3CM%2Ec%2Elength%3BL%2B%2B%29%7Bif%28%28M%2Ec%5BL%5D%2EbR%2Eexec%28r%29%7C%7C%5Bnull%5D%29%5B0%5D%3D%3Dr%29%7Breturn%20M%2Ec%5BL%5D%7D%7D%7Dfunction%20v%28L%2Cr%29%7Bif%28D%5BL%5D%2Ee%26%26D%5BL%5D%2EeR%2Etest%28r%29%29%7Breturn%201%7Dif%28D%5BL%5D%2EeW%29%7Bvar%20M%3Dv%28L%2D1%2Cr%29%3Breturn%20M%3FM%2B1%3A0%7Dreturn%200%7Dfunction%20w%28r%2CL%29%7Breturn%20L%2Ei%26%26L%2EiR%2Etest%28r%29%7Dfunction%20K%28N%2CO%29%7Bvar%20M%3D%5B%5D%3Bfor%28var%20L%3D0%3BL%3CN%2Ec%2Elength%3BL%2B%2B%29%7BM%2Epush%28N%2Ec%5BL%5D%2Eb%29%7Dvar%20r%3DD%2Elength%2D1%3Bdo%7Bif%28D%5Br%5D%2Ee%29%7BM%2Epush%28D%5Br%5D%2Ee%29%7Dr%2D%2D%7Dwhile%28D%5Br%2B1%5D%2EeW%29%3Bif%28N%2Ei%29%7BM%2Epush%28N%2Ei%29%7Dreturn%20f%28O%2CM%2Ejoin%28%22%7C%22%29%2Ctrue%29%7Dfunction%20p%28M%2CL%29%7Bvar%20N%3DD%5BD%2Elength%2D1%5D%3Bif%28%21N%2Et%29%7BN%2Et%3DK%28N%2CE%29%7DN%2Et%2ElastIndex%3DL%3Bvar%20r%3DN%2Et%2Eexec%28M%29%3Breturn%20r%3F%5BM%2Esubstr%28L%2Cr%2Eindex%2DL%29%2Cr%5B0%5D%2Cfalse%5D%3A%5BM%2Esubstr%28L%29%2C%22%22%2Ctrue%5D%7Dfunction%20z%28N%2Cr%29%7Bvar%20L%3DE%2EcI%3Fr%5B0%5D%2EtoLowerCase%28%29%3Ar%5B0%5D%3Bvar%20M%3DN%2Ek%5BL%5D%3Bif%28M%26%26M%20instanceof%20Array%29%7Breturn%20M%7Dreturn%20false%7Dfunction%20F%28L%2CP%29%7BL%3Dm%28L%29%3Bif%28%21P%2Ek%29%7Breturn%20L%7Dvar%20r%3D%22%22%3Bvar%20O%3D0%3BP%2ElR%2ElastIndex%3D0%3Bvar%20M%3DP%2ElR%2Eexec%28L%29%3Bwhile%28M%29%7Br%2B%3DL%2Esubstr%28O%2CM%2Eindex%2DO%29%3Bvar%20N%3Dz%28P%2CM%29%3Bif%28N%29%7Bx%2B%3DN%5B1%5D%3Br%2B%3D%27%3Cspan%20class%3D%22%27%2BN%5B0%5D%2B%27%22%3E%27%2BM%5B0%5D%2B%22%3C%2Fspan%3E%22%7Delse%7Br%2B%3DM%5B0%5D%7DO%3DP%2ElR%2ElastIndex%3BM%3DP%2ElR%2Eexec%28L%29%7Dreturn%20r%2BL%2Esubstr%28O%2CL%2Elength%2DO%29%7Dfunction%20J%28L%2CM%29%7Bif%28M%2EsL%26%26e%5BM%2EsL%5D%29%7Bvar%20r%3Dd%28M%2EsL%2CL%29%3Bx%2B%3Dr%2Ekeyword%5Fcount%3Breturn%20r%2Evalue%7Delse%7Breturn%20F%28L%2CM%29%7D%7Dfunction%20I%28M%2Cr%29%7Bvar%20L%3DM%2EcN%3F%27%3Cspan%20class%3D%22%27%2BM%2EcN%2B%27%22%3E%27%3A%22%22%3Bif%28M%2ErB%29%7By%2B%3DL%3BM%2Ebuffer%3D%22%22%7Delse%7Bif%28M%2EeB%29%7By%2B%3Dm%28r%29%2BL%3BM%2Ebuffer%3D%22%22%7Delse%7By%2B%3DL%3BM%2Ebuffer%3Dr%7D%7DD%2Epush%28M%29%3BA%2B%3DM%2Er%7Dfunction%20G%28N%2CM%2CQ%29%7Bvar%20R%3DD%5BD%2Elength%2D1%5D%3Bif%28Q%29%7By%2B%3DJ%28R%2Ebuffer%2BN%2CR%29%3Breturn%20false%7Dvar%20P%3Dq%28M%2CR%29%3Bif%28P%29%7By%2B%3DJ%28R%2Ebuffer%2BN%2CR%29%3BI%28P%2CM%29%3Breturn%20P%2ErB%7Dvar%20L%3Dv%28D%2Elength%2D1%2CM%29%3Bif%28L%29%7Bvar%20O%3DR%2EcN%3F%22%3C%2Fspan%3E%22%3A%22%22%3Bif%28R%2ErE%29%7By%2B%3DJ%28R%2Ebuffer%2BN%2CR%29%2BO%7Delse%7Bif%28R%2EeE%29%7By%2B%3DJ%28R%2Ebuffer%2BN%2CR%29%2BO%2Bm%28M%29%7Delse%7By%2B%3DJ%28R%2Ebuffer%2BN%2BM%2CR%29%2BO%7D%7Dwhile%28L%3E1%29%7BO%3DD%5BD%2Elength%2D2%5D%2EcN%3F%22%3C%2Fspan%3E%22%3A%22%22%3By%2B%3DO%3BL%2D%2D%3BD%2Elength%2D%2D%7Dvar%20r%3DD%5BD%2Elength%2D1%5D%3BD%2Elength%2D%2D%3BD%5BD%2Elength%2D1%5D%2Ebuffer%3D%22%22%3Bif%28r%2Estarts%29%7BI%28r%2Estarts%2C%22%22%29%7Dreturn%20R%2ErE%7Dif%28w%28M%2CR%29%29%7Bthrow%22Illegal%22%7D%7Dvar%20E%3De%5BB%5D%3Bvar%20D%3D%5BE%2EdM%5D%3Bvar%20A%3D0%3Bvar%20x%3D0%3Bvar%20y%3D%22%22%3Btry%7Bvar%20s%2Cu%3D0%3BE%2EdM%2Ebuffer%3D%22%22%3Bdo%7Bs%3Dp%28C%2Cu%29%3Bvar%20t%3DG%28s%5B0%5D%2Cs%5B1%5D%2Cs%5B2%5D%29%3Bu%2B%3Ds%5B0%5D%2Elength%3Bif%28%21t%29%7Bu%2B%3Ds%5B1%5D%2Elength%7D%7Dwhile%28%21s%5B2%5D%29%3Bif%28D%2Elength%3E1%29%7Bthrow%22Illegal%22%7Dreturn%7Br%3AA%2Ckeyword%5Fcount%3Ax%2Cvalue%3Ay%7D%7Dcatch%28H%29%7Bif%28H%3D%3D%22Illegal%22%29%7Breturn%7Br%3A0%2Ckeyword%5Fcount%3A0%2Cvalue%3Am%28C%29%7D%7Delse%7Bthrow%20H%7D%7D%7Dfunction%20g%28t%29%7Bvar%20p%3D%7Bkeyword%5Fcount%3A0%2Cr%3A0%2Cvalue%3Am%28t%29%7D%3Bvar%20r%3Dp%3Bfor%28var%20q%20in%20e%29%7Bif%28%21e%2EhasOwnProperty%28q%29%29%7Bcontinue%7Dvar%20s%3Dd%28q%2Ct%29%3Bs%2Elanguage%3Dq%3Bif%28s%2Ekeyword%5Fcount%2Bs%2Er%3Er%2Ekeyword%5Fcount%2Br%2Er%29%7Br%3Ds%7Dif%28s%2Ekeyword%5Fcount%2Bs%2Er%3Ep%2Ekeyword%5Fcount%2Bp%2Er%29%7Br%3Dp%3Bp%3Ds%7D%7Dif%28r%2Elanguage%29%7Bp%2Esecond%5Fbest%3Dr%7Dreturn%20p%7Dfunction%20i%28r%2Cq%2Cp%29%7Bif%28q%29%7Br%3Dr%2Ereplace%28%2F%5E%28%28%3C%5B%5E%3E%5D%2B%3E%7C%5Ct%29%2B%29%2Fgm%2Cfunction%28t%2Cw%2Cv%2Cu%29%7Breturn%20w%2Ereplace%28%2F%5Ct%2Fg%2Cq%29%7D%29%7Dif%28p%29%7Br%3Dr%2Ereplace%28%2F%5Cn%2Fg%2C%22%3Cbr%3E%22%29%7Dreturn%20r%7Dfunction%20n%28t%2Cw%2Cr%29%7Bvar%20x%3Dh%28t%2Cr%29%3Bvar%20v%3Da%28t%29%3Bvar%20y%2Cs%3Bif%28v%29%7By%3Dd%28v%2Cx%29%7Delse%7Breturn%7Dvar%20q%3Dc%28t%29%3Bif%28q%2Elength%29%7Bs%3Ddocument%2EcreateElement%28%22pre%22%29%3Bs%2EinnerHTML%3Dy%2Evalue%3By%2Evalue%3Dk%28q%2Cc%28s%29%2Cx%29%7Dy%2Evalue%3Di%28y%2Evalue%2Cw%2Cr%29%3Bvar%20u%3Dt%2EclassName%3Bif%28%21u%2Ematch%28%22%28%5C%5Cs%7C%5E%29%28language%2D%29%3F%22%2Bv%2B%22%28%5C%5Cs%7C%24%29%22%29%29%7Bu%3Du%3F%28u%2B%22%20%22%2Bv%29%3Av%7Dif%28%2FMSIE%20%5B678%5D%2F%2Etest%28navigator%2EuserAgent%29%26%26t%2EtagName%3D%3D%22CODE%22%26%26t%2EparentNode%2EtagName%3D%3D%22PRE%22%29%7Bs%3Dt%2EparentNode%3Bvar%20p%3Ddocument%2EcreateElement%28%22div%22%29%3Bp%2EinnerHTML%3D%22%3Cpre%3E%3Ccode%3E%22%2By%2Evalue%2B%22%3C%2Fcode%3E%3C%2Fpre%3E%22%3Bt%3Dp%2EfirstChild%2EfirstChild%3Bp%2EfirstChild%2EcN%3Ds%2EcN%3Bs%2EparentNode%2EreplaceChild%28p%2EfirstChild%2Cs%29%7Delse%7Bt%2EinnerHTML%3Dy%2Evalue%7Dt%2EclassName%3Du%3Bt%2Eresult%3D%7Blanguage%3Av%2Ckw%3Ay%2Ekeyword%5Fcount%2Cre%3Ay%2Er%7D%3Bif%28y%2Esecond%5Fbest%29%7Bt%2Esecond%5Fbest%3D%7Blanguage%3Ay%2Esecond%5Fbest%2Elanguage%2Ckw%3Ay%2Esecond%5Fbest%2Ekeyword%5Fcount%2Cre%3Ay%2Esecond%5Fbest%2Er%7D%7D%7Dfunction%20o%28%29%7Bif%28o%2Ecalled%29%7Breturn%7Do%2Ecalled%3Dtrue%3Bvar%20r%3Ddocument%2EgetElementsByTagName%28%22pre%22%29%3Bfor%28var%20p%3D0%3Bp%3Cr%2Elength%3Bp%2B%2B%29%7Bvar%20q%3Db%28r%5Bp%5D%29%3Bif%28q%29%7Bn%28q%2Chljs%2EtabReplace%29%7D%7D%7Dfunction%20l%28%29%7Bif%28window%2EaddEventListener%29%7Bwindow%2EaddEventListener%28%22DOMContentLoaded%22%2Co%2Cfalse%29%3Bwindow%2EaddEventListener%28%22load%22%2Co%2Cfalse%29%7Delse%7Bif%28window%2EattachEvent%29%7Bwindow%2EattachEvent%28%22onload%22%2Co%29%7Delse%7Bwindow%2Eonload%3Do%7D%7D%7Dvar%20e%3D%7B%7D%3Bthis%2ELANGUAGES%3De%3Bthis%2Ehighlight%3Dd%3Bthis%2EhighlightAuto%3Dg%3Bthis%2EfixMarkup%3Di%3Bthis%2EhighlightBlock%3Dn%3Bthis%2EinitHighlighting%3Do%3Bthis%2EinitHighlightingOnLoad%3Dl%3Bthis%2EIR%3D%22%5Ba%2DzA%2DZ%5D%5Ba%2DzA%2DZ0%2D9%5F%5D%2A%22%3Bthis%2EUIR%3D%22%5Ba%2DzA%2DZ%5F%5D%5Ba%2DzA%2DZ0%2D9%5F%5D%2A%22%3Bthis%2ENR%3D%22%5C%5Cb%5C%5Cd%2B%28%5C%5C%2E%5C%5Cd%2B%29%3F%22%3Bthis%2ECNR%3D%22%5C%5Cb%280%5BxX%5D%5Ba%2DfA%2DF0%2D9%5D%2B%7C%28%5C%5Cd%2B%28%5C%5C%2E%5C%5Cd%2A%29%3F%7C%5C%5C%2E%5C%5Cd%2B%29%28%5BeE%5D%5B%2D%2B%5D%3F%5C%5Cd%2B%29%3F%29%22%3Bthis%2EBNR%3D%22%5C%5Cb%280b%5B01%5D%2B%29%22%3Bthis%2ERSR%3D%22%21%7C%21%3D%7C%21%3D%3D%7C%25%7C%25%3D%7C%26%7C%26%26%7C%26%3D%7C%5C%5C%2A%7C%5C%5C%2A%3D%7C%5C%5C%2B%7C%5C%5C%2B%3D%7C%2C%7C%5C%5C%2E%7C%2D%7C%2D%3D%7C%2F%7C%2F%3D%7C%3A%7C%3B%7C%3C%7C%3C%3C%7C%3C%3C%3D%7C%3C%3D%7C%3D%7C%3D%3D%7C%3D%3D%3D%7C%3E%7C%3E%3D%7C%3E%3E%7C%3E%3E%3D%7C%3E%3E%3E%7C%3E%3E%3E%3D%7C%5C%5C%3F%7C%5C%5C%5B%7C%5C%5C%7B%7C%5C%5C%28%7C%5C%5C%5E%7C%5C%5C%5E%3D%7C%5C%5C%7C%7C%5C%5C%7C%3D%7C%5C%5C%7C%5C%5C%7C%7C%7E%22%3Bthis%2EER%3D%22%28%3F%21%5B%5C%5Cs%5C%5CS%5D%29%22%3Bthis%2EBE%3D%7Bb%3A%22%5C%5C%5C%5C%2E%22%2Cr%3A0%7D%3Bthis%2EASM%3D%7BcN%3A%22string%22%2Cb%3A%22%27%22%2Ce%3A%22%27%22%2Ci%3A%22%5C%5Cn%22%2Cc%3A%5Bthis%2EBE%5D%2Cr%3A0%7D%3Bthis%2EQSM%3D%7BcN%3A%22string%22%2Cb%3A%27%22%27%2Ce%3A%27%22%27%2Ci%3A%22%5C%5Cn%22%2Cc%3A%5Bthis%2EBE%5D%2Cr%3A0%7D%3Bthis%2ECLCM%3D%7BcN%3A%22comment%22%2Cb%3A%22%2F%2F%22%2Ce%3A%22%24%22%7D%3Bthis%2ECBLCLM%3D%7BcN%3A%22comment%22%2Cb%3A%22%2F%5C%5C%2A%22%2Ce%3A%22%5C%5C%2A%2F%22%7D%3Bthis%2EHCM%3D%7BcN%3A%22comment%22%2Cb%3A%22%23%22%2Ce%3A%22%24%22%7D%3Bthis%2ENM%3D%7BcN%3A%22number%22%2Cb%3Athis%2ENR%2Cr%3A0%7D%3Bthis%2ECNM%3D%7BcN%3A%22number%22%2Cb%3Athis%2ECNR%2Cr%3A0%7D%3Bthis%2EBNM%3D%7BcN%3A%22number%22%2Cb%3Athis%2EBNR%2Cr%3A0%7D%3Bthis%2Einherit%3Dfunction%28r%2Cs%29%7Bvar%20p%3D%7B%7D%3Bfor%28var%20q%20in%20r%29%7Bp%5Bq%5D%3Dr%5Bq%5D%7Dif%28s%29%7Bfor%28var%20q%20in%20s%29%7Bp%5Bq%5D%3Ds%5Bq%5D%7D%7Dreturn%20p%7D%7D%28%29%3Bhljs%2ELANGUAGES%2Ecpp%3Dfunction%28%29%7Bvar%20a%3D%7Bkeyword%3A%7B%22false%22%3A1%2C%22int%22%3A1%2C%22float%22%3A1%2C%22while%22%3A1%2C%22private%22%3A1%2C%22char%22%3A1%2C%22catch%22%3A1%2C%22export%22%3A1%2Cvirtual%3A1%2Coperator%3A2%2Csizeof%3A2%2Cdynamic%5Fcast%3A2%2Ctypedef%3A2%2Cconst%5Fcast%3A2%2C%22const%22%3A1%2Cstruct%3A1%2C%22for%22%3A1%2Cstatic%5Fcast%3A2%2Cunion%3A1%2Cnamespace%3A1%2Cunsigned%3A1%2C%22long%22%3A1%2C%22throw%22%3A1%2C%22volatile%22%3A2%2C%22static%22%3A1%2C%22protected%22%3A1%2Cbool%3A1%2Ctemplate%3A1%2Cmutable%3A1%2C%22if%22%3A1%2C%22public%22%3A1%2Cfriend%3A2%2C%22do%22%3A1%2C%22return%22%3A1%2C%22goto%22%3A1%2Cauto%3A1%2C%22void%22%3A2%2C%22enum%22%3A1%2C%22else%22%3A1%2C%22break%22%3A1%2C%22new%22%3A1%2Cextern%3A1%2Cusing%3A1%2C%22true%22%3A1%2C%22class%22%3A1%2Casm%3A1%2C%22case%22%3A1%2Ctypeid%3A1%2C%22short%22%3A1%2Creinterpret%5Fcast%3A2%2C%22default%22%3A1%2C%22double%22%3A1%2Cregister%3A1%2Cexplicit%3A1%2Csigned%3A1%2Ctypename%3A1%2C%22try%22%3A1%2C%22this%22%3A1%2C%22switch%22%3A1%2C%22continue%22%3A1%2Cwchar%5Ft%3A1%2Cinline%3A1%2C%22delete%22%3A1%2Calignof%3A1%2Cchar16%5Ft%3A1%2Cchar32%5Ft%3A1%2Cconstexpr%3A1%2Cdecltype%3A1%2Cnoexcept%3A1%2Cnullptr%3A1%2Cstatic%5Fassert%3A1%2Cthread%5Flocal%3A1%2Crestrict%3A1%2C%5FBool%3A1%2Ccomplex%3A1%7D%2Cbuilt%5Fin%3A%7Bstd%3A1%2Cstring%3A1%2Ccin%3A1%2Ccout%3A1%2Ccerr%3A1%2Cclog%3A1%2Cstringstream%3A1%2Cistringstream%3A1%2Costringstream%3A1%2Cauto%5Fptr%3A1%2Cdeque%3A1%2Clist%3A1%2Cqueue%3A1%2Cstack%3A1%2Cvector%3A1%2Cmap%3A1%2Cset%3A1%2Cbitset%3A1%2Cmultiset%3A1%2Cmultimap%3A1%2Cunordered%5Fset%3A1%2Cunordered%5Fmap%3A1%2Cunordered%5Fmultiset%3A1%2Cunordered%5Fmultimap%3A1%2Carray%3A1%2Cshared%5Fptr%3A1%7D%7D%3Breturn%7BdM%3A%7Bk%3Aa%2Ci%3A%22%3C%2F%22%2Cc%3A%5Bhljs%2ECLCM%2Chljs%2ECBLCLM%2Chljs%2EQSM%2C%7BcN%3A%22string%22%2Cb%3A%22%27%5C%5C%5C%5C%3F%2E%22%2Ce%3A%22%27%22%2Ci%3A%22%2E%22%7D%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5Cb%28%5C%5Cd%2B%28%5C%5C%2E%5C%5Cd%2A%29%3F%7C%5C%5C%2E%5C%5Cd%2B%29%28u%7CU%7Cl%7CL%7Cul%7CUL%7Cf%7CF%29%22%7D%2Chljs%2ECNM%2C%7BcN%3A%22preprocessor%22%2Cb%3A%22%23%22%2Ce%3A%22%24%22%7D%2C%7BcN%3A%22stl%5Fcontainer%22%2Cb%3A%22%5C%5Cb%28deque%7Clist%7Cqueue%7Cstack%7Cvector%7Cmap%7Cset%7Cbitset%7Cmultiset%7Cmultimap%7Cunordered%5Fmap%7Cunordered%5Fset%7Cunordered%5Fmultiset%7Cunordered%5Fmultimap%7Carray%29%5C%5Cs%2A%3C%22%2Ce%3A%22%3E%22%2Ck%3Aa%2Cr%3A10%2Cc%3A%5B%22self%22%5D%7D%5D%7D%7D%7D%28%29%3Bhljs%2ELANGUAGES%2Er%3D%7BdM%3A%7Bc%3A%5Bhljs%2EHCM%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5Cb0%5BxX%5D%5B0%2D9a%2DfA%2DF%5D%2B%5BLi%5D%3F%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5Cb%5C%5Cd%2B%28%3F%3A%5BeE%5D%5B%2B%5C%5C%2D%5D%3F%5C%5Cd%2A%29%3FL%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5Cb%5C%5Cd%2B%5C%5C%2E%28%3F%21%5C%5Cd%29%28%3F%3Ai%5C%5Cb%29%3F%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A1%7D%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5Cb%5C%5Cd%2B%28%3F%3A%5C%5C%2E%5C%5Cd%2A%29%3F%28%3F%3A%5BeE%5D%5B%2B%5C%5C%2D%5D%3F%5C%5Cd%2A%29%3Fi%3F%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%2C%7BcN%3A%22number%22%2Cb%3A%22%5C%5C%2E%5C%5Cd%2B%28%3F%3A%5BeE%5D%5B%2B%5C%5C%2D%5D%3F%5C%5Cd%2A%29%3Fi%3F%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A1%7D%2C%7BcN%3A%22keyword%22%2Cb%3A%22%28%3F%3AtryCatch%7Clibrary%7CsetGeneric%7CsetGroupGeneric%29%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A10%7D%2C%7BcN%3A%22keyword%22%2Cb%3A%22%5C%5C%2E%5C%5C%2E%5C%5C%2E%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A10%7D%2C%7BcN%3A%22keyword%22%2Cb%3A%22%5C%5C%2E%5C%5C%2E%5C%5Cd%2B%28%3F%21%5B%5C%5Cw%2E%5D%29%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A10%7D%2C%7BcN%3A%22keyword%22%2Cb%3A%22%5C%5Cb%28%3F%3Afunction%29%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A2%7D%2C%7BcN%3A%22keyword%22%2Cb%3A%22%28%3F%3Aif%7Cin%7Cbreak%7Cnext%7Crepeat%7Celse%7Cfor%7Creturn%7Cswitch%7Cwhile%7Ctry%7Cstop%7Cwarning%7Crequire%7Cattach%7Cdetach%7Csource%7CsetMethod%7CsetClass%29%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A1%7D%2C%7BcN%3A%22literal%22%2Cb%3A%22%28%3F%3ANA%7CNA%5Finteger%5F%7CNA%5Freal%5F%7CNA%5Fcharacter%5F%7CNA%5Fcomplex%5F%29%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A10%7D%2C%7BcN%3A%22literal%22%2Cb%3A%22%28%3F%3ANULL%7CTRUE%7CFALSE%7CT%7CF%7CInf%7CNaN%29%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A1%7D%2C%7BcN%3A%22identifier%22%2Cb%3A%22%5Ba%2DzA%2DZ%2E%5D%5Ba%2DzA%2DZ0%2D9%2E%5F%5D%2A%5C%5Cb%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%2C%7BcN%3A%22operator%22%2Cb%3A%22%3C%5C%5C%2D%28%3F%21%5C%5Cs%2A%5C%5Cd%29%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A2%7D%2C%7BcN%3A%22operator%22%2Cb%3A%22%5C%5C%2D%3E%7C%3C%5C%5C%2D%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A1%7D%2C%7BcN%3A%22operator%22%2Cb%3A%22%25%25%7C%7E%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%7D%2C%7BcN%3A%22operator%22%2Cb%3A%22%3E%3D%7C%3C%3D%7C%3D%3D%7C%21%3D%7C%5C%5C%7C%5C%5C%7C%7C%26%26%7C%3D%7C%5C%5C%2B%7C%5C%5C%2D%7C%5C%5C%2A%7C%2F%7C%5C%5C%5E%7C%3E%7C%3C%7C%21%7C%26%7C%5C%5C%7C%7C%5C%5C%24%7C%3A%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%2C%7BcN%3A%22operator%22%2Cb%3A%22%25%22%2Ce%3A%22%25%22%2Ci%3A%22%5C%5Cn%22%2Cr%3A1%7D%2C%7BcN%3A%22identifier%22%2Cb%3A%22%60%22%2Ce%3A%22%60%22%2Cr%3A0%7D%2C%7BcN%3A%22string%22%2Cb%3A%27%22%27%2Ce%3A%27%22%27%2Cc%3A%5Bhljs%2EBE%5D%2Cr%3A0%7D%2C%7BcN%3A%22string%22%2Cb%3A%22%27%22%2Ce%3A%22%27%22%2Cc%3A%5Bhljs%2EBE%5D%2Cr%3A0%7D%2C%7BcN%3A%22paren%22%2Cb%3A%22%5B%5B%28%7B%5C%5C%5D%29%7D%5D%22%2Ce%3Ahljs%2EIMMEDIATE%5FRE%2Cr%3A0%7D%5D%7D%7D%3B%0Ahljs%2EinitHighlightingOnLoad%28%29%3B%0A%0A"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+<link href="data:text/css,body%2C%20td%20%7B%0A%09background%2Dcolor%3A%20%23E9EDF5%3B%0A%09font%2Dsize%3A%2012px%3B%0A%09margin%3A%200%3B%0A%09text%2Dalign%3A%20left%3B%0A%09font%2Dweight%3A%20normal%3B%0A%09font%2Dfamily%3A%20%22Open%20Sans%22%2C%22Segoe%20UI%20Light%22%2C%20sans%2Dserif%3B%0A%7D%0A%0Att%2C%20code%2C%20pre%20%7B%0A%20%20%20font%2Dfamily%3A%20%27Courier%20New%27%2C%20%27Courier%27%2C%20monospace%3B%0A%7D%0A%0Adiv%20%7B%0A%09padding%2Dright%3A%200px%3B%0A%09padding%2Dleft%3A%200px%3B%0A%09max%2Dwidth%3A%20100%25%3B%0A%09margin%2Dleft%3A%200%3B%0A%09margin%2Dright%3A%200%3B%0A%7D%0A%0A%2Econtainer%2Dfluid%2C%20%2Emain%2Dcontainer%20%20%7B%0A%09max%2Dwidth%3A%20100%25%3B%0A%09margin%2Dleft%3A%200%3B%0A%09margin%2Dright%3A%200%3B%0A%09padding%2Dright%3A%200px%3B%0A%09padding%2Dleft%3A%200px%3B%0A%7D%0A%0Ah1%2C%20h2%2C%20h3%20%7B%0A%09text%2Dalign%3A%20left%3B%0A%09font%2Dweight%3A%20normal%3B%0A%0A%7D%0A%0A%0Ah1%20%7B%20%0A%09font%2Dsize%3A%2040px%3B%20%0A%09line%2Dheight%3A%2040px%3B%0A%09color%3A%20white%3B%0A%09background%2Dcolor%3A%20black%3B%0A%09padding%2Dtop%3A%20100px%3B%0A%09padding%2Dleft%3A%2070px%3B%0A%09padding%2Dright%3A%2070px%3B%0A%09padding%2Dbottom%3A%2010px%3B%0A%09margin%3A%200%3B%0A%7D%0A%0Ah2%20%7B%20%0A%09font%2Dsize%3A%2024px%3B%09%0A%09line%2Dheight%3A%2030px%3B%09%0A%09color%3A%20darkslategray%3B%0A%09padding%2Dleft%3A%2070px%3B%0A%09padding%2Dright%3A%2070px%3B%0A%09padding%2Dtop%3A%2020px%3B%0A%09padding%2Dbottom%3A%2020px%3B%0A%7D%0A%0Ah3%20%7B%20%0A%09font%2Dsize%3A20px%3B%20%0A%09background%2Dcolor%3A%23B3CAE3%3B%0A%09margin%2Dtop%3A%2070px%3B%0A%09margin%2Dbottom%3A%2010px%3B%0A%09margin%2Dleft%3A%2035px%3B%0A%09margin%2Dright%3A%2035px%3B%0A%09padding%2Dleft%3A%2035px%3B%0A%09padding%2Dright%3A%2035px%3B%0A%09padding%2Dbottom%3A%2015px%3B%0A%09padding%2Dtop%3A%2030px%3B%09%0A%09border%2Dstyle%3A%20solid%3B%0A%09border%2Dtop%3A%200%3B%0A%09border%2Dleft%3A%200%3B%0A%09border%2Dwidth%3A%202px%3B%0A%09border%2Dcolor%3A%20%23D3DAE8%3B%0A%7D%0A%0A%0Ah4%20%7B%20%0A%20%20%20font%2Dsize%3A16px%3B%20%0A%20%20%20padding%2Dleft%3A%2070px%3B%0A%7D%0A%0Ah5%20%7B%20%0A%20%20%20font%2Dsize%3A14px%3B%20%0A%20%20%20padding%2Dleft%3A%2070px%3B%0A%7D%0A%0Ah6%20%7B%20%0A%20%20%20font%2Dsize%3A0%2E8em%3B%20%0A%7D%0A%0A%0Ap%2Ecaption%20%7B%0A%20%20%20font%2Dsize%3A16px%3B%20%0A%20%20%20padding%2Dleft%3A%2070px%3B%0A%7D%0A%0A%0Aul%20%7B%20%0A%20%20%20font%2Dsize%3A14px%3B%20%0A%20%20%20padding%2Dleft%3A%2070px%3B%0A%7D%0A%0Aa%3Avisited%20%7B%0A%20%20%20color%3A%20rgb%2850%25%2C%200%25%2C%2050%25%29%3B%0A%7D%0A%0Apre%20%7B%09%0A%09border%3A%200px%20solid%20%23ccc%3B%0A%09white%2Dspace%3A%20pre%2Dwrap%3B%0A%09margin%2Dleft%3A%2070px%3B%0A%09margin%2Dright%3A%2070px%3B%0A%09padding%3A%200%3B%0A%09%7D%0A%09%0Apre%2Er%20%7B%0A%09background%2Dcolor%3A%20%23D3DAE8%3B%0A%09padding%2Dleft%3A%200%3B%0A%09padding%2Dtop%3A%200%3B%0A%09padding%2Dright%3A%202px%3B%0A%09padding%2Dbottom%3A%202px%3B%0A%7D%0A%0Apre%20code%20%7B%0A%09display%3A%20block%3B%20padding%3A%200%2E5em%3B%0A%09border%2Dradius%3A%200%3B%0A%09background%2Dcolor%3A%20%23E9EDF5%3B%0A%7D%0A%0Acode%2Er%2C%20code%2Ecpp%20%7B%0A%20%20%20background%2Dcolor%3A%20white%3B%0A%20%20%20padding%3A%2020px%3B%0A%7D%0A%0Aimg%20%7B%0A%09margin%2Dleft%3A%2070px%3B%0A%09margin%2Dright%3A%2070px%3B%0A%09background%2Dcolor%3A%20white%3B%0A%7D%0A%0Atable%2C%20td%2C%20th%20%7B%0A%20%20border%3A%20none%3B%0A%7D%0A%0Atable%20%7B%0A%20%20%20%20%20padding%2Dleft%3A%2070px%3B%0A%7D%0A%0Atd%20%7B%0A%20%20%20%20%20background%2Dcolor%3A%20white%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20%20color%3A%23666666%3B%0A%20%20%20margin%3A0%3B%0A%20%20%20padding%2Dleft%3A%201em%3B%0A%20%20%20border%2Dleft%3A%200%2E5em%20%23EEE%20solid%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20%20height%3A%200px%3B%0A%20%20%20border%2Dbottom%3A%20none%3B%0A%20%20%20border%2Dtop%2Dwidth%3A%20thin%3B%0A%20%20%20border%2Dtop%2Dstyle%3A%20dotted%3B%0A%20%20%20border%2Dtop%2Dcolor%3A%20%23999999%3B%0A%7D%0A%0A%40media%20print%20%7B%0A%20%20%20%2A%20%7B%20%0A%20%20%20%20%20%20background%3A%20transparent%20%21important%3B%20%0A%20%20%20%20%20%20color%3A%20black%20%21important%3B%20%0A%20%20%20%20%20%20filter%3Anone%20%21important%3B%20%0A%20%20%20%20%20%20%2Dms%2Dfilter%3A%20none%20%21important%3B%20%0A%20%20%20%7D%0A%0A%20%20%20hr%20%7B%20%0A%20%20%20%20%20%20page%2Dbreak%2Dbefore%3A%20always%3B%0A%20%20%20%7D%0A%0A%20%20%20pre%2C%20blockquote%20%7B%20%0A%20%20%20%20%20%20page%2Dbreak%2Dinside%3A%20avoid%3B%20%0A%20%20%20%7D%0A%0A%20%20%20tr%2C%20img%20%7B%20%0A%20%20%20%20%20%20page%2Dbreak%2Dinside%3A%20avoid%3B%20%0A%20%20%20%7D%0A%0A%20%20%20img%20%7B%20%0A%20%20%20%20%20%20max%2Dwidth%3A%20100%25%20%21important%3B%20%0A%20%20%20%7D%0A%0A%20%20%20%40page%20%3Aleft%20%7B%20%0A%20%20%20%20%20%20margin%3A%2015mm%2020mm%2015mm%2010mm%3B%20%0A%20%20%20%7D%0A%20%20%20%20%20%0A%20%20%20%40page%20%3Aright%20%7B%20%0A%20%20%20%20%20%20margin%3A%2015mm%2010mm%2015mm%2020mm%3B%20%0A%20%20%20%7D%0A%0A%0A%20%20%20h2%2C%20h3%20%7B%20%0A%20%20%20%20%20%20page%2Dbreak%2Dafter%3A%20avoid%3B%20%0A%20%20%20%7D%0A%7D%0A%0A%0A%0A%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+
+<div id="contestreamflow-vignette-streamflow-data-prep" class="section level1">
+<h1>conteStreamflow Vignette: streamflow data prep</h1>
+<div id="data-prep-for-vt-and-nh-mean-flows-at-monthly-and-annual-time-steps" class="section level2">
+<h2>Data prep for VT and NH, mean flows at monthly and annual time-steps</h2>
+</div>
+<div id="alr-3-10-2015" class="section level2">
+<h2>ALR 3-10-2015</h2>
+<div id="load-packages" class="section level3">
+<h3>load packages</h3>
+<pre class="r"><code>library(conteStreamflow)</code></pre>
+</div>
+<div id="set-up-cache" class="section level3">
+<h3>Set up cache</h3>
+<pre class="r"><code>#set up cache
+cache.setup( cache.dir=&quot;c:/alr/models/cache&quot;, quiet=T )
+cache.set( cache.dir=&quot;c:/alr/models/cache&quot; )</code></pre>
+</div>
+<div id="load-gages-using-a-list-of-states" class="section level3">
+<h3>Load gages using a list of states</h3>
+<pre class="r"><code>g.spatial &lt;- gage.retrieve( states=c(&quot;NH&quot;,&quot;VT&quot;), max.da.sqkm=100, min.da.sqkm=0 )</code></pre>
+<pre><code>## Gage retrieval complete 
+## 79 gages identified(Drainage area 0  and &lt;= 100  square km)</code></pre>
+<pre class="r"><code># number of records from initial retrieval
+nrow(g.spatial)</code></pre>
+<pre><code>## [1] 79</code></pre>
+<pre class="r"><code>head(g.spatial@data)</code></pre>
+<pre><code>##      site_no                                   station_nm dec_lat_va
+## 7   01064300                 ELLIS RIVER NEAR JACKSON, NH      44.22
+## 8   01064400             LUCY BROOK NEAR NORTH CONWAY, NH      44.07
+## 11  01064800             COLD BROOK AT SOUTH TAMWORTH, NH      43.82
+## 16  01072850       MOHAWK BROOK NEAR CENTER STRAFFORD, NH      43.26
+## 19  01073000                 OYSTER RIVER NEAR DURHAM, NH      43.15
+## 22 010735562 EXETER RIVER AT ODELL ROAD, NEAR SANDOWN, NH      42.95
+##    dec_long_va dec_coord_datum_cd   huc_cd da_nwis_sqmi da_nwis_sqkm
+## 7       -71.25              NAD83 01060002        10.90        28.23
+## 8       -71.17              NAD83 01060002         4.68        12.12
+## 11      -71.30              NAD83 01060002         5.41        14.01
+## 16      -71.10              NAD83 01060003         7.34        19.01
+## 19      -70.97              NAD83 01060003        12.10        31.34
+## 22      -71.16              NAD83 01060003        16.10        41.70</code></pre>
+<pre class="r"><code>cache.load.data( object=&quot;states.poly&quot;,file=&quot;states.rdata&quot;, dir=&quot;general_spatial&quot; )</code></pre>
+<pre><code>## Loading objects:
+##   states.poly</code></pre>
+<pre class="r"><code>plot( g.spatial, pch=16, col=&quot;blue&quot; )
+plot( states.poly, border=&quot;black&quot;, add=T )</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAADFBMVEX9/v0AAAAAAP/9/v375jfPAAAABHRSTlP///8AQCqp9AAAAAlwSFlzAAAdhwAAHYcBj+XxZQAAIABJREFUeJzt3eFiokq2gNFr8v7vfOd0EgVFhE0V7Kpa68dMn3SiBVJfgyD5v28AQv7v6gEAtEpAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUtrj95+cPkR/e8ui3yENzKQGFTY70TRl7JaCwUTyhAtorAYWtwgUV0F4JKGwXLKiA9kpAYQcBZUpAYQcBZUpAYTuH8MwIKGznJBIzAgrbCSgzAgqbuYyJOQGFrVxIzxMBha3CHRTQXgkobOXD8DwRUNjI3UR4JqCwzZZ+fv3P8s8WHw4ZCChs8zmCX78iP0uTBBS2+RjBr6+3BRXQTgkobPMpgl9f7wsqoJ0SUNjk41ugAjogAYVN9vTzpaAC2ikBhU0OBVRBOyWgsMmnQ3gBHZGAwjYCygsBhW2OnEQS0E4JKGwjoLwQUNhiw680XumngHZKQGGLLQV8308B7ZSAwmcb9j//eXczEQHtlIDCZ4f7J6B9ElD46MCdQO+PUGQgJCOg8NHx/AlonwQUPjm+AyqgnRJQ+KBAPwW0UwIKq7aegP/0KMcfg3wEFFYV6aeAdkpAYU2ZfipopwQU3itz/P7zSGUeh1QEFN4rlz0B7ZKAwnsCyioBhfcElFUCCu8JKKsEFN4qdgpJQDsloPBWuZPwAtonAYUVAsoaAYUVAsoaAeWAtzdg74aAskZACVv5FUAHHrHco5UgoKwRUKLWfgnloQcs9HAlOAvPquECWvDClI7dnrz/mzU7n7R4kAsQUFaNFtDg3G7dnuxV82GMX18nFbTC2Dc96/HHIJ2xAvpvKhSaEBnVit3SX3x9fSrezqfcGNDV0VUTfUWmozz+GKQzVEAfE+F5Wtx+vnjFoN4rG4DSS/c5oBUX55iNS/j7zdt/4MOjlXgUkhkloE9TZ/afRWbb8bFVTsPlAf1gxzKe8xIVfnwB7dIgAV2eCbfb5O+KF2vTiOo8+PITFn244gEt/XiHPbaOgg9HZ8YI6JtJsCVUh/K6UZ2FflmO6I++CVrh3mULaPZ/wEih74De7nsRb//+2DxJXs3ZSIM/+DZppXvXdz8FtE/9BvTKWiUUXQcrUSvcu2wBzf6AZNBpQO/h1M9fwZWwWrXCucvUT3ugbNJnQFXzRY2Alv7seqJ+eg+UTboMqHouCK2Ts8/spMnnd/Hi2Sa71GlArx5BQqF/VbKdGj9V4X+HbZU9EtBhCOhOAspHAjoMAd1LQPmkw4B6B3TZ4TdBi48oOwHlk+4C6gT8OwK6l4DySWcBlc/3dq6Y32QO3E8B5aOuAiqfa3atmkc1x+2ngPJRRwGVz3V7Vs5sv3PQfAoon/UTUPn8YMfqGfqdzwcB5ZMuAuqOIVsI6F4CyiftB/TvhiG2zw+2r6Cxr/58KLtN2UB71HpApXMzAd2t6KZlM+1R4wHVz+0EdL+SW5fttEdtB1Q8t9uxrgT0TkBZ1XpArx5BM3aVQD//CCirBHQM+0IgoL+eDuEPrQ8ba4+aDqhNcrPA5zj18/s1nwdWia21R+0G1OmjPfauKv38ft7/PPqPiq21R60G1KWfuwRW1fD5fFprx9/WsLl2qMmAiudeG9aWYL4SUD5oLqA+dhTxcX05ZH/1dgc0uJpstB1qLaDqGfJplX0V6ENv3r0DKqA8tBfQq0fQpA+r7evFSeNK7OnfaQFlSVMBtfMZtTugwxf0eVsTUJa0FFBH71H7+zl6QV+3tOPrxsbboYYCqp5Rn9ZcwwGtNNKFNSagLGgloPY+4z6uucWAtlDQakNdWmWH14wNuENtBNS59yM2X8PUWkDrjXVxazv6ZLbgDjURUPU85PPKazOg9Qb7bns79kw24g41EFD5PEhA96qzxdmMO5Q/oPp51IYV2Ho/yxe07OPVe1Cu1UJArx5B67b8EySgU/ZA2UhAR7AlCAL6UGebsyV3SEBHsPFtkLYKWm+0ld40siV3KH1AvQNaxMbV2GxBSz5utU3Optyf5AF1BqmUjetRQCv+k21b7k/ugOpnMdtWZasH8SUfVUDZLntArx5BPz4W9PksUv6A1vkop4CyXfKAXj2ArqzO39d8NhDQOjcTEVA2yx1QSlqbv0v9bCGgNQgomwnoOFbmr34+OIRnOwEdh4BuIqBsJ6DjeD9/9fOu5oUfAtofAR3HvoCeObI8ql44J6D9EdBhrKRBPn/Vve5YQPsjoKNY27cSz18Cyj4COorNV4GeNqJ8Kn/yTUD7I6CDWE+DgP6n9geHBbQ/AjqIzZ/jPGk8GdUOnID2R0AHsfVXG58zmozq37lGQPsjoIPY9ls9zhhJUifc+UtA+yOgY3BfwE9OWEFeg/4I6BD086MTVpEXoT8COgRT9zMBZT8BHYKp+5mAsp+ADmF96g5++uiXY3j2E9AhbLmX8nmjyUlA2U9Ah7DpVqBVR9BAol3HxG4COoRt9xGp9/xt7OUKKHsJ6BAuDmgrHxT1USR2EtAhvJ25p9zIrplblQgoOwnoEAR0E7djYicBHcKlAT0l0mVULqiAdkdAhyCg2wgo+wjoEC49iSSgj4ev+ehcQECHIKDbeA+UfQR0BGs7ViekrZl+2gNlJwEdwabfh1Tv6ZsKqN8qxw4COoINvxCp6vO30s9/Aa0YOQHtjoCO4PKJ20g/vysfxF/+OlCagI4gwcRtI58Cyj4COgC/0GM774Gyh4AOwLzdruqboF6I7gjoAMzb7W41zyN5IbojoP1zBL9LzX1Qr0RvBLR/ArqXXVA2EtD+mbV7CSgbCWj/zNqdvAnKVgLavVxH8C1cD1rvPFKql4ICBLR7mSZtI59IElA2EtDuJZq0rXwmXkDZSEC7l2fSNnNXJgFlIwHtXp73QBsKaGsPzEUEtH/bZ+15twUdtKAC2hsB7d/WWVs7be0EtNpOu4D2RkD7tzEH1dvWTEDrfZhTQHsjoAPYNG3rx62pgDqJxBYCOoAkAW3nJFK1fVAB7Y2A9m9TDM7YPWwroDVaJ6C9EdD+pQloMxfSf9c6jySgvRHQAaQJaCsf5bQHykYCOoDP0/br65yAtnEzEe+BspWADuDTtH3OZwOFq8xlTGwjoCNYn7cv/Rw5oP/2PV0HykYCOoLVI1L9nLjd/FY5dhDQIaw1QT8n/ltNAspmAjqG91GQz4nad64S0N4I6CjetaFQPvtob81fafz7BFUfnrMJ6DBqBrSb3dfaBRXQzgjoMCoGtKc3AOoWVEA7I6Dj2FDQ2AP39RaqgLKdgI7jzb7V8bNIAprjwTmfgA5kY0H3RrCzs/gCynYCOpBtJ+J3R7CrgFY+iySgF6i50gV0JG+3pEMF7SmgzsL3p+prKqAjWd2QBPTblfQ9ElAKWduQwhnsqZ/VCyqgp/u5O0ytRxfQkWz/SPyOB+0uoN4D7YqAUsxKHloKaMUnEtDu/NwgptKDC+hgOghozaeqeS+7n8ev+OAsuQko5Ww7ht/1kBf1s8qTOYnUm59XVEApo/mA1n222oET0HP9HVAIKGXMtqR5hMJhumgHtOzTVb4X/f1Z6j4+M/cXVEApY7IlvWTocEELjXHLU5V+wnP6KaDnuq9uAaWQ+6b0kqEjZTopn9UCeko9vwX0ZAJKaX+b0muHzn0vM6hOQM/qp4Ce7L9rQL9rnhsU0NG8DWitg+Oy9o1y65IIaKd+X1cX0lPK77b0GqI2ArpnP3n7spxTz28BPZuAUtg4Ad2+MCftfn4L6NlqX8UkoMNpPaCbu7hjaQS0F0+v5OMqJu+BUsZiQF8KeukQP9h5AP/5W0/Lp4DWNnsze3IVqIBSyNJJpLYCuu3c0I4d6hOrJqBV/dx5aZLN2+wPFQjoaG5vj+G7+u3EAjqi6TueC3uiFQjocN4H9MxPFFW3OaDnvQH6LaCVTQI6eVX9TiQKen8l/feJnyiqbmtAT+2nglb1OGSfva8toBS0sgfalc07oKeN6IKnG8Ljjc7flTt/07Pqv5ACOpr3J5E6s3kH9LwhfQtoBbeHyVe+F/5cgYCOZpiAbjsndnbQBLS49ftoVV7hAjqacQK64ZzYyW+AfgtoDavrVEApaeFudt0GdO2c2PNR31kEtLy1dVr7FRbQwYwV0EV/V1tfkE8BrWJlpdZe3wI6mOEDelk6/57+oifu2WpA7YFSzmNzGjKgv+28rp8CWsN6QKuucQEdy8KvRBqtn1cP4drn79KFZ5EEdCxDB/Tyen4LaA2vr+tpl4EK6FhmW9No/UwRrwxj6M1rJKfX1Nd9bgEdynxzytnPaiPKsAMqoDU8vTUzuaWdk0gU9LI15cxnnVFd//7nzyiuHkGXnj+8OftYfM0nFtCBpCjIuopvK+RY+Byj6M9zQL9POogX0HE01c/yBc2x9DlG0aHnX98hoBTWwNwVUIIeAf1++n8BpYj8c7fqxf05Fj/HKHr0NqBVn1VAx5F/7gooYU+H7gJKYfnnbsWA5jgH38KL0CwBpa70k7doQOeXBgpo92YBvT39fy0COpD8k7dcP6cXA6ap53cLr0GzngL6Pfv/WgR0IPkn79GA3u9Vd/+fi+9e9yLPSHozKefsQvq6zyqgA0nUkXe29fPd378UM1k9/5NrNB352wG9zY44nlZ38ZUvoCNpYPJu6Of7bznr83tH5B1Z4x5H8JNVfJv/ufzKF9CRNDF5t+x+LhY0czYfWhhjk+57oE9nDx9/ElCO6WHyLr5Nmu6tzvdaGGOT1gP6+1UB5YAeJu9SQJup53cfr0FKi+/fPH9CvjgBHUkHk3fxUtGWlqulsbZk+Zq12v0U0KF0MHkFlEWz6y4mX50fnTiE54AOJq+AsuT+SfjbyzH89KJQAeWADiavgPLsdpv087bSyQrrXkBHcsXkLfCp9pfHez2JVPIZ6mpprE2Yf3Di9yvzb5h8a+lnF9ChnD57y3ywfekRH4/azAn4f1oaaxPmx+iP/5387eQ/Sj+7gA7l7Nm77ZOZxx6zrX4KaGnzS+W/l27D5SQSZZw8excvei/2qD//1VY+BbS020JAX7+l2koX0LGcO33rBHT+vmprQWptvNm9ftj9dQ0LKIWcOn0Xz5gX1lyPmhtwci8fdj/3kERAx9JhQBsLUmvjzW5y47q/gL7/Xu+BckxvAW3sDNK3gJY2vfPnekDdjYmjzs2NPdAFrY03u8kVTE97oLfZ3wsox3VxFn6utSC1Nt7kpp/SnAV08tnO+7cKKMcI6OVaG29utx0BrUJAh9LDhfTPGitSY8PNbXKF/P0U/PsVXGPNC+hI9kzeMtWr388kRdq8kDmG24fFG9fdnr9n8g3lhyCgw9j1FlC58FXOZ47TSDtWV4LRdmO2LpevYroJKGVE+lm5fWVcn6Rdq+v64fbieYNe2AOdfLqzzj+0AjqKPdvPGSd/irl+D3Tf6rp8uL1YOFqf9fN+SO+z8By2ayNqLKBXj0BAL7F405DXGzFVun7pl4AOYu/5o3YKenmQdq6uy8fbi4Ud0Jf/FlCK2LUFCeguAnqNTwG9f21yjyYX0hOya9YK6C4Ceo23FyzNvna/rF5AiRPQegT0CgtXfK5/c53VLqBD2Ln16OcuTiKd76WIq4UUUI7Yu/UI6C4Cer6la5j2fHspAjqA/VtPO/1M0aNdqyvDgDuwcBH96ncLKDGho5eG+pmhR3tWV4oBt29fQKsR0N5Ft6wm8pknR9tXV5YRN27jW6C1V7aA9i7HLlo17S1deyNOaeNFTLXXtoB2r+8J296/D80NOKFNZVy8u11pAtq79gqzT3OL19yAE9pSxr/PwdcdiYB27qo318/T2vK1Nt6MXm4bsvgt7/6qJAHtXPf9bG4JGxtuSh8Dev97AeWY7udra/vYbY02pb/bLK18w99f1944BLRzjdUlorFFbGu0KX1ahZMtovY/rwLauRGma1vL2NZoU1pfhS+3Va45FAHt3AjTta1lbGu0KW08fP871q+5wgW0cyNM17aWsa3RprSyCmcXL93uqn0iSUD7NsRsbWsh2xptRmv7lP/+6v6r5CYqjUVA+zbEbG1rIdsabUJrOXwq52QntNJgBLRrjZ2gDmprKZsabEYrOXz083cv9LtyPwW0b2NMVgEdyvse3l64DpQjxpisAjqYHQGtfT87Ae1ag5N1/31I2+pni69JLrfVgL5mtOpgBLRrzU3WwJ3wG+tne69JMitRvP2eg/9+OptUcTQC2rXWJmvkdzG1toytjTeZlSTe7un8flxDL6DENTZZQ78NtLFlbG68yaxfRP84IHl0VkCJamyyBgNa/Y2uoloaa0KfbyTy9/+n3JBJQLvW1mT9+ooUNGFAV4efbKyt2RHQ+1cqrnIB7VljczUc0FwL+mEBUo21PdMurv797GsupGe/bDtmn3zFCprslsqfFiDTWNtzP1H07kVf/LKAEtDaVP16teXHch3Cfx59osG25/Mlnktfr7eBCGjHmpupCwXdEFEBHcn9E0bvXvbFr1fbQgS0X+1N1OWAfkpoqoBuGHiewbZodpnS5oBWW+kC2q8GJ2qooAI6kullSu8DurALWmc4AtqvFidqpKCpllNAz7H+gSQB5bg2J6qA8tnaxb8CShGNTtR9BU11/P6fz4PONd4mfezn8985icRujU7UXQFN108BPcHvafi3f/myUbiMif1anag7A3rq2DbYMOZTx9OhtTX4U8/5duGTSAS0OlEbD+jHe5omHHJj1l71+2Wi2779KAHtVrvzdN8R/KlD22Ytny2/MFmsvez3z3p+//06DzcTISJnWzbZGtA2F7HJQSeydgZpdlPQ29+tld3OjoCku2ebtHsA/1mTg05j7WPws2+ZfG6+4nAEtGNt9uXuYz8bbVGTg85iSw9/zyLdBJRjGi/o98dbEze5fE0OOolNr/h997P+eAS0b20WZqNG+ymgcTtecQGlgJ4nq4COZvqCJ1mJAtq3jidrq/3s+TWp7LHm0rz4Atq3JJtZBfk+xLlVo8NOYPr7kJK8/ALatxQbWRVZZtB+jQ47gfsrLqCcI8VGVkW7S9buyC/2qKaAco4UG1kNOaZPSLsjr2PLSzm5Lv7vZ3KsRgHtW46trLwk0yek4aHXsKWFf3dYut0/oymgnCHHVlZekukT0vDQi/u5b9KnNfL0kaI09fwW0M6l2c6Ka3jJGh56aT87lh8bOtv9/HAzkZMJaNfSbGfFNbxkDQ+9pNv9yPxjEh/H7d/J+imgfcuzoZXW8JI1PPSC7kflj/c3V771W0C5QKItrbBUs2ifVsdd1KSeU2++9/WH649wGwHtW54trbBc+yG7NDrsst4EdGnVpH6dBbRvV25767/Y4tDDfglo4/5ev9+Krt38OPX6EtC+XbfxfbwZ8rGH/co9r9Y0O/CSJu9o/v73ZKf0+VvPH95mAtq3yza+DbeTP/awX6nn1ZpmB17SPKC3+Y7o83deMsJtBLRvV218G36h0bGHbfYA/ltB/zN//WZviM7XT/LXWUD71ldA++ingD6fA3w6j/TU1ivGt5mA9u2izW/T79Q88qi3W50zVKdI3oQT3J4DOm3obAVlX1cC2reeAvoloN2YF3QSznlA8x9oCGjXrtr+BHRN9iicYDmgs794f2FoJgLat44C+iWgLdi2bAv9fNrrfH9daCoC2reOTiK9BLTQ454vfRXiNibv7yPwjx+6Pb3vebv/T24C2rcMx/AVHlJAc9q6z/iyd3k/gv+e7Ht+frDrV6SAdu76XdDyj/jvKqZ2+9l1QLct3PNB++TLk8P7TwHNsIMqoJ27/KNIxR+w+X52HdBNUZvdv27x7c/nv3n3bN9X74UKaOcu/Fe6aD4nAb013s/OA7rp275fqvn35/3PuPMnyhLQzjVwInOjWT8FNKXtAZ39zM4ff3rGnT9RloB2r5vp+jh8b7uf/bwiL44FdMNPv/y9gFJbL/N1cgWogKYU6ef3jh3Qq2u5QED7l2+rC7ofv7fdz35ekGehgM5//tPj7x7TtmcOE9ABdDNh++hnP6/Hs83n4N//3afH3zmi5x8XUPbrZ8L2kM+eXo8n7wu17Ux75Qs/BZSQfiZsH0vSx1IseFuoyXXzaxH7+/zR3od//cZN31aCgA6gnwmb8CxCQBcLsWQloJOr49d/fqWSez4nuuH7ihDQAXQzYTu5qLWRhYhck/k+oH+fGzojoCeuYQHtXyPz9bPduxZJL3hq4wV5HHRv/4l3i/b7GffvD8v+IaCxYdRd2wLavzbm6wY7F6T4p/FLaeAFmZRse9BeA/r3n/eAftwBLXCUMR9G5YMWAe1fA/N1k8DuZ86C5n9B7ruCu/YIXwI6P3N03wtde9bggJ8e5dCnQ3cR0P718cbh3u5UuCNpKelfj/vblfuOqKcB/d3dnJ05OufNyZeAVn02AR3AkAUV0LDb7Z6/tauKFn5uesz++9P/3kO9vxlwUkBnY6pKQAcwYkBn96+vWNDIo2d/OSb7n7sGuxzQ2bupZy35bE+4JgEdQPYJu1W+gMYeP/vr8dj/3LUDOgnoJJ5XBPTEUgto/+5bU8Kj2V3SBTT4BLkDOjl5tPNNy/u3P5+DmrynWmnQT+MQUIr525iSviG4Q7aARp8hb0BvR/o5Dej0ce6b4Jk7oAJKIU/9bLig2U4idRfQpz3HfQfwk3BNG3zBwp75pALau9+NKfFJ6a32TYtzd0B3PUfygN7/sPeqo1lAf/7/ihOYp0ZbQHv3uzkNF9D6u9y9BXS6xxgM6Pd0D/TkT6VPhiGgFPTf5nTGW4K17Z0XtZe2s4BOD7lDx9+3SUC//977zLms5Qho//7biHsI6P7w1F3WvgJ6L+f3tJ+7zsH/nTqavRVQabhZCOgAhg1oZdFVmm05/nM/dP++HwPvrN/kWs9JQIsPNBkBHUAnAU23O9NXQH/+d1LOncN8fAhpeghfdpT5COgAno/hrx5PUL7ZGFyluRbk5UrN4OH3PKCPh+6bgI7g9vPL1NsOaMbJGFujuZZk/mbn9ET83seZPML9j4UGmZaADmFW0KsHE5N0MoZWaKpFuV+xNP0E0vMYNwx41uD7n8qONR8BHcPkIP7qocR0dUFMqkWZnHifBHS+ujes/Md3TANaerDpCOgY7hfTXz2QqK7mYpaFeVyy9Ajo9+IO6PSblh9q8hd/f35cGLpvSC0R0DE0v//W+vhnkizMbJ/zeZdz/o2fLq1f+ov9l5I2uJ0K6CBa2zCfNDexVuVYmNvU5KuP//37wuwU/ZvHWnz8ne+87O7t9QR0EK1tmHPtTaxVKRZmsus5Pwv/Pdsdfenr0tgXv7r7Ndu/w3o9AR1EaxvmXNujf5FicSani37/8PjqvJjT4S4mbkdVt4yoJQI6huY2zJl0oz94Oi7F4tz+7pg0ew/0qZ+va345oIuPHwnovp+4noAOocEtcyrZ6A9fEJZieWbBnFTz+c/PP7V4sL74+HuXssWtVECH0OCWOZFs9AU+kpBhiW6P35k5jeajposfZr8f60+/tP3EUncEdARtb8rJdkxKfCg2wxI93gKdnl+/zS3/1Ms1oicNOSEBHUHLW3i6+dlJQOdH6vchzS75/BjQFk/7lCWgI2h2G084QYvcGDDBMk3X7H0n9PE3L5fWT3/stvQfYxLQEbS6kc/m55E9voIfYu0koNPw3W6PW3j+/vfzyfjp974/wzQgAR1Boxv6dIIeKVbR26h0E9DJH2/f04C+HsE/HbRPvunEEeckoCNoc0Nf6mckWWVv5NdHQKefyvz3/48gLrwFOivl36kn+fyPgA6g0U19sZ/7m1XipE/px7v6Bbk973BOr156fOHdD1+/AGkIaP8a7aeA1jMJ5GNv8zb90npAn/6qze2rCAHtXqP9fD5/FK1WkUPuN48YfoirX5KPAV07RXR7KmijG1gZAtq9Njfv2fzNFdACJ6WufU1m6/Y2s/XHBfSXgPau+tZdrEszs2EnC+jxZb40Oa/929VPAZ0S0N5V3roLl+kud0CPujig949tfj/tge54CP4R0M5V3j2olqb5sI80MGE/Lw3Qy6miSUevG1WrBLRvp/WzdJwEtNpTT4p57+bOPVD+CGjfTjqArx3QRBfSF3F9QKfn3h97o5eNqlkC2rfzdkDL5ullMh95knT9vDCgk48fTd743PseKH8EtG+tBnRh4EeeIlc+rw3o823rnv+GPQS0bx0FtCeXBnRy/fz8b64ZUdsEtG+tBrT33aFL3wT9dsxejIB2rfYUsQMaJKCdENCeVZ8hdkCDrj0N/3ck3/taPoGA9qz+BLEDGnP9lfT2QIsQ0J6dMEEe/SxZ0e5ndpKAXjeM7fpFAAATm0lEQVSIXghox86ZIY98lkto91P76ruJrNytjj0EtF9nTpGyh/L9T24B7YSA9uuSfpYo6ACT++obgo6wjk8hoP06cYqUDujxx0ju6oDqZyEC2rHZXW9r3nGn8AX1A8zt6wN65fN3REB79rhzxETgcT5lsWxAR5jdVy/i1c/fDQHt2VNAZ1/b7nMYSwf06CPkd/UyXv383RDQnk3uXfbytc02lFFA97p6Ga9+/m4IaMcmO6CvX9xqUxoLvwXa/+y+ehGvfv5uCGjH7rPkyO9QFNAaLl7EEVbxOQS0Y4t7oDvn7saj85JXMV1dlw0OL+jlAb306TsioB27nzY6cOPcrW9vFu1n8uldYFkFtBMC2rHl8+51AlruZiLN9PPI4l4e0OwruRUC2q/lHdBqAS0k/dQusj4SBDT5am6EgPbr8dtvnr6861HO7WcDE7uHgKYYQRcEtF+P3x+2+OWNzgxoCztGZXbJL1/M/Cu6DQLas7875z5/MXgQX3RsCxrIZ0cBvXgAnRDQri1//H3njt6J/az9FMd9lQro5VfSN7CyGyCgfVtO5d5D5bPe/6z/HIf1EtA21nZ+AjqohPMn4ZBeFOrn9zUJnX6wooW13QABHVW+CZRvRK9aDujjpKIbKhcjoKPKN4HyjehVsX6eX9DpLWEFtBQBHVW+CZRvRK/aDejkl8GLZzkCOqp8kyjfiBYUvCz21OV9RFNASxLQUeWbRekGtKRcQM9a3L9j9ul/t7Cm2yCgw0o3i9INaFG5fp6yuC8H7fpZlIAOK9s0amVeFzuAP2Nxb68fRhPQkgR0WNmmUbbxvFfmcwVnLO9PK+101iOgw0o2p5INp75zAvrzvwJai4COKtmcSjacE5ywwMOt0/MJ6KiSFSvXaM5Qf4mTvcRdEtBh5ZpduUZzhjMCWvsZENBh5Zpe4+0tVV/g8VbpBQR0WMmm13DT/YSAVn4CBHRg2eZXtvFU5gi+CwI6rHTzK92AqrID2gUBHVW++ZVvRBXVf8diqNV5GQEdVb75lW9EFTmC74OAjirf/Mo3oooEtA8COqp88yvfiCoS0D4I6KjSza+xrmPyHmgfBHRU2ebXWP0U0E4I6Kiyza9s46nNMXwXBHRU2aZXtvHUdlJA3cquLgEdVbZplW08tZ1yNzu/g7M2AR1VtmmVbTyVnZG1298N6as/07gEdFTZplW28VR23uLaA61JQEeVbVplG09lZ/5SzjOeaFQCOqps8yrbeGo77ZdyDrZeTyago0o2sZINp7pTwqae1QnoqJLNrWTDqU4/+yCgo0o2uZINp7aTTsJXf47hCeioks2uZMOp7JS3JsdapRcR0FElm17JhlOXN0C7IaCjSja9kg2nrpPOwJ/wJMMT0FElm1/JhlOXgHZDQEeVbH4lG05dJ9xIxBH8OQR0VLnmV67R1FZ7ad1C5DQCOqpcEyzXaGqrvLTuwXQeAR1VrgmWazS1VQ+oA/izCOioUs2wweZ73aUdbGVeS0BHlWmWjXbAWTugNR+dGQEdVaZplmksZxDQbgjoqDJNs0xjOUPlHe7RVueVBHRUmWZZprGcQkB7IaCjyjTLMo3lFHV3QYdbnRcS0FFlmmXjXbcooJ0Q0FGlmmUCWvCRB1uV1xLQUU1n2df/XDeSH2PN+mpLq5/nEtBRPabZ168rRzPa1d/ll/bvd8APtRqvJ6Cjus+0r68EBR1u4pdc4NvPZzd9gvMCAjqqv6n29ZWhoMNN/J8j7RKLfZs5/njsIaCjShXQEWd+oeBN9jxHXItXE9BR/U62r68MBR1x5pcJqGheS0BHJaAJHM6ffl5MQEeVKqAjF/TIkuvn1QR0VNkCOmgJDi34sGstDwEd1MJVTBdfx3Thk1/pWEDLjYMQAR2UgCZxYC9y2HWWiIAO6vWDSNd+FGnYGBx4F3TYdZaIgA5qMvn081IC2jIBHdRs8l2dz7FbEF32kddZGgI6qGSzL9lwCvr4j1P4GL7fddYQAR1Ustl3bDjX70G/s+HtEQFtmYAOKtnsOzKcDO/hvrHtBF0woclewjEJ6KByzb4S/UxY0K2XiIUC6ir6DAR0ULlm34HRJLmOddHmsUX2QXO9gqMS0EHlmn59BnT7x2QDAc31Ag5LQAeVav4V6me2gu4Z296EOoDPQUAHdXz+lQvWkRiMG9AjI6MUAR3U0QlYMFmHdqZ6Ceje1SCgOQjooA5OwILNOnYwmjmg+96f3XeHegHNQUAHdfzK9ULROvpmXuJ+7h3bjoDqZxICOqhEAT3285kDundHfXtBnUNKQkAHlea4+XAKEvdz71vF24/iBTQJAR1UmoAePxpN3M/v3RcrbC2jgOYgoIPqKKCZbyayn13QpgjooLoKaE8EtCkCOqhEJ5GUYGb7eaS642ALAR1UooAefIDeCGhLBHRMeU5968ATAW2JgI4pz6lvHZjbfhreiktAQMeU59S3DszpZ1MEdEx5pl+ekeTgOtCmCOiY8sy/PCPJQUCbIqBjSjP/HIo+cRloUwR0TFnmnxA82Xwdfe2BsImAjinLBBTQOZ9DaoyAjinNBEwzkCQ2rY/gL5KnPAEdU5oJmGYg53p7DdjGgJYdDWECOqY0UzDNQM608ikEe6BtEdAxZZmAWcZxqpXPwW4ro4CmIaBjyjIBs4zjTGt3YtmyPvb99jmqEtAxZZmAWcZxpoMBvQloIgI6piwTMMs4TrR6N+pNAa0zLiIEdExZZmGWcZxIQHsioGNKMgtHPBQ9GNARV1liAjqmJLNwxBqsBXTD+hhxlSUmoGPKMgtHPB1y+CRSlVERIqBjSjMLBXTGHmhjBHRMeWZhnpGc5siF9CPusmcmoGPKMwtHDML7j3J+7OOAays1AR1Tnnk4YkDXfqHUh4QOubYSE9AxJZqHiYaSwmpAx/znJjEBHVOieZhoKEmsrBErKxkBHVOiiZhoKEms7GZaWckI6JjyTEQHpa/evg9qZWUjoGNKMxElYcmbglpZ6QjokBJNxERDSWTxjnX6mY+ADinRTEw0lFQWA3rFQFgjoEPKNBUzjSWT14JaU/kI6JAyTcVMY0nluaCO4BMS0CFlmoqZxpLK7/ug93dDraiEBHRIieai/ar3bn9+/+Pq8fBCQIeUZy7Kwpqfev5bRVZUSgI6pDSTURYeXm4w8veF3wP5SwbFOgEdUpbZKAt3L7e4e3zB7zHOS0CHlGQ6ysLdy02WH1/Qz8QEdEg55qMs3I/SX37Nx9c0oJcOkTUCOqQcc3L4gD6SKaCNEtAhJZmTgxf0642nvxp7JSUnoEPKMiezjOMS7/opoA0R0CElmZPt7oFOzvYcegwBbZyADinJnEwyjN1m71YefZAPAf3fPzKHU001Ajqk68o1606jAZ2lrsCjvPbz8beuYMpNQId01aR8Ck+bcXiJ3b4fXXqYtYAef6+AegR0SBeF6yU8TRY0HND5D6328++vHcAnJ6BDuqZbr5lo8QB1MXf7fvD1gd59lFM/kxPQIWUJaItvg0YD+vJTz194ebh/O6DlBk4FAjqkS+blYnnaK0SxgG44GdXe2hmNgA4pS0AHOoRf+rGPD9Le2hmNgA4pSUBb7Gf0JNJyd9cfo8nVMxYBHVKagG74kRNGtk/JgK56009ZTURAh5TkJNKHYeyv1Dki/QwE9N3+uYAmIqBDaiKgoU6dIjSuwA7ou68raBoCOqQkF9KvDiN2pHySwKACO6Dvvi6gaQjokDJ8lPNTCFIH9IPFMRfcARXQLAR0SAluJvLpN/3sf88wjXeD3tlPR/ANENAhXTwFt/yatHYDujLqHYvydv3IZyYCOqIG+tluQAsNWyebIKAjunRybjwEHTygjtPbIKAjunJybn4LbzlE6WtaJvze6GyEgI7o4oBu+8alDjWwQ1oqoCXHRDUCOqImArpwMqaFQ/oiAbX/2QoBHdHF74Fu/c57hX5T1MSbooUCWnRMVCOgI2okoL/veM46mj6gJUZpB7QZAjqiZgL6n69ldQZXwN5BLnyffjZDQEfUUkDf9DNvQPe9U7v0rfrZDgEd0bUzdN+ztxfQPdcKLC6PgLZDQEfUUEDf9TNzQLdfrbq8QN4CbYeAjqiDgFYb3akWl8hF9A0R0BFd/VHOHd/ddUCXF0k+GyKgI2roJFLP/Xz3i54FtB0COqKGAjo/ys3UzwLjeBPQoyPjPAI6omYDmudmIkVSLqDNE9ARtfFZ+F8pj9sLDcpboK0T0BGVmaORfETOMBeIVen8lno79uvr372lBbRZAjqiEnM01I/IL0Q7Hqvye7ClAvp7c/7/Gjr50tHRcR4BHVGBORoLSOSJD8eq/HsAi+9dBvzufc7+WXESvikCOqLjczQYkMATH45Vsb3Fz2Pa9xS/3fz3Q49s6mdTBHREAnrM8pj2PcnTuxl//2EHtC0COqLDkzRatQsCejjAWx9z+5P8ve/58kUf42yOgI5IQI9Z7+enZ1nK5/fkfFKZMXIKAR1RSwE9egheIaAfdkBXnmU9kf/+SkCbIqAjuiqgod2rdAH92M+3T7NlF1NAmyKgI7rqJFLs+PRg/urugC5+8c3zbFp8AW2KgI6opbPw33tPb7/76ao7oFsCuu2fDwFtioCO6LIL6aPPfCh+NXdA9wV0y8MLaFMEdESXfZTzmjwU7ee7VG45gt/0+AraEgEdT6krZSJNuqgO5fK5FNB//y+gQxLQ8Vx5qWEPdXhK5deL5R/buug9rKJxCOh4rr0b6HXPXcq8lWv9nC2sgPZIQMfT1O2UM3rXz+d3CuYXfQpojwR0PAJ61JsD+Pk33W6zD2duXvA+VtEoBHQ8Lf1GpKym548WC/oXzntCty94J6toDAI6HgEt5+27n/OD9103CelsFfVNQIdz7SFiZweobwK6fK+6jfpaQ50T0OFcPD/7umHbckCPLWJP66d7Ajqe6wt66fOXtXgN07El7Gr99E5Ax3P5BL18AAUtXQZ6cPl6Wj3dE9DxXD5Bu9oHfS3o0cXrae10T0DHc/0EvX4EBS0V9NADdrV2eiegA7p8hna1C/qaUAEdh4AO6PIZ2t8vTysZ0OtfHzYT0AFdPUE7/O2TAjooAR3Q1RO0w1/gK6CDEtARXT1Df39/b0edKBrQy18fNhPQEeWYoDlGUYiAjklAR5RjguYYxRv3TxXt+H4BHY+Ajui25IJRnP6UWz0+VbTnR/6txv/9kICOQ0BHtBjQd2qOotpjHzP9XOZmBddZ2hXDMwEd0+sU3RXVMqHN2onp4fjmH/rZ+/wq849O1jXDMwEd057b+xZxcBSnigR0sogCOhABHVKFCVq0rJeafy5z4w8VXpCM64UFAjqk0+dnS1WNBLT0kAW0EQI6okTTM+FOayCg5QeV6CVihYCOKPvsjFS13CLtD2iFqGd/ifghoCNqe3aG8rpnkRP0s/XXaBgCOqIeJ2cwq0t13R/QKstT4UEpTUBHNOLkPBbYtRVWZQd0yNeoQQI6IHPzWb26HhhRhUelNAEdkLn52dPh+9n99Bo1QkAHZHLm9/azW168VAR0PKZgA5b3bevt8RIjoOMxA1uw1Mp/X/DyZSKg4zEDW/FU0J//9PJlIqDDMQHbMSvo7394/TIR0OGYgA2ZFPTvj16/TAR0OCZgS26Pbt7+vnLhcHgioMMxAVvydy7psSta8+pT9hLQ0Zh5rXkKpoBmIqCjMfPa89JLL2IWAjoac68DdkCzENDBmHld8DImIaCDMfO64GVMQkAHY+Z14N97ol7JDAR0LGZdB5yHz0NAx2LWte9n99MLmYKAjsW8a97TdfVcSkABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYIEFCBIQAGCBBQgSEABggQUIEhAAYL+H9l5lLoQsCPTAAAAAElFTkSuQmCC" title="plot of chunk load gages" alt="plot of chunk load gages" width="672" /></p>
+</div>
+<div id="load-flow-observations" class="section level3">
+<h3>Load flow observations</h3>
+<pre class="r"><code>#Load/calculate/aggregate flow data for seasonal and annual timesteps
+q.matrices&lt;-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.function, 
+                           flow.pre.agg.function=flow.pre.agg.function,
+                           periods=c(&quot;monthly&quot;,&quot;annual&quot;) )</code></pre>
+<pre><code>## Begin loading and aggregating stream flow observations...
+##   --  Loading/aggregating gage 1 of 79   --  
+##         Gage 01064300, loaded 14906 rows
+##   --  Loading/aggregating gage 2 of 79   --  
+##         Gage 01064400, loaded 10224 rows
+##   --  Loading/aggregating gage 3 of 79   --  
+##         Gage 01064800, loaded 3755 rows
+##   --  Loading/aggregating gage 4 of 79   --  
+##         Gage 01072850, loaded 4840 rows
+##   --  Loading/aggregating gage 5 of 79   --  
+##         Gage 01073000, loaded 29305 rows
+##   --  Loading/aggregating gage 6 of 79   --  
+##         Gage 010735562, loaded 2356 rows
+##   --  Loading/aggregating gage 7 of 79   --  
+##         Gage 01073600, loaded 8633 rows
+##   --  Loading/aggregating gage 8 of 79   --  
+##         Gage 01073750, loaded 497 rows
+##   --  Loading/aggregating gage 9 of 79   --  
+##         Gage 01073785, loaded 4127 rows
+##   --  Loading/aggregating gage 10 of 79   --  
+##         Gage 01073810, loaded 498 rows
+##   --  Loading/aggregating gage 11 of 79   --  
+##         Gage 01073848, loaded 655 rows
+##   --  Loading/aggregating gage 12 of 79   --  
+##         Gage 01075800, loaded 12921 rows
+##   --  Loading/aggregating gage 13 of 79   --  
+##         Gage 01077400, loaded 2370 rows
+##   --  Loading/aggregating gage 14 of 79   --  
+##         Gage 01079600, loaded 945 rows
+##   --  Loading/aggregating gage 15 of 79   --  
+##         Gage 01079602, loaded 2330 rows
+##   --  Loading/aggregating gage 16 of 79   --  
+##         Gage 01079900, loaded 2275 rows
+##   --  Loading/aggregating gage 17 of 79   --  
+##         Gage 01085800, loaded 15473 rows
+##   --  Loading/aggregating gage 18 of 79   --  
+##         Gage 01093000, loaded 11961 rows
+##   --  Loading/aggregating gage 19 of 79   --  
+##         Gage 01093800, loaded 15129 rows
+##   --  Loading/aggregating gage 20 of 79   --  
+##         Gage 0109650657, loaded 1095 rows
+##   --  Loading/aggregating gage 21 of 79   --  
+##         Gage 010965817, loaded 474 rows
+##   --  Loading/aggregating gage 22 of 79   --  
+##         Gage 010965844, loaded 607 rows
+##   --  Loading/aggregating gage 23 of 79   --  
+##         Gage 01096587, loaded 627 rows
+##   --  Loading/aggregating gage 24 of 79   --  
+##         Gage 01100505, loaded 5268 rows
+##   --  Loading/aggregating gage 25 of 79   --  
+##         Gage 01100549, loaded 462 rows
+##   --  Loading/aggregating gage 26 of 79   --  
+##         Gage 01127880, loaded 7733 rows
+##   --  Loading/aggregating gage 27 of 79   --  
+##         Gage 01129440, loaded 6575 rows
+##   --  Loading/aggregating gage 28 of 79   --  
+##         Gage 01134800, loaded 4121 rows
+##   --  Loading/aggregating gage 29 of 79   --  
+##         Gage 01135150, loaded 8859 rows
+##   --  Loading/aggregating gage 30 of 79   --  
+##         Gage 01136000, loaded 2277 rows
+##   --  Loading/aggregating gage 31 of 79   --  
+##         Gage 01139800, loaded 20736 rows
+##   --  Loading/aggregating gage 32 of 79   --  
+##         Gage 01139830, loaded 713 rows
+##   --  Loading/aggregating gage 33 of 79   --  
+##         Gage 01139833, loaded 487 rows
+##   --  Loading/aggregating gage 34 of 79   --  
+##         Gage 01139838, loaded 730 rows
+##   --  Loading/aggregating gage 35 of 79   --  
+##         Gage 01140570, loaded 683 rows
+##   --  Loading/aggregating gage 36 of 79   --  
+##         Gage 01140575, loaded 683 rows
+##   --  Loading/aggregating gage 37 of 79   --  
+##         Gage 01140580, loaded 683 rows
+##   --  Loading/aggregating gage 38 of 79   --  
+##         Gage 01140590, loaded 683 rows
+##   --  Loading/aggregating gage 39 of 79   --  
+##         Gage 01140600, loaded 683 rows
+##   --  Loading/aggregating gage 40 of 79   --  
+##         Gage 01141800, loaded 13210 rows
+##   --  Loading/aggregating gage 41 of 79   --  
+##         Gage 01142500, loaded 27632 rows
+##   --  Loading/aggregating gage 42 of 79   --  
+##         Gage 01150800, loaded 4018 rows
+##   --  Loading/aggregating gage 43 of 79   --  
+##         Gage 01150900, loaded 11117 rows
+##   --  Loading/aggregating gage 44 of 79   --  
+##         Gage 01155200, loaded 4218 rows
+##   --  Loading/aggregating gage 45 of 79   --  
+##         Gage 01155300, loaded 4246 rows
+##   --  Loading/aggregating gage 46 of 79   --  
+##         Gage 01159000, loaded 816 rows
+##   --  Loading/aggregating gage 47 of 79   --  
+##         Gage 01159500, loaded 970 rows
+##   --  Loading/aggregating gage 48 of 79   --  
+##         Gage 01159600, loaded 446 rows
+##   --  Loading/aggregating gage 49 of 79   --  
+##         Gage 01160000, loaded 33146 rows
+##   --  Loading/aggregating gage 50 of 79   --  
+##         Gage 01167800, loaded 5337 rows
+##   --  Loading/aggregating gage 51 of 79   --  
+##         Gage 04280300, loaded 4241 rows
+##   --  Loading/aggregating gage 52 of 79   --  
+##         Gage 04280800, loaded 792 rows
+##   --  Loading/aggregating gage 53 of 79   --  
+##         Gage 04280910, loaded 426 rows
+##   --  Loading/aggregating gage 54 of 79   --  
+##         Gage 04282700, loaded 4247 rows
+##   --  Loading/aggregating gage 55 of 79   --  
+##         Gage 04282800, loaded 440 rows
+##   --  Loading/aggregating gage 56 of 79   --  
+##         Gage 04282805, loaded 429 rows
+##   --  Loading/aggregating gage 57 of 79   --  
+##         Gage 04282813, loaded 2620 rows
+##   --  Loading/aggregating gage 58 of 79   --  
+##         Gage 04282815, loaded 4018 rows
+##   --  Loading/aggregating gage 59 of 79   --  
+##         Gage 04283000, loaded 1146 rows
+##   --  Loading/aggregating gage 60 of 79   --  
+##         Gage 04287300, loaded 4018 rows
+##   --  Loading/aggregating gage 61 of 79   --  
+##         Gage 04288225, loaded 5273 rows
+##   --  Loading/aggregating gage 62 of 79   --  
+##         Gage 04288230, loaded 5273 rows
+##   --  Loading/aggregating gage 63 of 79   --  
+##         Gage 04290335, loaded 3000 rows
+##   --  Loading/aggregating gage 64 of 79   --  
+##         Gage 04290575, loaded 453 rows
+##   --  Loading/aggregating gage 65 of 79   --  
+##         Gage 04290580, loaded 792 rows
+##   --  Loading/aggregating gage 66 of 79   --  
+##         Gage 04290610, loaded 792 rows
+##   --  Loading/aggregating gage 67 of 79   --  
+##         Gage 04291000, loaded 6118 rows
+##   --  Loading/aggregating gage 68 of 79   --  
+##         Gage 04292100, loaded 4113 rows
+##   --  Loading/aggregating gage 69 of 79   --  
+##         Gage 04292700, loaded 13745 rows
+##   --  Loading/aggregating gage 70 of 79   --  
+##         Gage 04292750, loaded 1602 rows
+##   --  Loading/aggregating gage 71 of 79   --  
+##         Gage 04292770, loaded 2144 rows
+##   --  Loading/aggregating gage 72 of 79   --  
+##         Gage 04292795, loaded 1636 rows
+##   --  Loading/aggregating gage 73 of 79   --  
+##         Gage 04292800, loaded 395 rows
+##   --  Loading/aggregating gage 74 of 79   --  
+##         Gage 04292810, loaded 2351 rows
+##   --  Loading/aggregating gage 75 of 79   --  
+##         Gage 04293200, loaded 769 rows
+##   --  Loading/aggregating gage 76 of 79   --  
+##         Gage 04293900, loaded 1852 rows
+##   --  Loading/aggregating gage 77 of 79   --  
+##         Gage 04294140, loaded 1587 rows
+##   --  Loading/aggregating gage 78 of 79   --  
+##         Gage 04294300, loaded 4967 rows
+##   --  Loading/aggregating gage 79 of 79   --  
+##         Gage 04296200, loaded 3848 rows</code></pre>
+</div>
+<div id="view-sample-of-flow-data" class="section level3">
+<h3>View sample of flow data</h3>
+<pre class="r"><code># Sample flow data
+str(q.matrices)</code></pre>
+<pre><code>## List of 5
+##  $ daily   : NULL
+##  $ monthly : num [1:1512, 1:79, 1:6] NA NA NA NA NA NA NA NA NA NA ...
+##   ..- attr(*, &quot;dimnames&quot;)=List of 3
+##   .. ..$ : chr [1:1512] &quot;1890-01-01&quot; &quot;1890-02-01&quot; &quot;1890-03-01&quot; &quot;1890-04-01&quot; ...
+##   .. ..$ : chr [1:79] &quot;01064300&quot; &quot;01064400&quot; &quot;01064800&quot; &quot;01072850&quot; ...
+##   .. ..$ : chr [1:6] &quot;mean&quot; &quot;max&quot; &quot;min&quot; &quot;low&quot; ...
+##  $ seasonal: NULL
+##  $ annual  : num [1:127, 1:79, 1:6] NA NA NA NA NA NA NA NA NA NA ...
+##   ..- attr(*, &quot;dimnames&quot;)=List of 3
+##   .. ..$ : chr [1:127] &quot;1890-09-30&quot; &quot;1891-09-30&quot; &quot;1892-09-30&quot; &quot;1893-09-30&quot; ...
+##   .. ..$ : chr [1:79] &quot;01064300&quot; &quot;01064400&quot; &quot;01064800&quot; &quot;01072850&quot; ...
+##   .. ..$ : chr [1:6] &quot;mean&quot; &quot;max&quot; &quot;min&quot; &quot;low&quot; ...
+##  $ records :'data.frame':    79 obs. of  9 variables:
+##   ..$ site_no        : chr [1:79] &quot;01064300&quot; &quot;01064400&quot; &quot;01064800&quot; &quot;01072850&quot; ...
+##   ..$ station_nm     : Factor w/ 209 levels &quot;ALLEN BROOK AT VT 2A, NEAR ESSEX JUNCTION, VT&quot;,..: 65 95 38 114 136 68 59 107 206 25 ...
+##   ..$ da_nwis_sqkm   : num [1:79] 28.2 12.1 14 19 31.3 ...
+##   ..$ records.monthly: num [1:79] 489 336 123 151 960 71 281 16 134 16 ...
+##   ..$ first.monthly  : num [1:79] 1964 1964 1963 1964 1935 ...
+##   ..$ last.monthly   : num [1:79] 2004 1992 1973 1977 2014 ...
+##   ..$ records.annual : num [1:79] 40 27 10 11 79 5 23 1 11 1 ...
+##   ..$ first.annual   : num [1:79] 1965 1965 1964 1966 1936 ...
+##   ..$ last.annual    : num [1:79] 2004 1991 1973 1976 2014 ...</code></pre>
+<pre class="r"><code># Single gage, all columns
+q.matrices[[&quot;annual&quot;]][106:126,5,]</code></pre>
+<pre><code>##              mean max  min     low complete records.period
+## 1995-09-30 13.962 212 0.26 0.28857        1            365
+## 1996-09-30 25.830 285 0.55 0.82429        1            366
+## 1997-09-30 28.155 856 0.59 0.65000        1            365
+## 1998-09-30 24.359 469 0.78 0.87857        1            365
+## 1999-09-30 13.274 137 0.01 0.04143        1            365
+## 2000-09-30 19.383 226 0.83 0.96571        1            366
+## 2001-09-30 16.447 345 0.28 0.44857        1            365
+## 2002-09-30  8.889 120 0.15 0.18429        1            365
+## 2003-09-30 16.952 147 0.20 0.31286        1            365
+## 2004-09-30 19.448 432 0.66 0.83429        1            366
+## 2005-09-30 23.286 262 0.41 0.51286        1            365
+## 2006-09-30 37.457 768 1.00 1.17143        1            365
+## 2007-09-30 31.190 942 0.76 0.90429        1            365
+## 2008-09-30 30.784 256 0.88 0.96714        1            366
+## 2009-09-30 30.401 198 1.60 1.91429        1            365
+## 2010-09-30 30.231 653 0.51 0.59143        1            365
+## 2011-09-30 21.973 223 0.71 0.86286        1            365
+## 2012-09-30 19.068 146 0.38 0.56857        1            366
+## 2013-09-30 19.099 144 0.81 0.94429        1            365
+## 2014-09-30 17.555 250 0.91 1.07714        1            365
+## 2015-09-30     NA  NA   NA      NA        0             90</code></pre>
+<pre class="r"><code># Single column, several gages
+q.matrices[[&quot;annual&quot;]][106:126,5:15,1]</code></pre>
+<pre><code>##            01073000 010735562 01073600 01073750 01073785 01073810 01073848
+## 1995-09-30   13.962        NA       NA       NA       NA       NA       NA
+## 1996-09-30   25.830        NA       NA       NA       NA       NA       NA
+## 1997-09-30   28.155        NA       NA       NA       NA       NA       NA
+## 1998-09-30   24.359        NA       NA       NA       NA       NA       NA
+## 1999-09-30   13.274        NA       NA       NA       NA       NA       NA
+## 2000-09-30   19.383        NA       NA       NA       NA       NA       NA
+## 2001-09-30   16.447        NA       NA       NA       NA       NA       NA
+## 2002-09-30    8.889        NA       NA       NA       NA       NA       NA
+## 2003-09-30   16.952        NA       NA       NA    24.27       NA       NA
+## 2004-09-30   19.448        NA       NA    3.573    22.27    9.796    6.029
+## 2005-09-30   23.286        NA       NA       NA    30.53       NA       NA
+## 2006-09-30   37.457        NA       NA       NA    52.96       NA       NA
+## 2007-09-30   31.190        NA       NA       NA    33.53       NA       NA
+## 2008-09-30   30.784        NA       NA       NA    34.18       NA       NA
+## 2009-09-30   30.401     39.98       NA       NA    36.21       NA       NA
+## 2010-09-30   30.231     40.27       NA       NA    41.04       NA       NA
+## 2011-09-30   21.973     26.47       NA       NA    26.40       NA       NA
+## 2012-09-30   19.068     27.11       NA       NA    22.76       NA       NA
+## 2013-09-30   19.099     24.13       NA       NA    18.67       NA       NA
+## 2014-09-30   17.555        NA       NA       NA       NA       NA       NA
+## 2015-09-30       NA        NA       NA       NA       NA       NA       NA
+##            01075800 01077400 01079600 01079602
+## 1995-09-30    2.804       NA       NA       NA
+## 1996-09-30    8.129       NA       NA       NA
+## 1997-09-30    6.178       NA       NA       NA
+## 1998-09-30    5.010       NA       NA       NA
+## 1999-09-30       NA       NA       NA   11.411
+## 2000-09-30       NA       NA       NA   11.239
+## 2001-09-30       NA       NA       NA    9.109
+## 2002-09-30       NA       NA       NA    6.602
+## 2003-09-30       NA       NA       NA   11.491
+## 2004-09-30       NA       NA       NA   11.949
+## 2005-09-30       NA       NA       NA       NA
+## 2006-09-30       NA       NA       NA       NA
+## 2007-09-30       NA       NA       NA       NA
+## 2008-09-30       NA       NA       NA       NA
+## 2009-09-30       NA    60.62       NA       NA
+## 2010-09-30       NA    41.85       NA       NA
+## 2011-09-30       NA    66.22       NA       NA
+## 2012-09-30       NA    43.75       NA       NA
+## 2013-09-30       NA    45.47       NA       NA
+## 2014-09-30       NA    38.64       NA       NA
+## 2015-09-30       NA       NA       NA       NA</code></pre>
+<pre class="r"><code># Single gage, all columns
+q.matrices[[&quot;monthly&quot;]][1000:1020,5,]</code></pre>
+<pre><code>##               mean   max   min     low complete records.period
+## 1973-04-01 80.8333 476.0 13.00 16.2857        1             30
+## 1973-05-01 50.3871 136.0 18.00 26.8571        1             31
+## 1973-06-01 10.9467  28.0  3.90  4.7714        1             30
+## 1973-07-01  6.6355  47.0  1.50  1.8000        1             31
+## 1973-08-01  2.7742  17.0  1.00  1.1571        1             31
+## 1973-09-01  1.0990   2.1  0.75  0.8429        1             30
+## 1973-10-01  2.3255  28.0  0.75  0.8286        1             31
+## 1973-11-01  6.1300  19.0  2.60  3.4714        1             30
+## 1973-12-01 42.9935 130.0  6.20 10.1143        1             31
+## 1974-01-01 25.0065  92.0  6.90  7.2143        1             31
+## 1974-02-01 19.3857  79.0  6.40  6.8714        1             28
+## 1974-03-01 37.7097  78.0 11.00 16.2857        1             31
+## 1974-04-01 37.9000  93.0 17.00 23.4286        1             30
+## 1974-05-01 29.0645  74.0 14.00 18.1429        1             31
+## 1974-06-01  8.0567  21.0  4.10  4.5857        1             30
+## 1974-07-01  1.8187   4.6  0.92  0.8257        1             31
+## 1974-08-01  0.8645   2.6  0.45  0.5243        1             31
+## 1974-09-01  1.9413   8.6  0.76  0.9171        1             30
+## 1974-10-01  2.4581  10.0  1.30  1.6571        1             31
+## 1974-11-01  7.7133  41.0  2.40  2.5714        1             30
+## 1974-12-01 23.8000  74.0  5.80 12.1429        1             31</code></pre>
+<pre class="r"><code># Single column, several gages
+q.matrices[[&quot;monthly&quot;]][1000:1020,5:15,1]</code></pre>
+<pre><code>##            01073000 010735562 01073600 01073750 01073785 01073810 01073848
+## 1973-04-01  80.8333        NA  27.3033       NA       NA       NA       NA
+## 1973-05-01  50.3871        NA  14.3903       NA       NA       NA       NA
+## 1973-06-01  10.9467        NA   3.1333       NA       NA       NA       NA
+## 1973-07-01   6.6355        NA   2.3771       NA       NA       NA       NA
+## 1973-08-01   2.7742        NA   1.0581       NA       NA       NA       NA
+## 1973-09-01   1.0990        NA   0.1693       NA       NA       NA       NA
+## 1973-10-01   2.3255        NA   0.9303       NA       NA       NA       NA
+## 1973-11-01   6.1300        NA   2.6803       NA       NA       NA       NA
+## 1973-12-01  42.9935        NA  16.6484       NA       NA       NA       NA
+## 1974-01-01  25.0065        NA  11.5484       NA       NA       NA       NA
+## 1974-02-01  19.3857        NA   9.9571       NA       NA       NA       NA
+## 1974-03-01  37.7097        NA  14.0452       NA       NA       NA       NA
+## 1974-04-01  37.9000        NA  14.4567       NA       NA       NA       NA
+## 1974-05-01  29.0645        NA   9.8935       NA       NA       NA       NA
+## 1974-06-01   8.0567        NA   2.2157       NA       NA       NA       NA
+## 1974-07-01   1.8187        NA   0.3445       NA       NA       NA       NA
+## 1974-08-01   0.8645        NA   0.2668       NA       NA       NA       NA
+## 1974-09-01   1.9413        NA   3.2933       NA       NA       NA       NA
+## 1974-10-01   2.4581        NA   1.2300       NA       NA       NA       NA
+## 1974-11-01   7.7133        NA   3.7900       NA       NA       NA       NA
+## 1974-12-01  23.8000        NA   9.2742       NA       NA       NA       NA
+##            01075800 01077400 01079600 01079602
+## 1973-04-01  11.2433       NA       NA       NA
+## 1973-05-01  11.7484       NA       NA       NA
+## 1973-06-01  15.8167       NA       NA       NA
+## 1973-07-01   7.5410       NA       NA       NA
+## 1973-08-01   0.3761       NA       NA       NA
+## 1973-09-01   0.4173       NA       NA       NA
+## 1973-10-01   0.9429       NA       NA       NA
+## 1973-11-01   3.8070       NA       NA       NA
+## 1973-12-01  18.1194       NA       NA       NA
+## 1974-01-01   4.7710       NA       NA       NA
+## 1974-02-01   4.9582       NA       NA       NA
+## 1974-03-01   7.3935       NA       NA       NA
+## 1974-04-01  25.7367       NA       NA       NA
+## 1974-05-01  11.9097       NA       NA       NA
+## 1974-06-01   1.6637       NA       NA       NA
+## 1974-07-01   0.6216       NA       NA       NA
+## 1974-08-01   0.6400       NA       NA       NA
+## 1974-09-01   2.6053       NA       NA       NA
+## 1974-10-01   1.6865       NA       NA       NA
+## 1974-11-01   4.5410       NA       NA       NA
+## 1974-12-01   5.4548       NA       NA       NA</code></pre>
+<pre class="r"><code>#see number/date ranges of records for each gage
+q.matrices[[&quot;records&quot;]]</code></pre>
+<pre><code>##        site_no                                            station_nm
+## 7     01064300                          ELLIS RIVER NEAR JACKSON, NH
+## 8     01064400                      LUCY BROOK NEAR NORTH CONWAY, NH
+## 11    01064800                      COLD BROOK AT SOUTH TAMWORTH, NH
+## 16    01072850                MOHAWK BROOK NEAR CENTER STRAFFORD, NH
+## 19    01073000                          OYSTER RIVER NEAR DURHAM, NH
+## 22   010735562          EXETER RIVER AT ODELL ROAD, NEAR SANDOWN, NH
+## 24    01073600                          DUDLEY BROOK NEAR EXETER, NH
+## 25    01073750                 MILL BROOK NR NH 108, AT STRATHAM, NH
+## 26    01073785        WINNICUT RIVER AT GREENLAND, NR PORTSMOUTH, NH
+## 27    01073810    BERRYS BROOK AT SAGAMORE ROAD, NEAR PORTSMOUTH, NH
+## 28    01073848    HAMPTON FALLS RIVER @ MILL LANE, NEAR SEABROOK, NH
+## 33    01075800                      STEVENS BROOK NEAR WENTWORTH, NH
+## 37    01077400    COCKERMOUTH RIVER BELOW HARDY BROOK, AT GROTON, NH
+## 39    01079600                       POORFARM BROOK NEAR GILFORD, NH
+## 40    01079602      POORFARM BK AT ELLACOYA STATE PARK NR GILFORD NH
+## 41    01079900                  SHANNON BROOK NEAR MOULTONBOROUGH NH
+## 52    01085800            WEST BRANCH WARNER RIVER NEAR BRADFORD, NH
+## 65    01093000                            SUCKER BROOK AT AUBURN, NH
+## 66    01093800                 STONY BROOK TRIBUTARY NEAR TEMPLE, NH
+## 70  0109650657                         LYLE REED BROOK AT NASHUA, NH
+## 71   010965817       BEAVER BROOK AT FORDWAY EXTENSION, AT DERRY, NH
+## 72   010965844            BEAVER BROOK AT SOUTH ROAD, NEAR DERRY, NH
+## 74    01096587     TRIB TO COBBETTS POND @ I93S EXIT, NR WINDHAM, NH
+## 75    01100505                      SPICKET RIVER AT NORTH SALEM, NH
+## 76    01100549    POLICY BROOK @ ROCKINGHAM PARK BLVRD, AT SALEM, NH
+## 78    01127880                          BIG BROOK NEAR PITTSBURG, NH
+## 81    01129440                        MOHAWK RIVER NEAR COLEBROOK NH
+## 88    01134800                            KIRBY BROOK AT CONCORD, VT
+## 90    01135150         POPE BROOK (SITE W-3) NEAR NORTH DANVILLE, VT
+## 93    01136000                SOUTH PEACHAM BROOK AT WEST BARNET, VT
+## 100   01139800                 EAST ORANGE BRANCH AT EAST ORANGE, VT
+## 101   01139830        PIKE HILL BR AB RICHARDSON RD, NR BRADFORD, VT
+## 102   01139833      PIKE HILL BR @ PIKE HILL RD W X, NR BRADFORD, VT
+## 103   01139838     PIKE HILL BROOK @ PIKE HILL ROAD, NR BRADFORD, VT
+## 106   01140570           LAKE MOREY TRIBUTARY no. 6 NEAR FAIRLEE, VT
+## 107   01140575           LAKE MOREY TRIBUTARY no. 5 NEAR FAIRLEE, VT
+## 108   01140580 BIG BROOK (LAKE MOREY TRIBUTARY no. 4) NR FAIRLEE, VT
+## 109   01140590 GLENN FALLS BK (LAKE MOREY TR no. 3) NEAR FAIRLEE, VT
+## 110   01140600                      LAKE MOREY OUTLET AT FAIRLEE, VT
+## 112   01141800                              MINK BROOK NEAR ETNA, NH
+## 114   01142500                           AYERS BROOK AT RANDOLPH, VT
+## 120   01150800                        KENT BROOK NEAR KILLINGTON, VT
+## 121   01150900          OTTAUQUECHEE RIVER NEAR WEST BRIDGEWATER, VT
+## 133   01155200                         SACKETS BROOK NEAR PUTNEY, VT
+## 134   01155300                      FLOOD BROOK NEAR LONDONDERRY, VT
+## 142   01159000                            PRATT BROOK AT CHESHAM, NH
+## 143   01159500                    MINNEWAWA BROOK AT MARLBOROUGH, NH
+## 144   01159600                           BEAVER BROOK NEAR KEENE, NH
+## 145   01160000       S BR ASHUELOT RIVER AT WEBB, NR MARLBOROUGH, NH
+## 148   01167800                        BEAVER BROOK AT WILMINGTON, VT
+## 152   04280300              METTAWEE RIVER TRIBUTARY NEAR PAWLET, VT
+## 154   04280800                            SOUTH FORK NEAR ORWELL, VT
+## 155   04280910          MOON BROOK BELOW MUSSEY BROOK AT RUTLAND, VT
+## 161   04282700               LEWIS CREEK TRIBUTARY AT STARKSBORO, VT
+## 164   04282800                         MUNROE BROOK AT SHELBURNE, VT
+## 165   04282805                BARTLETT BROOK AT SOUTH BURLINGTON, VT
+## 166   04282813     POTASH BR @ QUEEN CITY PARK RD, NR BURLINGTON, VT
+## 167   04282815                      ENGLESBY BROOK AT BURLINGTON, VT
+## 168   04283000                      MOLLYS BROOK NEAR MARSHFIELD, VT
+## 174   04287300                       SUNNY BROOK NEAR MONTPELIER, VT
+## 176   04288225    W BRANCH LITTLE R ABV BINGHAM FALLS NEAR STOWE, VT
+## 177   04288230             RANCH BROOK AT RANCH CAMP, NEAR STOWE, VT
+## 179   04290335         ALLEN BROOK AT VT 2A, NEAR ESSEX JUNCTION, VT
+## 181   04290575                  INDIAN BROOK NEAR ESSEX JUNCTION, VT
+## 182   04290580                      INDIAN BROOK NEAR COLCHESTER, VT
+## 183   04290610                    MALLETTS CREEK NEAR COLCHESTER, VT
+## 184   04291000                           GREEN RIVER AT GARFIELD, VT
+## 187   04292100                             STONY BROOK NEAR EDEN, VT
+## 189   04292700            STONE BRIDGE BROOK NEAR GEORGIA PLAINS, VT
+## 190   04292750      MILL RIVER AT GEORGIA SHORE RD, NR ST ALBANS, VT
+## 191   04292770       STEVENS BROOK AT LEMNAH DRIVE, AT ST ALBANS, VT
+## 192   04292795    STEVENS BROOK AT KELLOGG ROAD, NEAR ST. ALBANS, VT
+## 193   04292800                      STEVENS BROOK NEAR ST ALBANS, VT
+## 194   04292810            JEWETT BROOK AT VT 38, NEAR ST. ALBANS, VT
+## 196   04293200    MUD CREEK AT BEAR MOUNTAIN RD, NEAR NORTH TROY, VT
+## 202   04293900    HUNGERFORD BR @ HIGHGATE RD NR HIGHGATE CENTER, VT
+## 204   04294140                   ROCK RIVER NEAR HIGHGATE CENTER, VT
+## 205   04294300    PIKE RIVER AT EAST FRANKLIN, NR ENOSBURG FALLS, VT
+## 207   04296200                BROWNINGTON BRANCH NEAR EVANSVILLE, VT
+##     da_nwis_sqkm records.monthly first.monthly last.monthly records.annual
+## 7        28.2309             489          1964         2004             40
+## 8        12.1212             336          1964         1992             27
+## 11       14.0118             123          1963         1973             10
+## 16       19.0105             151          1964         1977             11
+## 19       31.3389             960          1935         2014             79
+## 22       41.6988              71          2008         2014              5
+## 24       12.8723             281          1962         1985             23
+## 25        5.9570              16          2003         2004              1
+## 26       36.5189             134          2002         2013             11
+## 27       13.9341              16          2003         2004              1
+## 28        9.3499              21          2003         2004              1
+## 33        7.6146             424          1963         1998             35
+## 37       55.4258              77          2008         2015              6
+## 39       12.9499              31          1978         1980              2
+## 40       16.5241              76          1998         2004              6
+## 41       18.1040              74          1998         2004              6
+## 52       14.8924             508          1962         2004             42
+## 65       72.0017             389          1938         1970             30
+## 66        9.3240             497          1963         2004             41
+## 70        5.5426              36          1992         1995              3
+## 71       61.9008              15          2006         2007              1
+## 72       78.4767              20          2006         2007              1
+## 74        1.3986              20          2006         2007              1
+## 75       42.7348             171          2000         2015             14
+## 76       13.1053              14          2006         2007              1
+## 78       16.4723             254          1963         1985             20
+## 81       95.0526             216          1986         2004             18
+## 88       20.8494             135          1963         1974             11
+## 90        8.4175             287          1990         2014             22
+## 93       57.4978              74          1939         1945              6
+## 100      23.1804             675          1958         2015             55
+## 101       0.2849              23          2004         2006              2
+## 102       2.8490              16          2005         2006              1
+## 103       9.4276              24          2004         2006              2
+## 106       1.5022              22          1981         1982              1
+## 107       0.9583              21          1981         1982              1
+## 108       3.6778              22          1981         1982              1
+## 109       4.2476              22          1981         1982              1
+## 110      21.2379              22          1981         1982              1
+## 112      11.9140             434          1962         1998             36
+## 114      78.9947             895          1939         2014             73
+## 120       8.5729             132          1963         1974             11
+## 121      60.6058             348          1984         2014             28
+## 133      25.8999             138          1963         1974             11
+## 134      23.9574             139          1963         1974             11
+## 142      29.0079              26          1919         1921              2
+## 143      82.1027              31          1919         1922              2
+## 144      15.3845              14          1972         1973              1
+## 145      93.2396             721          1920         2011             59
+## 148      16.5241             175          1963         1977             14
+## 152       7.6405             138          1963         1974             11
+## 154      34.7059              26          1990         1992              1
+## 155      21.4710              14          2010         2011              1
+## 161      13.7528             139          1963         1974             11
+## 164      13.8564              14          2010         2011              1
+## 165       2.6936              14          2010         2011              1
+## 166      18.5961              86          2004         2011              7
+## 167       2.3310             112          1999         2010              5
+## 168      63.4548              37          1920         1923              3
+## 174       5.9829             132          1963         1974             11
+## 176      12.0953             171          2000         2014             14
+## 177       9.8420             170          2000         2014             14
+## 179      25.6409              98          2005         2013              8
+## 181      16.7831              14          2010         2011              1
+## 182      27.9719              26          1990         1992              1
+## 183      41.9578              26          1990         1992              1
+## 184      46.6198             181          1915         1932             13
+## 187      10.9039             135          1963         1974             11
+## 189      21.8854             266          1963         2000             21
+## 190      57.7568              46          2010         2014              3
+## 191       3.9886              68          2005         2011              4
+## 192      18.0004              51          2010         2014              4
+## 193      26.4179              13          1990         1991              1
+## 194       9.6866              68          2008         2014              4
+## 196      96.0886              25          2009         2011              2
+## 202      48.1738              49          2009         2014              4
+## 204      29.2669              50          2010         2014              3
+## 205      89.3547             161          2001         2014             13
+## 207       5.5685             121          1963         1973              9
+##     first.annual last.annual
+## 7           1965        2004
+## 8           1965        1991
+## 11          1964        1973
+## 16          1966        1976
+## 19          1936        2014
+## 22          2009        2013
+## 24          1963        1985
+## 25          2004        2004
+## 26          2003        2013
+## 27          2004        2004
+## 28          2004        2004
+## 33          1964        1998
+## 37          2009        2014
+## 39          1979        1980
+## 40          1999        2004
+## 41          1999        2004
+## 52          1963        2004
+## 65          1939        1970
+## 66          1964        2004
+## 70          1993        1995
+## 71          2007        2007
+## 72          2007        2007
+## 74          2007        2007
+## 75          2001        2014
+## 76          2007        2007
+## 78          1965        1984
+## 81          1987        2004
+## 88          1964        1974
+## 90          1992        2013
+## 93          1940        1945
+## 100         1959        2013
+## 101         2005        2006
+## 102         2006        2006
+## 103         2005        2006
+## 106         1982        1982
+## 107         1982        1982
+## 108         1982        1982
+## 109         1982        1982
+## 110         1982        1982
+## 112         1963        1998
+## 114         1940        2013
+## 120         1964        1974
+## 121         1985        2014
+## 133         1964        1974
+## 134         1964        1974
+## 142         1920        1921
+## 143         1920        1921
+## 144         1973        1973
+## 145         1921        2010
+## 148         1964        1977
+## 152         1964        1974
+## 154         1991        1991
+## 155         2011        2011
+## 161         1964        1974
+## 164         2011        2011
+## 165         2011        2011
+## 166         2005        2011
+## 167         2004        2010
+## 168         1921        1923
+## 174         1964        1974
+## 176         2001        2014
+## 177         2001        2014
+## 179         2006        2013
+## 181         2011        2011
+## 182         1991        1991
+## 183         1991        1991
+## 184         1916        1931
+## 187         1964        1974
+## 189         1964        2000
+## 190         2011        2013
+## 191         2007        2011
+## 192         2011        2014
+## 193         1991        1991
+## 194         2009        2013
+## 196         2010        2011
+## 202         2010        2014
+## 204         2012        2014
+## 205         2002        2014
+## 207         1964        1973</code></pre>
+<pre class="r"><code>#save locally
+# setwd(&quot;c:/mydirectory&quot;)
+# save(q.matrices, file=&quot;q_matrices.rdata&quot;)</code></pre>
+</div>
+<div id="footnotes-r-version-and-packages-used" class="section level3">
+<h3>Footnotes: r version and packages used</h3>
+<pre class="r"><code>#objects in session
+ls()</code></pre>
+<pre><code>## [1] &quot;cache.dir&quot;        &quot;cache.dir.global&quot; &quot;g.spatial&quot;       
+## [4] &quot;q.matrices&quot;       &quot;states.poly&quot;      &quot;template.period&quot;</code></pre>
+<pre class="r"><code>#session info and package versions
+print(sessionInfo()) </code></pre>
+<pre><code>## R version 3.1.1 (2014-07-10)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## 
+## locale:
+## [1] LC_COLLATE=English_United States.1252 
+## [2] LC_CTYPE=English_United States.1252   
+## [3] LC_MONETARY=English_United States.1252
+## [4] LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.1252    
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+##  [1] conteStreamflow_0.3 zoo_1.7-11          waterData_1.0.3    
+##  [4] latticeExtra_0.6-26 RColorBrewer_1.0-5  lattice_0.20-29    
+##  [7] rgeos_0.3-6         rgdal_0.8-16        reshape2_1.4       
+## [10] plyr_1.8.1          nlme_3.1-117        maptools_0.8-30    
+## [13] sp_1.0-15           lubridate_1.3.3     lme4_1.1-7         
+## [16] Rcpp_0.11.2         Matrix_1.1-4        ggplot2_1.0.0      
+## [19] EcoHydRology_0.4.12 XML_3.98-1.1        DEoptim_2.2-2      
+## [22] topmodel_0.7.2-2    operators_0.1-6     DataCombine_0.1.26 
+## 
+## loaded via a namespace (and not attached):
+##  [1] assertthat_0.1   codetools_0.2-8  colorspace_1.2-4 data.table_1.9.2
+##  [5] DBI_0.3.1        digest_0.6.4     dplyr_0.4.1      evaluate_0.5.5  
+##  [9] foreign_0.8-61   formatR_0.10     grid_3.1.1       gtable_0.1.2    
+## [13] htmltools_0.2.4  knitr_1.6        magrittr_1.0.1   MASS_7.3-33     
+## [17] memoise_0.2.1    minqa_1.2.3      munsell_0.4.2    nloptr_1.0.0    
+## [21] parallel_3.1.1   proto_0.3-10     rmarkdown_0.3.10 scales_0.2.4    
+## [25] splines_3.1.1    stringr_0.6.2    tools_3.1.1      yaml_2.1.13</code></pre>
+<pre class="r"><code># plot( g.spatial, pch=16, 
+#       col=terrain.colors(10)[
+#            (ceiling(g.spatial$da_nwis_sqkm/max(g.spatial$da_nwis_sqkm)*10)) ] )
+# legend(&quot;topright&quot;, title=&quot;da sqkm&quot;,
+#        legend=1:10*10, 
+#        fill=terrain.colors(10)[10:1])
+# ceiling((g.spatial$da_nwis_sqkm/max(g.spatial$da_nwis_sqkm))*10)
+# hist(g.spatial$da_nwis_sqkm)</code></pre>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

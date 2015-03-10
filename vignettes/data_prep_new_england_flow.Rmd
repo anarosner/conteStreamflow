@@ -1,0 +1,104 @@
+---
+output:
+  html_document:
+    css: C:/ALR/Models/custom.css
+    theme: null
+---
+
+# conteStreamflow Vignette: streamflow data prep 
+## Data prep for VT and NH, mean flows at monthly and annual time-steps
+## ALR 3-10-2015
+
+### load packages
+```{r load pkg, message=FALSE, warning=FALSE}
+
+library(conteStreamflow)
+
+```
+
+### Set up cache 
+```{r set up cache}
+
+#set up cache
+cache.setup( cache.dir="c:/alr/models/cache", quiet=T )
+cache.set( cache.dir="c:/alr/models/cache" )
+
+```
+
+
+### Load gages using a list of states
+```{r load gages, cache=TRUE}
+g.spatial <- gage.retrieve( states=c("NH","VT"), max.da.sqkm=100, min.da.sqkm=0 )
+
+# number of records from initial retrieval
+nrow(g.spatial)
+head(g.spatial@data)
+
+cache.load.data( object="states.poly",file="states.rdata", dir="general_spatial" )
+plot( g.spatial, pch=16, col="blue" )
+plot( states.poly, border="black", add=T )
+
+
+```
+
+
+### Load flow observations
+```{r load flow, cache=TRUE}
+
+#Load/calculate/aggregate flow data for seasonal and annual timesteps
+q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.function, 
+                           flow.pre.agg.function=flow.pre.agg.function,
+                           periods=c("monthly","annual") )
+
+
+```
+
+
+### View sample of flow data
+```{r}
+# Sample flow data
+str(q.matrices)
+
+# Single gage, all columns
+q.matrices[["annual"]][106:126,5,]
+# Single column, several gages
+q.matrices[["annual"]][106:126,5:15,1]
+
+# Single gage, all columns
+q.matrices[["monthly"]][1000:1020,5,]
+# Single column, several gages
+q.matrices[["monthly"]][1000:1020,5:15,1]
+
+#see number/date ranges of records for each gage
+q.matrices[["records"]]
+
+
+#save locally
+# setwd("c:/mydirectory")
+# save(q.matrices, file="q_matrices.rdata")
+
+```
+
+
+
+### Footnotes: r version and packages used
+```{r}
+#objects in session
+ls()
+
+#session info and package versions
+print(sessionInfo()) 
+
+```
+
+```{r}
+# plot( g.spatial, pch=16, 
+#       col=terrain.colors(10)[
+#            (ceiling(g.spatial$da_nwis_sqkm/max(g.spatial$da_nwis_sqkm)*10)) ] )
+# legend("topright", title="da sqkm",
+#        legend=1:10*10, 
+#        fill=terrain.colors(10)[10:1])
+# ceiling((g.spatial$da_nwis_sqkm/max(g.spatial$da_nwis_sqkm))*10)
+# hist(g.spatial$da_nwis_sqkm)
+```
+

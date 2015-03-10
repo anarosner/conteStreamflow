@@ -1,0 +1,101 @@
+---
+output:
+  html_document:
+    css: C:/ALR/Models/custom.css
+    fig_height: 3
+    fig_width: 4
+    highlight: null
+    self_contained: yes
+    theme: null
+---
+
+# conteStreamflow Vignette: streamflow data prep 
+## Data prep for Concord River basin, mean flows at daily and annual time-steps
+## ALR 3-9-2015
+
+### load packages
+```{r load pkg, message=FALSE, warning=FALSE}
+
+library(conteStreamflow)
+
+```
+
+### Set up cache 
+```{r set up cache}
+
+#set up cache
+cache.setup( cache.dir="c:/alr/models/cache", quiet=T )
+cache.set( cache.dir="c:/alr/models/cache" )
+
+```
+
+### Locate buffer file
+```{r buffer file locations, cache=TRUE}
+
+#this is the only input file needed, that is not accessed through a web service, or downloaded/cached from felek
+buffer.file <- "C:/ALR/Models/conteStreamflow/data/concord_huc8"
+
+```
+
+### Load gages using a buffer (polygon outline of area of interest)
+```{r load gages, cache=TRUE}
+g.spatial <- gage.retrieve( buffer.file=buffer.file, max.da.sqkm=500, min.da.sqkm=0 )
+
+# number of records from initial retrieval
+nrow(g.spatial)
+
+plot( readShapePoly( buffer.file ) )
+plot( g.spatial, pch=16, col="blue", add=T )
+
+```
+
+
+### Load flow observations
+```{r load flow, cache=TRUE}
+
+#Load/calculate/aggregate flow data for seasonal and annual timesteps
+q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.function, 
+                           flow.pre.agg.function=flow.pre.agg.function,
+                           periods=c("daily","annual") )
+
+
+```
+
+
+### View sample of flow data
+```{r}
+# Sample flow data
+str(q.matrices)
+
+# Single gage, all columns
+q.matrices[["annual"]][106:126,4,]
+# Single column, several gages
+q.matrices[["annual"]][106:126,1:10,1]
+
+# Single gage, all columns
+q.matrices[["daily"]][45000:45020,4,]
+# Single column, several gages
+q.matrices[["daily"]][45000:45020,4:13,1]
+
+#see number/date ranges of records for each gage
+q.matrices[["records"]]
+
+
+#save locally
+# setwd("c:/mydirectory")
+# save(q.matrices, file="q_matrices.rdata")
+
+```
+
+
+
+### Footnotes: r version and packages used
+```{r}
+#objects in session
+ls()
+
+#session info and package versions
+print(sessionInfo()) 
+
+```
+
