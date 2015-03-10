@@ -3,7 +3,7 @@
 \alias{voronoipolygons}
 \title{voronoi polygons}
 \usage{
-voronoipolygons(layer)
+voronoipolygons(layer, create.filename = T)
 }
 \description{
 voronoi polygons

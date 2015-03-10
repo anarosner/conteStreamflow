@@ -1,0 +1,148 @@
+
+## ------------------------------------------------------------------------
+
+#' @title determine coordinates (and regions) livneh weather grid(s) from ftp dir and file names
+#' @export
+
+weather.grid.livneh.coords<-function( ftp.url="ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/") {
+
+     
+     
+     library("RCurl") 
+     
+     # 1915-2011 data set
+     # ftp.url<-   "ftp://ftp.hydro.washington.edu/pub/blivneh/CONUS/Meteorology.asc.v.1.2.1915.2011.bz2/"
+     # 1950-2013 data set
+     #    "ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/"
+     
+     ###
+     ##  Set up
+     # 
+     
+     #create blank data.frame for all coordinates
+     coords.all <- as.data.frame( matrix( nrow=0, ncol=4 ) )
+     
+     #define extension and index as null
+     index <- NULL
+     ext <- NULL
+     
+     
+     ###
+     ##  Directories
+     # 
+     
+     #get names of all directories of latitudes
+     dir.names1 <- getURL( ftp.url, dirlistonly = TRUE )
+     dir.names <- unlist(strsplit( dir.names1, "\\r\\n" ))
+        
+     #for ucllnl.org data set dataset, above code works fine
+     #dataset on washington server has an extra, miscellaneous files which we'll need to exclude
+          #perhaps simply do it manually
+     dir.names <- dir.names[dir.names != "VERSION_ID"]
+     
+     
+     ###
+     ##  Files
+     # 
+     
+     #loop through each region directory (defined by latitudes or by bounding box lat/long) 
+     for (i in 1:length(dir.names)) {
+     
+          #get coordinates for all filenames in selected latitude directory
+          
+          print(paste0( "Directory ", i, " of ", length(dir.names), ": ", dir.names[i] ))
+          coords <- NULL
+          
+          #pull all file names from ftp server, and store in array
+          #(could turn this into a function, since it's used for directories, too, but it's so short...)
+          file.names1 <- getURL( paste0( ftp.url, dir.names[i], "/"), dirlistonly = TRUE )
+          file.names2 <- unlist(strsplit( file.names1, "\\r\\n" ))
+          file.names2 <- file.names2[file.names2 != "VERSION_ID"]
+          
+          #determine file extension   (so we don't have to hard-code in ".bz2")  
+          #this should be same for all files, only do once, first loop iteration
+          if (is.null(ext)) {    
+               ext1 <- colsplit( file.names2, c("\\."), as.character(1:10) )[1,]
+                         ext1
+               ext <- paste0( ".", ext1[max(which(!is.na(ext1)))] )
+          }
+          
+          #remove file extension from all names
+          file.names <- gsub( pattern=ext, replacement="", x=file.names2 )
+          
+          #split name into columns, by "_"
+          split.names <- colsplit( file.names, c("_"), as.character(1:10) )
+          
+          #identify last two columns, which store coordinates
+          #this should be same for all files, only do once, first loop iteration
+          if (is.null( index )) {
+               index <- max( which(!is.na(split.names[1,])) )
+               index <- c( index-1, index)
+          }
+          
+          #create table of coordinates
+          coords <- cbind( split.names[,index], file.names2 )
+          coords$region <- dir.names[i]
+          names(coords) <- c( "lat", "long", "weather.filename", "region" )
+          
+          #merge with master table of coorindates
+          coords.all <- rbind( coords.all, coords)
+          
+          print(paste0( "       added ", nrow(coords), " new rows"))
+          print(paste0( "       new total: ", nrow(coords.all), " rows"))
+     }
+     #end loop through latitdue directories
+     
+     
+     grid.coords <- coords.all
+     if ( sum( is.na(grid.coords$lat) + is.na(grid.coords$long) )>0 ) {
+          warning( paste("Some files missing lat and/or long coordinates and are being removed.",
+                         grid.coords[is.na(grid.coords$lat)|is.na(grid.coords$lat),c("region","weather.filename")] ))
+          grid.coords <- grid.coords[!is.na(grid.coords$lat),]
+          grid.coords <- grid.coords[!is.na(grid.coords$long),]
+     }
+     
+     return( grid.coords ) 
+
+
+}
+
+
+
+## ------------------------------------------------------------------------
+
+#' @title gather regions and coordinates for livneh weather grid(s)
+#' @export
+
+weather.grid.livneh.create<-function( grid.coords, 
+                                      proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs",
+                                      shapefile.dir=NULL ) {
+                                    
+     names(grid.coords)[ names(grid.coords)=="lat" ] <- "y"
+     names(grid.coords)[ names(grid.coords)=="long" ] <- "x"
+     
+     grid.points <- SpatialPointsDataFrame(
+                    coords = grid.coords[ , c("x","y") ], #x/long then y/lat
+                    data = grid.coords,
+                    proj4string = CRS( proj4 ) )
+     
+     print("Creating Voronoi polygons around grid centroids...\n")
+     print("    (this part could take a while)    \n")
+     weather.grid.poly<-voronoipolygons( grid.points, create.filename=F )
+
+     #if user opted to save grid as shapefile (by specifying shapefile directory), save it
+     if ( !is.null( shapefile.dir) ) {
+          print( "Saving grid shapefile..." )
+          grid.temp<-weather.grid.poly
+          names(grid.temp)[ names(grid.temp)=="weather.filename" ] <- "filename"  #make column names esri-friendly
+          orig.dir <- getwd()
+          setwd( shapefile.dir )
+          writeOGR( grid.temp,  ".", layer="weather_grid", driver="ESRI Shapefile" )
+          setwd( orig.dir )
+     }
+     
+     return(grid.points)
+
+}
+
+

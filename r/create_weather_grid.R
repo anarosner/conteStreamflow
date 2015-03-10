@@ -8,7 +8,11 @@
 # The following function takes a SpatialPointsDataFrame as input, and returns a SpatialPolygonsDataFrame 
 # that represents the Voronoi tessellation of the input point layer.
 
-voronoipolygons = function(layer) {
+
+voronoipolygons = function(layer, create.filename=T) {
+
+     library(deldir)
+
      crds = layer@coords
      z = deldir(crds[,1], crds[,2])
      w = tile.list(z)
@@ -23,46 +27,13 @@ voronoipolygons = function(layer) {
      voronoi = SpatialPolygonsDataFrame(SP, 
                                         data=data.frame( x=z$summary$x, y=z$summary$y, 
                                              row.names=sapply(slot(SP, 'polygons'), function(x) slot(x, 'ID'))))
-     voronoi@data$weather.filename <-apply( voronoi@data, MARGIN=1, FUN=function(df) paste0("data_",df["y"],"_",df["x"]) )
-     voronoi <- merge.sp( voronoi, layer@data[ , c("weather.filename","region")], by = "weather.filename", all.x=T )
-     
-     return( voronoi )
-    
-}
-
-
-
-## ------------------------------------------------------------------------
-
-
-voronoipolygons2 = function(layer) {
-     crds = layer@coords
-     z = deldir(crds[,1], crds[,2])
-     w = tile.list(z)
-     polys = vector(mode='list', length=length(w))
-     for (i in seq(along=polys)) {
-        pcrds = cbind(w[[i]]$x, w[[i]]$y)
-        pcrds = rbind(pcrds, pcrds[1,])
-        polys[[i]] = Polygons(list(Polygon(pcrds)), ID=as.character(i))
+     if (create.filename) {
+          voronoi@data$weather.filename <-apply( voronoi@data, MARGIN=1, FUN=function(df) paste0("data_",df["y"],"_",df["x"]) )
+          voronoi <- merge.sp( voronoi, layer@data[ , c("weather.filename","region")], by = "weather.filename", all.x=T )
      }
-     SP = SpatialPolygons(polys,proj4string=layer@proj4string)
-     
-     voronoi = SpatialPolygonsDataFrame(
-                    SP, 
-                    data=data.frame( 
-                         x=z$summary$x, 
-                         y=z$summary$y,
-                         row.names=sapply( slot(SP, 'polygons'), 
-                                           function(x) slot(x, 'ID'))))
-     
-#      voronoi@data$weather.filename <-
-#           apply( voronoi@data, MARGIN=1, 
-#                  FUN=function(df) paste0("data_",df["y"],"_",df["x"]) )
-#      voronoi <- merge.sp( voronoi, layer@data[ , c("weather.filename","region")], by = "weather.filename", all.x=T )
-     
-     voronoi <- merge.sp( voronoi, layer@data, by = c("x","y"), all.x=T )
-
-     head(voronoi@data)
+     else {
+          voronoi <- merge.sp( voronoi, layer@data, by = c("x","y"), all.x=T )
+     }
      return( voronoi )
     
 }
@@ -140,31 +111,4 @@ weather.grid.create<-function(weather.dir="C:/ALR/Data/ClimateData/Mauer/daily",
 
 }
 
-
-
-## ------------------------------------------------------------------------
-#replaced by cache functions
-# #' @title load weather grid
-# #' @export
-# weather.grid.load<-function( weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid", 
-#                              proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
-#  
-#      weather.grid.poly<-readShapePoly(weather.grid.file,proj4string=CRS(proj4))
-#      return(weather.grid.poly)
-# }
-
-
-## ------------------------------------------------------------------------
-#replaced by cache functions
-# #' @title load weather grids coords only
-# #' @export
-# weather.grid.coords.load<-function( weather.grid.poly=NULL,
-#                                     weather.grid.file="c:/ALR/Data/ClimateData/Mauer/weather_grid",
-#                                     proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
-#      if ( is.null(weather.grid.poly) )
-#           weather.grid.poly <- weather.grid.load( weather.grid.file, proj4 )
-#      weather.grid.coords<-weather.grid.poly@data
-#      
-#      return( weather.grid.coords )
-# }
 
