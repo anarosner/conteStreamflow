@@ -94,18 +94,20 @@ gage.retrieve<-function( buffer.file=NULL,
      #
      
      #use wget to save into temporary folder, and then read it in and parse.  probably there's a better way to do this, but this works for now.  
-     orig.dir <- getwd()
-     setwd(file.path(cache.dir, "temp"))
-     system(paste("wget -O ./raw_gage_info.txt",gage.info.url) )
+#      orig.dir <- getwd()
+#      setwd(file.path(cache.dir, "temp"))
+#      system(paste("wget -O ./raw_gage_info.txt",gage.info.url) )
 
      #remove extra header 
-     raw<-readLines("raw_gage_info.txt")
+          #raw<-readLines("raw_gage_info.txt")
+     raw<-readLines(url(gage.info.url))
+
      line<-max(grep("agency_cd",raw))
      clean<-raw[c(line,(line+2):length(raw))]
      clean <- gsub( pattern="\'", replacement="-", x=clean)
      clean <- gsub( pattern="\"", replacement="-", x=clean)
      clean <- gsub( pattern="#", replacement="no. ", x=clean)
-     setwd(orig.dir)
+#      setwd(orig.dir)
 
      #save metadata from raw nwis file 
      save.log( text=raw[1:(line-1)], filename="gages_meta", ext="txt" )

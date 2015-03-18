@@ -1,4 +1,3 @@
-
 ## ------------------------------------------------------------------------
 #' @title Get gage location and information from NWIS
 #' @description Get gage information, including site_no and lat/long coordinates from NWIS, by specifying either 
@@ -93,18 +92,20 @@ gage.retrieve<-function( buffer.file=NULL,
      #
      
      #use wget to save into temporary folder, and then read it in and parse.  probably there's a better way to do this, but this works for now.  
-     orig.dir <- getwd()
-     setwd(file.path(cache.dir, "temp"))
-     system(paste("wget -O ./raw_gage_info.txt",gage.info.url) )
+#      orig.dir <- getwd()
+#      setwd(file.path(cache.dir, "temp"))
+#      system(paste("wget -O ./raw_gage_info.txt",gage.info.url) )
 
      #remove extra header 
-     raw<-readLines("raw_gage_info.txt")
+          #raw<-readLines("raw_gage_info.txt")
+     raw<-readLines(url(gage.info.url))
+
      line<-max(grep("agency_cd",raw))
      clean<-raw[c(line,(line+2):length(raw))]
      clean <- gsub( pattern="\'", replacement="-", x=clean)
      clean <- gsub( pattern="\"", replacement="-", x=clean)
      clean <- gsub( pattern="#", replacement="no. ", x=clean)
-     setwd(orig.dir)
+#      setwd(orig.dir)
 
      #save metadata from raw nwis file 
      save.log( text=raw[1:(line-1)], filename="gages_meta", ext="txt" )
@@ -223,7 +224,6 @@ gage.retrieve<-function( buffer.file=NULL,
 }
 
 
-
 ## ----plot gages spatially------------------------------------------------
 
 #' @title Internal function to create SpatialPointsDataFrame from data.frame of gage information
@@ -254,7 +254,6 @@ gage.place<-function(gages.df,
      
      return(gages.spatial)
 }
-
 
 
 
@@ -314,7 +313,6 @@ gage.buffer<-function(gages.spatial, plot=F,
      return(gages.spatial)
 
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title Assigns each gage to a NHDplus catchment/stream reach
@@ -381,7 +379,6 @@ gage.place.nhdplus<-function(gages.spatial) {
 }
 
 
-
 ## ----gage export---------------------------------------------------------
 #' @title Export shapefile of gage information
 #' @export
@@ -424,6 +421,5 @@ gage.export <- function( gages.spatial, shapefile.dir, filename="gages_conteStre
           
           setwd(orig.dir)
 }
-
 
 
