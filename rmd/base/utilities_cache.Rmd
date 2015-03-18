@@ -174,3 +174,66 @@ cache.load.data <- function( object=NULL, file, dir,
 }
 ```
 
+
+```{r}
+# #' @title Downloads and/or loads data from cache directory
+# #' @description Load data from cache directory.  If it does not exist, download it first and then load it.  Reassign the object within the parent environment
+# #' @export
+# 
+# cache.load.data <- function( file, dir, 
+#                              server.url="http://felek.cns.umass.edu:9283/data", 
+#                              cache.only=F, col.names=NULL,
+#                              message="default", quiet=F,
+#                              object=NULL, is.rdata=T ) {
+#      
+#      
+#      # a <- "ftp://ftp.hydro.washington.edu/pub/blivneh/CONUS/Meteorology.asc.v.1.2.1915.2011.bz2"
+#      # b <- "ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily"    
+#      # c <- "http://felek.cns.umass.edu:9283/data"
+# 
+#      server.name <- colsplit( server.url, pattern = "/", names = 1:10 )[[3]]
+#      server.name <- colsplit( server.name, pattern = ":", names = 1:10 )[[1]]
+#      server.name
+#      server.url<-b
+#      
+#      is.rdata <- grepl( ".rdata", file, ignore.case=T )
+#      
+# 
+#      if ( !( file %in% list.files(path=file.path(cache.dir.global,"data",server.name,dir) ) ) ) {
+#           if ( message == "default" )
+#                cat( paste0("Downloading file ",file,". (This will be cached locally for future use.)\n") )
+#           else if ( !is.null(message) )     
+#                cat(message)
+#           
+#           status <- download.file( paste0(server.url,"/data/",dir,"/",file),
+#                     file.path(cache.dir.global, "data",dir,file), 
+#                     method="wget", quiet=quiet)
+#           if ( status != 0 ) {    
+#                file.remove( file.path(cache.dir.global, "data",dir,file) )
+#                stop(paste( "Unable to download file:", file.path(cache.dir.global, "data",dir,file) ))
+#           }
+#                
+#      }
+#      
+#      if (!cache.only) {  
+#           
+#           if (is.rdata) {
+#                load( file.path(cache.dir.global, "data", dir, file), verbose = !(quiet) )
+#                assign( x=object, 
+#                        value=get( object, envir=environment() ), 
+#                        envir=parent.frame() )               
+#           }
+#           else {
+#                if (!is.null(col.names))
+#                     temp <- read.table(file=file.path(cache.dir.global, "data", dir, file),
+#                                    col.names=col.names)
+#                else 
+#                     temp <- read.table(file=file.path(cache.dir.global, "data", dir, file))
+#                assign( x=object, 
+#                        value=temp, 
+#                        envir=parent.frame() ) 
+#           }
+#      }
+#           
+# }
+```

@@ -27,7 +27,6 @@ clifs.model.list <- function( df, period.type="month", formula, sort=T, model.ty
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title prints overall summary of CliFSSS model list performance for each period 
 #' @description prints summary of CliFSSS model performance for each period
@@ -46,7 +45,6 @@ clifs.summary<- function(ml) {
      s<-as.data.frame(t(s))
      return(s) 
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title CliFSSS model, updates model for specified months.  Other months remain as is
@@ -70,7 +68,6 @@ clifs.update <- function( ml, periods, terms="", dep.var=".", clear.terms=F,
                                                      dep.var, "~", ind.var, terms  ))  )  )
      return(ml)
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -112,7 +109,6 @@ clifs.periods.summary <- function(ml, periods=NULL, generic=T, pause=F) {
 }
 
 
-
 ## ------------------------------------------------------------------------
 clifs.coefficients <- function( ml, periods=NULL, by.variable=T ) {
      
@@ -141,7 +137,6 @@ clifs.coefficients <- function( ml, periods=NULL, by.variable=T ) {
      return( coef.table )
 }
      
-
 
 ## ------------------------------------------------------------------------
 ###quick and dirty of function for now
@@ -186,7 +181,6 @@ clifs.aic.compare <- function( all.ml, press=F, plot=F ) {
 
      return(compare)
 }
-
 
 
 

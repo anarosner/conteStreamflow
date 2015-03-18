@@ -10,7 +10,6 @@
 
 
 
-
 ## ----run cross validation of model---------------------------------------
 #' @title  cross validate
 #' @description x 
@@ -95,7 +94,6 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
 #      return( list(values=o.goodness, seed=seed) )
 }
 
-
 ## ----run cross validation of model old-----------------------------------
 # #' @title  cross validate
 # #' @description x 
@@ -156,7 +154,6 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
 # 
 #      return( list(values=o.goodness, seed=seed) )
 # }
-
 
 ## ------------------------------------------------------------------------
 # cross.val<-function( d.records, model.list, dep.var="flow.mean", 
@@ -253,5 +250,4 @@ cross.val<-function( d.records, model.list, dep.var="flow.mean",
 #      return( o.goodness )
 # #      return( list(values=o.goodness, seed=seed) )
 # }
-
 

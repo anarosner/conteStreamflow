@@ -25,7 +25,6 @@ melt.3d<-function(a, id.col="site_no") {
      #add option to change site_no to other id name
 }
 
-
 ## ------------------------------------------------------------------------
 # #' @title data merge
 # #' @export
@@ -97,7 +96,6 @@ melt.3d<-function(a, id.col="site_no") {
 #      
 #      
 # }
-
 
 
 ## ------------------------------------------------------------------------
@@ -230,7 +228,6 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
 }
 
 
-
 ## ----junk----------------------------------------------------------------
 
 
@@ -251,7 +248,6 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
 #      }
 #      
 #      names(d.matrices)<-template.period$name
-
 
 
 
@@ -304,5 +300,4 @@ data.merge<-function( gages.spatial, q.matrices=NULL, w.matrices=NULL, periods=c
 # 
 # dseasonal$season<-to.season(d=dseasonal$date,"season")
 # dseasonal$year<-year(as.Date(as.character(dseasonal$date)))
-
 

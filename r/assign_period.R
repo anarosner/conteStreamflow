@@ -1,7 +1,6 @@
 ## ------------------------------------------------------------------------
 # functions to label each daily records with date representing season month year
 
-
 ## ----to season-----------------------------------------------------------
 
 #' @title Associate calendar dates either a date or string representing its season.
@@ -73,7 +72,6 @@ to.season<-function(d, return.type="date", input.type="date" ) {           #,out
 #           return(as.data.frame(x[,c("season","season.date","year")]) )  
 # }
 
-
 ## ------------------------------------------------------------------------
 #' @title Associate calendar dates a date object or numeric year, representing its water year.
 #' @description Given a date, determines which water year it falls into, and assigns it either a date corresponding to the last calendar day of the water year, or a numeric representation of the year.
@@ -94,7 +92,6 @@ to.water.year<-function(d,date.only=T) {
      else
           return(x[,"water.date"])
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title Associates calendar dates with a date representing its month.

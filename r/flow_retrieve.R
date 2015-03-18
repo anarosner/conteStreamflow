@@ -1,4 +1,3 @@
-
 ## ----aggregate function to use w/ ddply to aggregate---------------------
 #' @title aggregate flow function 
 #' @description default function to aggregagte flow.  
@@ -21,7 +20,6 @@ flow.agg.function<-function( df ) {
                #records.period.rolling=sum(!is.na(df$rolling7)) 
      ))
 } 
-
 
 
 ## ------------------------------------------------------------------------
@@ -53,7 +51,6 @@ flow.pre.agg.function <- function( x.all ) {
 
      return(x.roll)
 }
-
 
 
 ## ----import and aggregate into flow metrics------------------------------
@@ -260,7 +257,6 @@ flow.retrieve<-function(gages.spatial,
      
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title col names for flow stats
 #' @description col names for flow stats
@@ -274,7 +270,6 @@ create.cols.flow <- function( flow.pre.agg.function=(conteStreamflow::flow.pre.a
      temp2 <- flow.agg.function( temp )
      return(  names( temp2 )  )
 }
-
 
 
 

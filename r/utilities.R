@@ -21,7 +21,6 @@ summary.na<-function(v, hist=F) {
      }
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title Customization of ls function
 #' @description Customization of ls function, that includes size (memory) of all objects or data in current session environment.
@@ -55,7 +54,6 @@ ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
      out
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title Simple capitalization function
 #' @description Simple function to capitalize first letter or string, for prettying up plot titles, legends, axes, etc.
@@ -71,7 +69,6 @@ capitalize<-function (string)
                                                     1, 1))
      return(string)
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title internal, temporary replication of merge function to explicitly indicate merging of spatial object with a data.frame
@@ -121,7 +118,6 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 	}
 	x
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title internal function to save log file
@@ -174,7 +170,6 @@ save.log <- function(text, filename, ext="txt") {
      setwd(orig.dir)
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title non zero approximation
 #' @export
@@ -186,7 +181,6 @@ non.zero<-function(x) {
           else return(x1)
      })
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title y or n to logical
@@ -200,7 +194,6 @@ as.logical.y.n <- function( x ) {
      x[x=="n"] <- F
      return(x)
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -241,7 +234,6 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 
 
-
 ## ------------------------------------------------------------------------
 #' @title see.missing
 #' @export
@@ -254,7 +246,6 @@ see.missing <- function(x) {
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title cols.change.name
 #' @export
@@ -264,7 +255,6 @@ col.change.name <- function( df, col.old, col.new ) {
      return(df)
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title cols.remove
 #' @export
@@ -272,6 +262,5 @@ cols.remove <- function( df, cols ) {
      df<-df[,!(names(df) %in% cols)]
      return(df)
 }
-
 
 

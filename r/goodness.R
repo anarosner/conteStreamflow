@@ -1,4 +1,3 @@
-
 ## ------------------------------------------------------------------------
 #' @title Nash Sutcliffe Efficiency Criterion
 NSeff2 <- function (q, col.obs="obs", col.pred="pred") {
@@ -18,7 +17,6 @@ NSeff2 <- function (q, col.obs="obs", col.pred="pred") {
      return(NS)
 }
 
-
 ## ----goodness of fit/validation functions--------------------------------
 #' @title Calculate coefficient of variation of error
 #' @description Calculates CV of error, given 2 vectors of observed and predicted values
@@ -33,7 +31,6 @@ cv.error<-function(obs,pred) {
      sd(pred-obs)/mean(obs)
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title Calculate model bias
 #' @description Calculates model bias, given 2 vectors of observed and predicted values
@@ -47,7 +44,6 @@ bias<-function(obs,pred) {
      b<-mean(pred)-mean(obs)
      return(list(bias=b,percent.bias=b/mean(obs)*100))
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title Some goodness of fit, validation metrics 
@@ -80,7 +76,6 @@ goodness<-function(df=NULL,obs=NULL,pred=NULL) {
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title goodness of fit stats nseff and bias 
 #' @export
@@ -97,7 +92,6 @@ g.fit<-function( obs=NULL, pred=NULL, set, iteration, period ) {
      f$period <- period
      return(f)
 }
-
 
 ## ------------------------------------------------------------------------
 #' @title  g  fit boxplots
@@ -135,7 +129,6 @@ g.fit.boxplot<-function( goodness, measure.vars=c("NSEff","bias","percent.bias")
 
 }
 
-
 ## ----calculate goodness of fit statistics--------------------------------
 #' @title  goodness of fit statistics
 #' @description x 
@@ -169,7 +162,6 @@ goodnessOLD<-function( obs.real=NULL, pred.log=NULL, bias.correction=NULL ) {
 #      f$corr.factor<-corr.factor
      return(round(f,3))
 }
-
 
 ## ----goodness of fit boxplots--------------------------------------------
 #' @title  goodness of fit boxplots

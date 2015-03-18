@@ -3,8 +3,9 @@ base.dir<-"C:/ALR/Models/conteStreamflow"
 setwd(base.dir)
 list.files()
 
-
+# 
 # ###danger danger
+# setwd(base.dir)
 # file.remove("NAMESPACE")
 # list.files()
 # 

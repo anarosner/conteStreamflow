@@ -1,4 +1,3 @@
-
 ## ----voronoi function----------------------------------------------------
 #' @title voronoi polygons
 #' @export
@@ -18,6 +17,7 @@ voronoipolygons = function(layer, create.filename=T) {
      w = tile.list(z)
      polys = vector(mode='list', length=length(w))
      for (i in seq(along=polys)) {
+               #cat(paste0(floor(i/nrow(layer)*100),"%, "))
         pcrds = cbind(w[[i]]$x, w[[i]]$y)
         pcrds = rbind(pcrds, pcrds[1,])
         polys[[i]] = Polygons(list(Polygon(pcrds)), ID=as.character(i))
@@ -37,7 +37,6 @@ voronoipolygons = function(layer, create.filename=T) {
      return( voronoi )
     
 }
-
 
 
 ## ------------------------------------------------------------------------

@@ -24,4 +24,3 @@ zeropad <- function(x, LEN=0) {
     return(p)}, p = pattern, LEN=LEN)
 }
 
-

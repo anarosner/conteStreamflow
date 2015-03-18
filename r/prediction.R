@@ -1,4 +1,3 @@
-
 ## ----predict-------------------------------------------------------------
 #' @title predict continuous timeseries from a set (list) of models by period
 #' @description x 
@@ -78,7 +77,6 @@ predict.model.list<-function( model.list, new.data,
      return( pred )     
 
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -184,7 +182,6 @@ stochastic.correction <- function( y, residuals, retransform=exp,
      
      
 
-
 ## ------------------------------------------------------------------------
 #' @title  smearing correction
 #' @export
@@ -194,7 +191,6 @@ smearing.correction <- function( y, residuals, retransform=exp) {
      corrected <- retransform(y)*correction
      return(corrected)
 }
-
 
 
 ## ----retransform---------------------------------------------------------

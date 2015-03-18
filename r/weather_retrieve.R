@@ -38,7 +38,6 @@ weather.pre.agg.function <- function( x, centroid ) {
 
 }
 
-
 ## ------------------------------------------------------------------------
 #' @title agg weather 
 #' @description x 
@@ -63,7 +62,6 @@ weather.agg.function<-function( df, ... ) {
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title weather lag calculations
 #' @export
@@ -77,7 +75,6 @@ weather.lag.function <- function( x ) {
      
      return( x )
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -98,6 +95,167 @@ create.cols.weather<-function( weather.pre.agg.function=(conteStreamflow::weathe
      dummy4 <- weather.lag.function( dummy3 )
 
      return(  names( dummy4 )[-1]  )
+}
+
+
+## ------------------------------------------------------------------------
+#' @title import weather 
+#' @description import weather
+#' @export
+weather.retrieve.livneh<-function(gages.spatial, 
+                              set="mauer",
+                              periods=c("monthly","annual"),
+                              weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function), 
+                              weather.agg.function = (conteStreamflow::weather.agg.function), 
+                              weather.lag.function = (conteStreamflow::weather.lag.function), 
+                              template.period = NULL) { 
+#      template.date = NULL, cols.weather = NULL,  ...
+
+      
+     ### set up
+     ##
+     #
+     
+     cache.check()
+     orig.dir <- getwd()
+     
+          #warn user if hasn't assigned weather grid.  
+          #later, change to just call function to assign weather grid if it hasn't been done already
+     if ( !("weather.filename" %in% names(gages.spatial)) )
+          stop("Please first plot gages to weather grids using \"gage.place.weather.grid\" ")
+     
+     #generate a data.frame of *unique* weather grids used by all gages
+     selected.weather.files<-gages.spatial[,c("weather.filename","region")]
+     selected.weather.files<-selected.weather.files[ !duplicated(selected.weather.files$weather.filename), ]
+
+     
+     if (is.null(template.period))
+          template.period<-create.template.periods()
+
+     #create templates and columns 
+     if (set=="mauer") {
+          template.date.inputs <- create.template.date.mauer()
+          cols.inputs <- create.cols.mauer()          
+     }
+     else if (set=="livnehA") {
+          template.date.inputs <- create.template.date.livnehA()
+          cols.inputs <- create.cols.livneh()          
+     }
+     else if (set=="livnehB") {
+          template.date.inputs <- create.template.date.livnehB()
+          cols.inputs <- create.cols.livneh()                   
+     }
+     else 
+          stop("Weather set not recognized")
+     
+     
+     cols.weather<-create.cols.weather(
+                              weather.pre.agg.function = weather.pre.agg.function, 
+                              weather.agg.function = weather.agg.function, 
+                              weather.lag.function = weather.lag.function )
+     
+     if (is.null(template.date))
+          template.date<-create.template.date()
+     
+
+     #      #for imported mauer data, user can't specify custom columns/dates, hard coded
+     #      #change if we instead get mauer data from rest api
+     #      cols.mauer <- create.cols.mauer()     
+     #      template.date.mauer <- create.template.date.mauer()
+     
+     #load table of lat/long of centroids of each weather grid cell. 
+     #these lat values are used for snow melt and PET models
+     cache.load.data( "weather.grid.coords", file="weather_grid_coords.rdata", dir="weather_grid" )
+     
+     
+     #create matrix for storing flow data
+     w.matrices<-create.w.matrices(selected.weather.files$weather.filename, periods=periods,
+                                   template.date=template.date, template.period=template.period, cols.weather=cols.weather)
+
+     
+     #downloads weather data as needed
+     for (j in unique(selected.weather.files$region)) {
+          #set up directory for weather region, if it doesn't exist
+          setwd( file.path(cache.dir.global, "data", "weather_data") )
+          dir.conditional.create( new.dir=j, quiet=T )
+
+          #download weather files as needed, and save in cache
+          #(only download, doesn't read them into r at this point)
+          for (k in selected.weather.files$weather.filename[selected.weather.files$region==j]) {
+               cache.load.data( file=k, dir=paste0("weather_data","/",j), cache.only=T, quiet=T )
+          }
+     }
+
+
+     
+     ### load data
+     ## 
+     # 
+     
+     #loop through weather grid cells and pull and aggregate observation records
+     cat(paste( "Begin reading", nrow(selected.weather.files), "unique weather files used for",nrow(gages.spatial),"gages","\n" ))
+     for (i in 1:nrow(selected.weather.files) ) {
+     
+          cat( paste( "  --  Loading file", i, "of", nrow(selected.weather.files), "  --  \n" ))
+                    
+          centroid <- weather.grid.coords[i, c("x","y")]
+
+          #load mauer weather data, using static mauer column names
+          cache.load.data( object="x", 
+                           dir=file.path("weather_data",selected.weather.files$region[i]), 
+                           file=selected.weather.files$weather.filename[i],
+                           is.rdata=F, col.names = cols.mauer )
+          # assign period and date from template
+          x[,c( "date", template.period$name )]<- 
+               template.date.mauer[,c( "date", template.period$name )]
+                              #date is date format  
+                              #others are characters, so they can be used as col names
+               
+          ### weather calculations
+          ##
+          #
+          x <- weather.pre.agg.function( x, centroid )
+
+
+
+
+          ### loop through periods
+          ##
+          #
+
+          for (j in periods ){ 
+
+               ### weather aggregation
+               ##
+               #
+                         
+               suppressWarnings(
+                    x.agg<-ddply( .data=x[,c(which(names(x)==j),which(names(x)!=j))], #reorder columns
+                                             #so column w/ name of period is first
+                            .variables=j, 
+                            .fun=weather.agg.function)
+               )
+             
+               x.agg[x.agg$complete==0,-which(names(x.agg) %in% c(j,"complete"))]<-NA 
+
+
+               ### weather lag values
+               ##
+               #
+               x.lag <- weather.lag.function( x.agg )
+
+               x.final<-as.matrix(x.lag[,cols.weather])
+               w.matrices[[j]][,selected.weather.files$weather.filename[i],]<-x.final
+
+          }#end loop periods
+               
+
+          
+     }#end loop weather grids
+
+     setwd( orig.dir )
+     return(w.matrices)
+
 }
 
 
@@ -245,7 +403,6 @@ weather.retrieve<-function(gages.spatial,
      return(w.matrices)
 
 }
-
 
 
 

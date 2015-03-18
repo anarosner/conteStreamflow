@@ -56,7 +56,6 @@ create.template.date<-function (start.year=1949, end.year=2010) {
 
 
 
-
 ## ------------------------------------------------------------------------
 #' @title define periods
 #' @description if we want to add different period (i.e. bkt bioperiod), can do it here
@@ -73,7 +72,6 @@ create.template.periods<-function( min.records.monthly=25,
 #      assign( "template.period", value=template.period, envir=.GlobalEnv )
 }
 
-
 ## ------------------------------------------------------------------------
 # #' @title names of seasons
 # #' @description yep, that's all for now
@@ -83,6 +81,5 @@ create.template.periods<-function( min.records.monthly=25,
 #      template.season<-c("winter","spring","summer","fall")
 #      return(template.season)
 # }
-
 
 

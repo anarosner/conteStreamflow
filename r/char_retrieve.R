@@ -1,4 +1,3 @@
-
 ## ------------------------------------------------------------------------
 #' @title char.columns.retrieve
 #' @export
@@ -26,7 +25,6 @@ char.columns.retrieve <- function(id=F,impoundment=F) {
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title char columns select
 #' @export
@@ -50,7 +48,6 @@ char.columns.select <- function(impoundment=F) {
      
      return(c( char.columns.retrieve(id=T), all[ all$include==T, "col" ] ))
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -129,7 +126,6 @@ char.retrieve<-function(gages.spatial, cols=NULL,
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title char transform
 #' @description x
@@ -175,7 +171,6 @@ char.transform <- function( char, cols, id.col="FEATUREID", trans="log", return.
 }
 
 
-
 ## ------------------------------------------------------------------------
 #' @title impound retrieve
 #' @description wrapper function for char.retrieve
@@ -184,7 +179,6 @@ impound.retrieve <- function(gages.spatial, server.url="http://felek.cns.umass.e
 
      char.retrieve( gages.spatial=gages.spatial, impound=T, server.url=server.url, cols=cols )                    
 }
-
 
 
 ## ------------------------------------------------------------------------
@@ -203,7 +197,6 @@ char.columns.default <- function( impound=F ) {
                       "TNC_DamCount", "OnChannelWaterSqKM", "OnChannelWetlandSqKM"))
 }
      
-
 
 ## ------------------------------------------------------------------------
 #' @title col transform
@@ -235,6 +228,5 @@ col.transform <- function(x, log.cols, id.col="FEATUREID") {
 
 
 }
-
 
 

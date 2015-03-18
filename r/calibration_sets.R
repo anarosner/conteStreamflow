@@ -1,4 +1,3 @@
-
 ## ----create calibration and validation sets------------------------------
 #' @title  create calibration and validation sets
 #' @description x 
@@ -105,7 +104,6 @@ create.calib <-function( d.records,
      
      return( sets )
 }
-
 
 
 ## ----create calibration and validation sets old--------------------------

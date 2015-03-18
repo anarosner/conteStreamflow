@@ -1,4 +1,3 @@
-
 ## ------------------------------------------------------------------------
 
 #' @title determine coordinates (and regions) livneh weather grid(s) from ftp dir and file names
@@ -108,8 +107,11 @@ weather.grid.livneh.coords<-function( ftp.url="ftp://gdo-dcp.ucllnl.org/pub/dcp/
 }
 
 
-
 ## ------------------------------------------------------------------------
+
+#' @title turn coordinates into points for livneh weather grid(s)
+#' @export
+
 weather.grid.livneh.points<-function( grid.coords, 
                                       proj4="+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs" ) {
                                     
@@ -125,18 +127,17 @@ weather.grid.livneh.points<-function( grid.coords,
 }
 
 
-
 ## ------------------------------------------------------------------------
 
-#' @title gather regions and coordinates for livneh weather grid(s)
+#' @title turn points into polygons for livneh weather grid
 #' @export
 
 weather.grid.livneh.create<-function( grid.points, 
                                       shapefile.dir=NULL ) {
                                     
      
-     print("Creating Voronoi polygons around grid centroids...\n")
-     print("    (this part could take a while)    \n")
+     print("Creating Voronoi polygons around grid centroids...")
+     print("    (this part could take a while)    ")
      weather.grid.poly<-voronoipolygons( grid.points, create.filename=F )
 
      #if user opted to save grid as shapefile (by specifying shapefile directory), save it
