@@ -26,3 +26,16 @@ create.w.matrices<-function( weather.filenames,
 
 
 
+## ------------------------------------------------------------------------
+#' @title retrieve weather, based on specified set
+#' @description placeholder
+#' @export
+
+weather.sets.retrieve <- function( set="mauer_1949_2010" ) {
+#       cache.load.data( file="weather_cols.txt", dir=paste0("weather_sets/",set) )
+     
+     print("boo")
+}
+
+
+

@@ -1,52 +1,66 @@
-
 ```{r}
-
 
 library(conteStreamflow)
 
-setwd("C:/ALR/Models/cache/data/weather_sets/livneh_1950_2013_new_england")
-write.csv(create.template.date.livnehB(), file="weather_dates.csv", row.names=F)
-writeLines(create.cols.livneh(), con="weather_cols.txt" )
-writeLines("ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/", con="weather_url.txt")
-
-setwd("C:/ALR/Models/cache/data/weather_sets/mauer")
-write.csv(create.template.date.mauer(), file="weather_dates.csv", row.names=F)
-writeLines(create.cols.mauer(), con="weather_cols.txt" )
-writeLines("http://felek.cns.umass.edu:9283/data/weather_data", con="weather_url.txt")
-
-setwd("C:/ALR/Models/cache/data/weather_sets/livneh_1915_2011_new_england")
-write.csv(create.template.date.livnehA(), file="weather_dates.csv", row.names=F)
-writeLines(create.cols.livneh(), con="weather_cols.txt" )
-writeLines("ftp://ftp.hydro.washington.edu/pub/blivneh/CONUS/Meteorology.asc.v.1.2.1915.2011.bz2/",
-           con="weather_url.txt")
+cache.set( "c:/alr/models/cache" )
 
 ```
 
 
 ```{r}
+create.sets <- function( set, date1, date2, cols, url ) {     
+     template.weather <- data.frame( 
+          date=seq.Date( from=as.Date( date1 ), to=as.Date( date2 ), by="day" ) )
+     template.weather$daily<-as.character(template.weather$date)
+     template.weather$monthly<-as.character( to.month(template.weather$date) )
+     template.weather$seasonal<-as.character( to.season(template.weather$date) )
+     template.weather$annual<-as.character( to.water.year(template.weather$date) )
+     
+     attributes( template.weather )$set <- set
+     attributes( template.weather )$cols <- cols
+     attributes( template.weather )$url <- url
+     
+     orig.dir <- getwd()
+     setwd( file.path( cache.dir.global, "data/weather_sets") )
+     if (!(file.exists(set)))
+          dir.create(set)
+     setwd(set)
+     save( template.weather, file="template.weather.RData" ) 
+     setwd(orig.dir)
+
+     return(TRUE)
+}
+
+```
+
+```{r}
+
+set <- "livneh_1915_2011"
+create.sets( set, "1915-01-01", "2011-12-31",
+               c("precip.mm", "tmax","tmin","wind"),
+               "ftp://ftp.hydro.washington.edu/pub/blivneh/CONUS/Meteorology.asc.v.1.2.1915.2011.bz2/" )
+
+set <- "livneh_1950_2013"
+create.sets( set, "1950-01-01", "2013-12-31",
+               c("precip.mm", "tmax","tmin","wind"),
+               "ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/" )
+
+set <- "mauer_1949_1950"
+create.sets( set, "1949-01-01", "2010-12-31",
+               c("year", "month", "day","precip.mm", "tmax","tmin","wind"),
+               "http://felek.cns.umass.edu:9283/data/weather_data" )
 
 
-readLines( "weather_cols.txt" )
-readLines("weather_url.txt")
-head(read.csv("weather_dates.csv"))
 ```
 
 
 ```{r}
+cache.load.data2( file="template.weather.RData", dir=paste0("weather_sets/",set) )
+head(template.weather)
+attr(template.weather,"set")
+attr(template.weather,"url")
+attr(template.weather,"cols")
 
-boo <- read.table( "C:/ALR/Data/ClimateData/Livneh/Meteorology_Livneh_CONUSExt_v.1.2_2013_38.96875_-74.90625", header=F, sep="\t" )
-head(boo)
-str(boo)
-rm(boo)
+rm(template.weather)
 
-
-boo <- read.table("C:/ALR/Data/ClimateData/Livneh/B_1950_2013/Meteorology_Livneh_NAmerExt_15Oct2014_16.59375_-90.65625.bz2" )
-head(boo)
-str(boo)
-
-as.Date("2013-12-31") - as.Date("1950-01-01")
-dim(boo)
-boo$date <- seq.Date( from=as.Date("1950-01-01"), to=as.Date("2013-12-31"), by="day" )
-head(boo)
-tail(boo)
 ```
