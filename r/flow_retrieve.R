@@ -126,7 +126,7 @@ flow.retrieve<-function(gages.spatial,
                     close( url( meta.url) )
                }
                
-               x1<-cleanUp(x1,task="fix",replace=NA) #waterData function to fix common problems (sets ice to NAs, etc, I think)
+               x1<-cleanUp(x1,task="fix",replace=0) #waterData function to fix common problems (sets ice to NAs, etc, I think)
                cat(paste0("        Gage ",gages.spatial$site_no[k],", loaded ",nrow(x1)," rows\n"))
                if ( sum(duplicated(x1$dates)) ) {  
                     #wouldn't think this would be an issue, but some gages have duplicated dates
