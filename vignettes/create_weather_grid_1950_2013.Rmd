@@ -1,0 +1,99 @@
+# Create weather grid using conteStreamflow package
+
+### Load package
+```{r pkgs}
+
+# library(devtools)
+# install_github( repo="conteStreamflow", username="anarosner" )
+setwd("C:/ALR/Models/conteStreamflow/r")
+for (i in list.files()) 
+     source(i)
+
+library(conteStreamflow)
+```
+
+### Create weather grid coordinates from file contents
+```{r create weather grid, cache=TRUE}
+
+#Will only need to do this very occassionally, when adding a new geographic region
+
+setwd("C:/ALR/Data/ClimateData/Livneh/B_1950_2013/grid")
+weather.grid.coords <- weather.grid.livneh.coords( ftp.url="ftp://gdo-dcp.ucllnl.org/pub/dcp/archive/OBS/livneh2014.1_16deg/ascii/daily/" )
+save( weather.grid.coords, file="weather_grid_coords.rdata" )
+```
+
+
+### Create weather grid points.  Select points in geogrpahic region to turn to grid
+```{r}
+# source("C:/ALR/Models/conteStreamflow/r/create_templates_livneh_weather.R")
+
+#create spatial points data frame
+weather.grid.points <- weather.grid.livneh.points( weather.grid.coords )
+
+#see size
+nrow(weather.grid.points)
+
+#load states spatial data
+cache.set( "c:/alr/models/cache")
+cache.load.data( object="states.poly", "states.rdata", dir="general_spatial") 
+plot(states.poly)
+
+#select states
+ne.states <- states.poly[states.poly$STUSPS %in% c("MA","CT","NY","NH","VT","ME","RI"),]
+
+
+#plot to see overlap.  
+plot(ne.states)
+plot(weather.grid.points,add=T, col="blue")
+
+#compare bounding boxes
+bbox(ne.states)
+bbox(weather.grid.points)
+
+#create complilation bounding box, to get the extra data east of the Maine boundary
+box <- bbox(ne.states)
+box[1,2] <- bbox(weather.grid.points)[1,2]
+box
+
+
+## Load raster package (event though we're not working w/ rasters) 
+#    to use crop function to clip SpatialPolygonsDataFrame
+# install.packages("raster")
+library(raster) 
+
+## Crop to the desired extent, then plot
+weather.grid.points.crop <- crop( weather.grid.points, box )
+
+#plot results
+plot(weather.grid.points, col="red")
+plot(states.poly, add=T)
+plot(weather.grid.points.crop, col="blue", add=T)
+
+
+
+
+```
+
+
+
+### Create weather grid polygons from coordinates
+```{r}
+
+nrow(weather.grid.points.crop)
+weather.grid.poly <- weather.grid.livneh.create( grid.points=weather.grid.points.crop )
+
+save( weather.grid.poly, file="weather_grid_poly.rdata" )
+
+
+
+```
+
+### Plot
+```{r}
+
+plot(weather.grid.poly)
+plot(weather.grid.points,add=T, col="blue")
+
+
+
+```

@@ -179,7 +179,8 @@ cache.load.data <- function( file, dir,
                              cache.only=F, col.names=NULL,
                              message="default", quiet=F,
                              object=NULL, is.rdata=NULL ) {
-     
+     file <- tolower( file )
+     dir <- tolower( dir )
      if (!is.null(object))
           warning("specification of object is deprecated. please ensure that the rdata file contains only one object, with the same name as the filename.")
      if (!is.null(is.rdata))

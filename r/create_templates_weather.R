@@ -32,7 +32,7 @@ create.w.matrices<-function( weather.filenames,
 #' @export
 
 weather.sets.retrieve <- function( set="mauer_1949_2010" ) {
-#       cache.load.data( file="weather_cols.txt", dir=paste0("weather_sets/",set) )
+     cache.load.data( file="template.weather.RData", dir=paste0("weather_sets/",set) )
      
      print("boo")
 }

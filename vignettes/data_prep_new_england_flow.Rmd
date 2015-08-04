@@ -2,12 +2,14 @@
 output:
   html_document:
     css: C:/ALR/Models/custom.css
+    keep_md: yes
     theme: null
 ---
 
+
 # conteStreamflow Vignette: streamflow data prep 
 ## Data prep for VT and NH, mean flows at monthly and annual time-steps
-## ALR 3-10-2015
+## ALR 3-11-2015
 
 ### load packages
 ```{r load pkg, message=FALSE, warning=FALSE}
@@ -27,23 +29,45 @@ cache.set( cache.dir="c:/alr/models/cache" )
 
 
 ### Load gages using a list of states
-```{r load gages, cache=TRUE}
+```{r load gages}
 g.spatial <- gage.retrieve( states=c("NH","VT"), max.da.sqkm=100, min.da.sqkm=0 )
 
 # number of records from initial retrieval
 nrow(g.spatial)
 head(g.spatial@data)
+```
 
-cache.load.data( object="states.poly",file="states.rdata", dir="general_spatial" )
-plot( g.spatial, pch=16, col="blue" )
-plot( states.poly, border="black", add=T )
+### View gage data
+```{r view gage data, message=FALSE}
 
+#data as table
+library(DT)
+datatable(g.spatial@data)
+
+#map colored by drainage area
+library(leaflet)
+
+stamen_tiles <- "http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png"
+stamen_attribution <- 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.'
+pal <- colorBin("YlOrRd", bins=0:10*10 )
+
+leaflet() %>%
+     addTiles(urlTemplate = stamen_tiles,  
+             attribution = stamen_attribution) %>%
+     addCircles( data=g.spatial, opacity=1,fill = T,
+                 color = ~pal(g.spatial$da_nwis_sqkm), 
+                 popup=paste0(g.spatial$site_no, " ",g.spatial$station_nm, " (",
+                             round(g.spatial$da_nwis_sqkm,1), " sq km drainage area)")
+                 ) 
+
+
+plot(g.spatial)
 
 ```
 
 
 ### Load flow observations
-```{r load flow, cache=TRUE}
+```{r load flow, eval=FALSE, echo=TRUE}
 
 #Load/calculate/aggregate flow data for seasonal and annual timesteps
 q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.function, 
@@ -53,9 +77,14 @@ q.matrices<-flow.retrieve( gages.spatial=g.spatial, flow.agg.function=flow.agg.f
 
 ```
 
+```{r load cached flow, eval=TRUE, echo=TRUE}
+load("C:/ALR/Models/conteStreamflow/vignettes/data_prep_new_england_flow_image.rdata.RData", verbose=T)
+
+```
+
 
 ### View sample of flow data
-```{r}
+```{r view sample of flow data, message=FALSE}
 # Sample flow data
 str(q.matrices)
 
@@ -70,19 +99,63 @@ q.matrices[["monthly"]][1000:1020,5,]
 q.matrices[["monthly"]][1000:1020,5:15,1]
 
 #see number/date ranges of records for each gage
-q.matrices[["records"]]
+library(DT)
+datatable(q.matrices[["records"]])
 
 
-#save locally
-# setwd("c:/mydirectory")
-# save(q.matrices, file="q_matrices.rdata")
+```
+
+### Years of records vs drainage area
+```{r look at years of records v area, message=FALSE}
+
+
+
+library(metricsgraphics)
+
+q.matrices[["records"]] %>%
+     mjs_plot(x=da_nwis_sqkm, y=records.monthly) %>%
+     mjs_point(color_accessor=first.monthly, point_size=5 ) %>%
+     mjs_axis_x(extended_ticks=T) %>%
+     mjs_axis_y(extended_ticks=T) %>%
+     mjs_labs("drainage area", "# records (monthly)") %>%
+     mjs_add_legend(legend=c("da_nwis_sqkm", "records.monthly", "first.monthly", "last.monthly"))
+
+
+plot( q.matrices[["records"]][,"da_nwis_sqkm"], 
+      q.matrices[["records"]][,"records.monthly"] )
+```
+
+### Sample timeseries graphs
+```{r sample timeseries graph, message=FALSE}
+library(dygraphs)
+
+flow.series.plot <- function(site_no, period="monthly") {
+     x <- q.matrices[[period]][,site_no,]
+     row<- which(!is.na(x[,"mean"]))
+     x <- x[min(row):max(row),]
+     
+     d <- dygraph( x[,c("min","mean","max")], 
+                   main=paste0(g.spatial@data[g.spatial$site_no==site_no,"station_nm"], 
+                               " (",site_no,")") 
+                   ) %>% 
+          dyRangeSelector() %>%
+          dyHighlight( highlightSeriesOpts=list( strokeWidth=2 ) )
+     return(d)
+}
+
+
+flow.series.plot("01077400")
+flow.series.plot("01142500", period="monthly")
+flow.series.plot("01142500", period="annual")
+flow.series.plot("04288225")
+
+
 
 ```
 
 
-
 ### Footnotes: r version and packages used
-```{r}
+```{r footnotes}
 #objects in session
 ls()
 

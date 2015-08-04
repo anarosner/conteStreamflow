@@ -5,8 +5,6 @@
 
 create.template.date<-function (start.year=1949, end.year=2010) {
      # set up data frames for loading mauer historic weather data
-     #(using flow data since 1949 only, even though there are some records back to the 30s, 
-     #because Mauer met data only available starting 1950)
      
      #the four periods here are hard-coded in
      #  in order to add different periods, need to create new function to create date templates

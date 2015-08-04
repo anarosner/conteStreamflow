@@ -102,15 +102,16 @@ create.cols.weather<-function( weather.pre.agg.function=(conteStreamflow::weathe
 #' @title import weather 
 #' @description import weather
 #' @export
-weather.retrieve.livneh<-function(gages.spatial, 
-                              set="mauer",
+weather.retrieve2 <- function(gages.spatial, 
+                              set="livneh_1950_2013",
                               periods=c("monthly","annual"),
                               weather.pre.agg.function = (conteStreamflow::weather.pre.agg.function), 
                               weather.agg.function = (conteStreamflow::weather.agg.function), 
                               weather.lag.function = (conteStreamflow::weather.lag.function), 
                               template.period = NULL) { 
-#      template.date = NULL, cols.weather = NULL,  ...
-
+                                   #      template.date = NULL, cols.weather = NULL,  ...
+                              #set="mauer_1949_2010"
+                              #set="livneh_1915_2010"
       
      ### set up
      ##
@@ -132,21 +133,12 @@ weather.retrieve.livneh<-function(gages.spatial,
      if (is.null(template.period))
           template.period<-create.template.periods()
 
-     #create templates and columns 
-     if (set=="mauer") {
-          template.date.inputs <- create.template.date.mauer()
-          cols.inputs <- create.cols.mauer()          
-     }
-     else if (set=="livnehA") {
-          template.date.inputs <- create.template.date.livnehA()
-          cols.inputs <- create.cols.livneh()          
-     }
-     else if (set=="livnehB") {
-          template.date.inputs <- create.template.date.livnehB()
-          cols.inputs <- create.cols.livneh()                   
-     }
-     else 
-          stop("Weather set not recognized")
+     #load date and column name templates for chosen weather data set
+     cache.load.data( file="template.weather.rdata", dir=paste0("weather_sets/",set) )
+
+     #load table of lat/long of centroids of each weather grid cell. 
+     #these lat values are used for snow melt and PET models
+     cache.load.data( file="weather.grid.coords.rdata", dir=paste0("weather_sets/",set) )
      
      
      cols.weather<-create.cols.weather(
@@ -154,19 +146,15 @@ weather.retrieve.livneh<-function(gages.spatial,
                               weather.agg.function = weather.agg.function, 
                               weather.lag.function = weather.lag.function )
      
-     if (is.null(template.date))
-          template.date<-create.template.date()
+#      if (is.null(template.date))
+#           template.date<-create.template.date()
      
 
      #      #for imported mauer data, user can't specify custom columns/dates, hard coded
      #      #change if we instead get mauer data from rest api
      #      cols.mauer <- create.cols.mauer()     
      #      template.date.mauer <- create.template.date.mauer()
-     
-     #load table of lat/long of centroids of each weather grid cell. 
-     #these lat values are used for snow melt and PET models
-     cache.load.data( "weather.grid.coords", file="weather_grid_coords.rdata", dir="weather_grid" )
-     
+          
      
      #create matrix for storing flow data
      w.matrices<-create.w.matrices(selected.weather.files$weather.filename, periods=periods,
