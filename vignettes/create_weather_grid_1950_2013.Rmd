@@ -97,3 +97,38 @@ plot(weather.grid.points,add=T, col="blue")
 
 
 ```
+
+### Create template of dates
+```{r}
+library(lubridate)
+#these are hard-coded for now, but they should be read from a file within the livneh 1950-2013 set folder
+start_date <- "1950-01-01"
+end_date <- "2013-12-31"
+
+# this isn't really necessary, but it's reassuring that the number of records match the number of dates! 
+# because unfortunately, the date isn't part of the weather record
+example_file <- read.table("C:/ALR/Data/ClimateData/Livneh/B_1950_2013/Meteorology_Livneh_NAmerExt_15Oct2014_16.59375_-90.65625.bz2" )
+dim(example_file)
+
+# calculate series of dates between the range specified for this set (livneh 1950-2013)
+example_file$date <- seq.Date( from=as.Date(start_date), to=as.Date(end_date), by="day" )
+
+# to save time later, we'll also calculate the dates representing the month and the water year for each record
+example_file$month_date <- to_month_date( example_file$date )
+example_file$wateryear_date <- to_wateryear_date( example_file$date )
+example_file$day_date <- example_file$date #this is just so it's consistent w/ other period column names...
+
+head(example_file)
+tail(example_file)
+str(example_file)
+
+
+template_w_date <- example_file[,c("date","day_date","month_date","wateryear_date")]
+template_w_cols <- c("precip_mm", "tmax","tmin","wind")
+
+rm(example_file)
+head(template_w_date)
+
+```
+
+

@@ -1,4 +1,89 @@
 ## ------------------------------------------------------------------------
+#' @title Downloads and/or loads data from cache directory
+#' @description Load data from cache directory.  If it does not exist, download it first and then load it.  Reassign the object within the parent environment
+#' @export
+
+cache.load.data <- function( file, dir, 
+                             server.url="http://felek.cns.umass.edu:9283/data", 
+                             cache.only=F, col.names=NULL,
+                             message="default", quiet=F,
+                             object=NULL, is.rdata=NULL ) {
+                              #object and is.rdata are deprecated
+     
+     if (!is.null(object))
+          warning("specification of object is deprecated. please ensure that the rdata file contains only one object, with the same name as the filename.")
+     if (!is.null(is.rdata))
+          warning("is.rdata argument is deprecated")
+     
+     file <- tolower( file )
+     dir <- tolower( dir )
+     is.rdata <- grepl( ".rdata", file, ignore.case=T )
+
+
+     ### download files as needed
+     # check to see if it exists in local cache
+     # if isn't in local cache, need to download
+     if ( !( file %in% list.files(path=file.path(cache.dir.global,"data",dir) ) ) ) {
+          if ( message == "default" )
+               cat( paste0("Downloading file ",file,". (This will be cached locally for future use.)\n") )
+          else if ( !is.null(message) )     
+               cat(message)
+          
+          status <- download.file( paste0(server.url,"/data/",dir,"/",file),
+                    file.path(cache.dir.global, "data",dir,file), 
+                    method="auto", quiet=quiet)
+          if ( status != 0 ) {    
+               file.remove( file.path(cache.dir.global, "data",dir,file) )
+               stop(paste( "Unable to download file:", file.path(cache.dir.global, "data",dir,file) ))
+          }
+               
+     }
+     
+     
+     ### load file
+     # check if is cache.only
+     if (!cache.only) {  
+          
+          if (is.rdata) {
+               # load file
+               name <- load( file.path(cache.dir.global, "data", dir, file), verbose = !(quiet) )
+               if ( length(name)>1 ) 
+                    warning( paste0( "Specified rdata file contains multiple objects. Only first object, \'", 
+                                          name[1], "\',", "is being loaded"  ) )
+               temp <- get( name )
+               
+                    #      #checks that the string "rdata" isn't in the filename more than once
+                    #      if ( length( gregexpr( ".rdata", file, ignore.case=T )[[1]] ) > 1 )
+                    #           stop("file with .rdata file extension cannot also have .rdata in the filename")
+                    #      if ( is.rdata ) #& is.null(object) )
+                    #           object <- sub( pattern=".rdata", replacement="", x=file, ignore.case=T )
+          
+               assign( x=name[1], 
+                       value=temp, 
+                       envir=parent.frame() ) 
+          }
+          
+          else if ( grepl( ".txt", file, ignore.case=T ) ) {
+               temp <- readLines( file.path(cache.dir.global, "data", dir, file) )
+               return( temp )
+          }
+
+          else if ( !is.null(col.names) ) {
+               temp <- read.table( file=file.path(cache.dir.global, "data", dir, file),
+                                   col.names=col.names )
+               return( temp )
+          }
+          
+          else {
+               temp <- read.table( file=file.path(cache.dir.global, "data", dir, file) )
+               return( temp )
+          }
+          
+     }
+          
+}
+
+## ------------------------------------------------------------------------
 #' @title internal function to create directory if it doesn't already exist
 #' @param new.dir \code{character}  character of new directory names
 #' @param quiet \code{boolean}  whether to suppress messages
@@ -42,9 +127,10 @@ cache.setup <- function(cache.dir, quiet=T) {
           setwd("./data")
                dir.conditional.create("hucs", quiet=quiet)
                dir.conditional.create("catchments", quiet=quiet)
-               dir.conditional.create("weather_grid", quiet=quiet)
+               dir.conditional.create("weather_set", quiet=quiet)
                dir.conditional.create("weather_data", quiet=quiet)
                dir.conditional.create("basin_char", quiet=quiet)
+               dir.conditional.create("basin_char_set", quiet=quiet)
                dir.conditional.create("general_spatial", quiet=quiet)
           
           if ( !quiet )
@@ -154,75 +240,6 @@ cache.load.dataOLD <- function( file, dir,
                assign( x=object, 
                        value=get( object, envir=environment() ), 
                        envir=parent.frame() )               
-          }
-          else {
-               if (!is.null(col.names))
-                    temp <- read.table(file=file.path(cache.dir.global, "data", dir, file),
-                                   col.names=col.names)
-               else 
-                    temp <- read.table(file=file.path(cache.dir.global, "data", dir, file))
-               assign( x=object, 
-                       value=temp, 
-                       envir=parent.frame() ) 
-          }
-     }
-          
-}
-
-## ------------------------------------------------------------------------
-#' @title Downloads and/or loads data from cache directory
-#' @description Load data from cache directory.  If it does not exist, download it first and then load it.  Reassign the object within the parent environment
-#' @export
-
-cache.load.data <- function( file, dir, 
-                             server.url="http://felek.cns.umass.edu:9283/data", 
-                             cache.only=F, col.names=NULL,
-                             message="default", quiet=F,
-                             object=NULL, is.rdata=NULL ) {
-     file <- tolower( file )
-     dir <- tolower( dir )
-     if (!is.null(object))
-          warning("specification of object is deprecated. please ensure that the rdata file contains only one object, with the same name as the filename.")
-     if (!is.null(is.rdata))
-          warning("is.rdata argument is deprecated")
-     
-     
-     is.rdata <- grepl( ".rdata", file, ignore.case=T )
-     if ( length( gregexpr( ".rdata", file, ignore.case=T )[[1]] ) > 1 )
-          stop("file with .rdata file extension cannot also have .rdata in the filename")
-     if ( is.rdata & is.null(object) )
-          object <- sub( pattern=".rdata", replacement="", x=file, ignore.case=T )
-
-
-     if ( !( file %in% list.files(path=file.path(cache.dir.global,"data",dir) ) ) ) {
-          if ( message == "default" )
-               cat( paste0("Downloading file ",file,". (This will be cached locally for future use.)\n") )
-          else if ( !is.null(message) )     
-               cat(message)
-          
-          status <- download.file( paste0(server.url,"/data/",dir,"/",file),
-                    file.path(cache.dir.global, "data",dir,file), 
-                    method="auto", quiet=quiet)
-          if ( status != 0 ) {    
-               file.remove( file.path(cache.dir.global, "data",dir,file) )
-               stop(paste( "Unable to download file:", file.path(cache.dir.global, "data",dir,file) ))
-          }
-               
-     }
-     
-     if (!cache.only) {  
-          
-          if (is.rdata) {
-               load( file.path(cache.dir.global, "data", dir, file), verbose = !(quiet) )
-               assign( x=object, 
-                       value=get( object, envir=environment() ), 
-                       envir=parent.frame() )               
-          }
-          else if ( grepl( ".txt", file, ignore.case=T ) ) {
-               temp <- readLines( file.path(cache.dir.global, "data", dir, file) )
-               assign( x=object, 
-                       value=temp, 
-                       envir=parent.frame() ) 
           }
           else {
                if (!is.null(col.names))

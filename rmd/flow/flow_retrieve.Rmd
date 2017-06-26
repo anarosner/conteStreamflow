@@ -1,27 +1,220 @@
 
-```{r aggregate function to use w/ ddply to aggregate}
-#' @title aggregate flow function 
-#' @description default function to aggregagte flow.  
+```{r import and aggregate into flow metrics}
+#' @title import flow 
+#' @description import flow from nwis web service, and aggregate to various metrics and by various periods
 #' @export
+flow_retrieve<-function( gages, 
+                         periods=c("month","wateryear"),
+                         min_n = list( month=25, wateryear=345 ) ) {
+     
+     ### set up 
+     ##
+     #
+     require(plyr)
+     require(waterData)
+     require(zoo)
+     require(dplyr)
+     require(lubridate)
+     
+     #allow function to take sites argument as *either* data frame or spatial data frame
+     if ( !is.null(attributes(class(gages))) && attributes(class(gages))$package == "sp" )
+          gages <- gages@data
+     row.names(gages) <- NULL
 
-flow.agg.function<-function( df ) {
-     template.period <- get( "template.period", envir=.GlobalEnv )
-     j<-names(df)[1] #a way to determine the period, w/o requiring it to be 
-                     #   passed as parameter, so only one paramter is needed
-     cutoff <- template.period[j,"min.records"] #determine number of records  
-                                                 #require to be considered "complete"
-                                                 #for this period type     
-     return(c(
-          mean=mean(df$val,na.rm=T),
-          max=max(df$val,na.rm=T),
-          min=min(df$val,na.rm=T),
-          low=min(df$rolling7,na.rm=T),
-          complete=sum(!is.na(df$val))>=cutoff,
-          records.period=sum(!is.na(df$val))
-               #records.period.rolling=sum(!is.na(df$rolling7)) 
-     ))
-} 
+     #create matrix for storing flow data
+     flow_records <- list()
+     for ( j in periods ) 
+          flow_records[[j]] <- NULL
+          #    wide by metric, 
+          #    long by site and date/time-step
+          #    stored in a list, one table for each period
+     
+     #create lists for storing meta data before it is assigned as attributes
+     meta_download <- list()
+     meta_records <- NULL
+     meta_error <- NULL  #save site_no id's of gages missing all data, 
+                         #or if unable to retrieve records
 
+     
+     ### Load data
+     ##
+     #
+     cat("Begin loading and aggregating stream flow observations...\n")
+     # missing<-c() #save site_no id's of gages missing all data, or if unable to retrieve records
+     
+     #loop through sites
+     for ( k in 1:length( gages$site_no ) )     {
+          cat(paste("  --  Loading/aggregating gage", k, "of", length(gages$site_no), "  --  \n"))
+          flag<-F
+
+          #read raw, daily flow data
+          tryCatch(
+               # uses waterData package functions to pull NWIS data from USGS web services 
+                                             #  flow/discharge cfs, code 00060
+                                             #  daily mean, code 00003
+               x_raw<-importDVs(gages$site_no[k], code = "00060", stat = "00003"),
+               error = function(e) {
+                    meta_error <- c(meta_error,k)
+                    warning(paste("Error on gage",gages$site_no[k],": unable to download", 
+                                  "\n",e))
+                    flag <- T
+               })
+          if ( nrow(x_raw) ==0 ){
+               meta_error <- c(meta_error,k)
+               warning(paste("Error on gage",gages$site_no[k],": missing all data", 
+                             "\n",e))
+               flag <- T
+          }
+#                error = function(e) {
+#                     print("error")
+#                     missing<-c(missing,k)
+#                     warning(paste("Gage",gages$site_no[k],"missing data", 
+#                                   "\n",e))
+#                     
+
+          if (!flag) #check for errors
+          {                    
+               # save meta data for daily flow records
+               meta_url <- paste0(
+                    tellMeURL(gages$site_no[k], code = "00060", stat = "00003",
+                         sdate = "1851-01-01",
+                         edate = as.Date(Sys.Date(), format = "%Y-%m-%d")),
+                    "&format=rdb")
+               
+               meta_con <- url(meta_url)
+               meta_temp <- readLines( con=meta_con, n=17 )
+               meta_download[[ gages$site_no[k] ]] <- meta_temp[9:17]
+               close( meta_con )
+               
+               x_raw<-cleanUp(x_raw,task="fix",replace=0) #waterData function to fix common problems (sets ice to NAs, etc, I think)
+               cat(paste0("        Gage ",gages$site_no[k],", loaded ",nrow(x_raw)," rows\n"))
+               if ( sum(duplicated(x_raw$dates))>0 ) {  
+                    #wouldn't think this would be an issue, but some gages have duplicated dates
+                    #for now, just keeping the first record for a date and removing the rest.  down the line, maybe want to do some sort of comparison of duplicates
+                    warning(paste("      Duplicated dates in gage",gages$site_no[k],":",
+                                  x_raw[(which(duplicated(x_raw$dates))-1):which(duplicated(x_raw$dates)),], "removed"))
+                    x_raw<-x_raw[!duplicated(x_raw$dates),]
+               }
+               
+               
+               ### flow.calculations
+               ##
+               #
+               
+               x_calc <- flow_raw_calc( x_raw )  
+               # x_calc <- x_calc %>% 
+                              # rename( site_no=staid )
+               
+               #assign dates representing different month and wateryear
+               x_calc$day_date <- x_calc$date
+               x_calc$month_date <- to_month_date( x_calc$date )
+               x_calc$wateryear_date <- to_wateryear_date( x_calc$date )
+               x_calc$doy <- as.numeric(format(x_calc$date, format="%j"))
+               
+
+               
+               
+               ### aggregate
+               ##
+               #
+               
+               
+               meta_records_temp <- data.frame( period=periods, site_no=gages$site_no[k],
+                  n_period_records=NA, first_date=NA, last_date=NA,
+                  stringsAsFactors=F )
+               if ( "da_nwis_sqkm" %in% names(gages) )
+                    meta_records_temp$da_nwis_sqkm <- gages$da_nwis_sqkm[k]
+               row.names(meta_records_temp) <- periods
+               # meta_records[[ gages$site_no[k] ]] <- data.frame( 
+#                   n_period_records=rep( NA, length(periods)),
+#                   first_date=NA, last_date=NA )
+               
+               # row.names( meta_records[[ gages$site_no[k] ]] ) <- periods 
+
+               for (j in periods){     #loop through periods specified in function parameter
+                    
+                    
+                    #summarize (for month and wateryear only, no summarization for daily)
+                    #day
+                    if ( j == "day" ) {
+                         x_period <- x_calc 
+                    }
+                    #month or wateryear
+                    else  {
+                         #summarize
+                         x_period <- flow_summarize( x_calc, j )
+                         #remove NA values/rows
+                         x_period <- x_period %>% 
+                                        filter( n_days >= min_n[[j]] )
+                    }
+                    
+                    #check that there are some complete records for this period
+                    #    (earlier, we checked that there were >0 rows of daily/raw records,
+                    #    but in some cases there are daily records but no complete 
+                    #    monthly or wateryear records)
+                    if ( nrow(x_period)>0 ) {
+                         #save weather grid info for merging 
+                         if ( "weather_filename" %in% names( gages ) ) {
+                              x_period$weather_filename <- gages[k,"weather_filename"]
+                              x_period$weather_region <- gages[k,"weather_region"]
+                              x_period$weather_set <- gages[k,"weather_set"]
+                         }
+                    
+                         #save metadata on number of records
+                         #    temporarily saved to list, later added as attributes
+                         meta_records_temp[j,c("n_period_records","first_date","last_date")] <-
+                              c( nrow( x_period ),
+                                 as.character( min( x_period[,paste0(j,"_date")] ) ),
+                                 as.character( max( x_period[,paste0(j,"_date")] ) ) ) 
+#                          meta_records[[ gages$site_no[k] ]][j,] <- c( nrow( x_period ),
+#                               as.character( min( x_period[,paste0(j,"_date")] ) ),
+#                               as.character( max( x_period[,paste0(j,"_date")] ) ) )
+                    
+                         #clean up: remove extraneous date columns from daily records
+                         if ( j == "day" ) {
+                              x_period <- x_period %>% 
+                                   select( -day_date, -month_date, -wateryear_date ) 
+                         }
+                              
+                         
+                         ## save to master table, within list
+                         {
+                         if ( is.null(flow_records[[j]]) ) 
+                              flow_records[[j]] <- x_period
+                         else
+                              flow_records[[j]] <- rbind( flow_records[[j]], x_period )
+                         }
+                    }
+                    else {                         
+                         meta_records_temp[j,c("n_period_records","first_date","last_date")] <-
+                              c( 0, NA, NA )
+                    }
+                    
+               } #end loop through periods
+     
+               row.names(meta_records_temp) <- NULL
+               #save n record info to master table
+               if ( is.null(meta_records) ) 
+                    meta_records <- meta_records_temp
+               else
+                    meta_records <- rbind( meta_records,meta_records_temp )
+
+
+          }#end check flag
+
+     }#end loop gages
+
+
+     attr( flow_records, "n_records" ) <- meta_records
+     attr( flow_records, "download_info" ) <- meta_download
+     if (!is.null(meta_error))
+          attr( flow_records, "error_gages" ) <- meta_error
+     else
+          attr( flow_records, "error_gages" ) <- NA
+     
+     
+     return( flow_records )
+}
 ```
 
 
@@ -30,255 +223,91 @@ flow.agg.function<-function( df ) {
 #' @description by default, calculates rolling mean, and returns
 #' @export
 
-flow.pre.agg.function <- function( x.all ) {
+flow_raw_calc <- function( x ) {
      #7 day rolling mean
           #convert to zoo timeseries, all columns
-     x.zoo<-zoo(x.all$val,x.all$dates) 
+     x_zoo<-zoo(x$val,x$dates) 
           #rollapply, feed it only values, b/c rollapply works better that way
      suppressWarnings( 
-          rolling7<-rollapply(data = x.zoo,
+          rolling7<-rollapply(data = x_zoo,
                               FUN = function(x) mean(x), 
                               width = 7,
                               align="center", 
                               partial = F) 
      )
           #recreate zoo timeseries, using zoo with all columns, plus rolling mean calucated above
-     x.roll<-as.data.frame(merge(x.zoo, rolling7))
-     names(x.roll)<-c("val","rolling7")
-     x.roll$date<-as.Date(row.names(x.roll))
-#      x.roll <- x.roll[,c(ncol(x.roll),1:(ncol(x.roll)-1))] #reorder so date is first, val is second, all other follow
+     x_calc <- as.data.frame(rolling7)
+     x_calc$date <- as.Date( row.names(x_calc) )
+     # head(boo)
+     # boo2 <- merge( x, boo, by="date", all.x=T, all.y=F )
+     x_calc <- x %>% 
+               rename( date=dates ) %>% 
+               left_join( x_calc, by="date" ) 
+     x_calc <- x_calc %>% 
+               rename( flow=val ) %>% 
+               filter( !is.na(flow)) %>% 
+               rename( seven_day=rolling7 ) %>% 
+               rename( site_no=staid ) %>% 
+               mutate( site_no=as.character(site_no)) 
 
+     row.names(x_calc) <- NULL
 
-     x.roll$doy <- as.numeric(format(x.roll$date, format="%j"))
-#      x$doy <- as.numeric(format(x$date, format="%j"))
-
-     return(x.roll)
+     return(x_calc)
 }
 
 ```
-
-
-```{r import and aggregate into flow metrics}
-#' @title import flow 
-#' @description import flow from nwis web service, and aggregate to various metrics and by various periods
-#' @export
-flow.retrieve<-function(gages.spatial, 
-                         periods=c("monthly","annual"),
-                         flow.pre.agg.function = (conteStreamflow::flow.pre.agg.function),
-                         flow.agg.function = (conteStreamflow::flow.agg.function), 
-                         start.year=1890, end.year=2015, 
-                         min.records.monthly=25, min.records.seasonal=80, min.records.annual=345,
-                         return.spatial=F) {
-     
-     ### set up 
-     ##
-     #
-     cache.check()
-     #set up data.frame for counting # records     
-     gages.temp<-gages.spatial[,c("site_no","station_nm","da_nwis_sqkm")] #data.frame or spatial data frame that will store the number of records per period timestep
-     if (!return.spatial)
-          gages.temp <- gages.temp@data
-
-     #create templates and lists of column names
-     template.date <- create.template.date( start.year=start.year, end.year=end.year )     
-     template.period <- create.template.periods( min.records.monthly=25, 
-                                                 min.records.seasonal=80, min.records.annual=345 )
-     
-     assign( "template.period", template.period, envir=.GlobalEnv )
-     cols.flow <- create.cols.flow( flow.pre.agg.function, flow.agg.function )
-
-     #create matrix for storing flow data
-     q.matrices <- create.q.matrices( gages.spatial=gages.spatial, periods=periods,  
-                                     template.date=template.date, template.period=template.period, 
-                                     cols.flow=cols.flow )
-     
-
-     ### Load data
-     ##
-     #
-     cat("Begin loading and aggregating stream flow observations...\n")
-     missing<-c() #save site_no id's of gages missing all data, or if unable to retrieve records
-     for (k in 1:length(gages.spatial$site_no))     {
-          cat(paste("  --  Loading/aggregating gage", k, "of", length(gages.spatial$site_no), "  --  \n"))
-          flag<-F
-          
-          #read raw, daily flow data
-          tryCatch(
-               # uses waterData package functions to pull NWIS data from USGS web services 
-                                             #  flow/discharge cfs, code 00060
-                                             #  daily mean, code 00003
-               x1<-importDVs(gages.spatial$site_no[k], code = "00060", stat = "00003"),
-               error = function(e) {
-                    missing<-c(missing,k)
-                    warning(paste("Gage",gages.spatial$site_no[k],"missing data", 
-                                  "\n",e))
-                    flag<-T
-               })
-     
-           
-          if (!flag) #check for errors
-          {                    
-               # save meta data for daily flow records
-               #    only save this for one gage
-               if ( k ==1 ) {
-                    meta.url <- paste0(
-                         tellMeURL(gages.spatial$site_no[k], code = "00060", stat = "00003",
-                              sdate = "1851-01-01",
-                              edate = as.Date(Sys.Date(), format = "%Y-%m-%d")),
-                         "&format=rdb")
-                    meta <- readLines( con=url(meta.url), n=23 )
-                    save.log( text=meta, filename="flow_retrieval_meta", ext="txt" ) 
-                    close( url( meta.url) )
-               }
-               
-               x1<-cleanUp(x1,task="fix",replace=0) #waterData function to fix common problems (sets ice to NAs, etc, I think)
-               cat(paste0("        Gage ",gages.spatial$site_no[k],", loaded ",nrow(x1)," rows\n"))
-               if ( sum(duplicated(x1$dates)) ) {  
-                    #wouldn't think this would be an issue, but some gages have duplicated dates
-                    #for now, just keeping the first record for a date and removing the rest.  down the line, maybe want to do some sort of comparison of duplicates
-                    warning(paste("      Duplicated dates in gage",gages.spatial$site_no[k],":",
-                                  x1[(which(duplicated(x1$dates))-1):which(duplicated(x1$dates)),], "removed"))
-                    x1<-x1[!duplicated(x1$dates),]
-               }
-               
-               ### flow.calculations
-               ##
-               #
-               x2 <- flow.pre.agg.function( x1 )  
-#                cols <- unique(c("val",names(x2)[names(x2)!="date"]))
-#                cols <- unique(c("val",names(x2)))
-               
-               #assign dates representing different periods and years
-               #change this to loop through specified periods and automatically 
-               #    use the correct function to assign representative date, so it's easy to add new period definitions
-               #saved as character so they can be assigned as row names 
-               x2[,"daily"]<-as.character( x2$date )
-               x2[,"monthly"]<-as.character( to.month(x2$date) )
-               x2[,"seasonal"]<-as.character( to.season(x2$date) )
-               x2[,"annual"]<-as.character( to.water.year(x2$date) )
-               
-               
-               ### aggregate
-               ##
-               #
-
-
-          
-               for (j in periods){     #loop through periods specified in function parameter
-                    
-                    #aggregate, i.e. mean, max, low, etc
-                    suppressWarnings(
-                         x3<-ddply( x2[,c(which(names(x2)==j),which(names(x2)!=j))], 
-                                   #feed data frame, with reordered columns, 
-                                   #    so column w/ period name is first 
-                                    j, #periods
-                                    flow.agg.function #agg function 
-                                   ) 
-                    )
-                    
-                    #set records that don't have min # records required for period to NA
-                    #   this includes all columns besides the period name, 
-                    #         the indicator of whether it's complete, 
-                    #         and the # of records per timestep
-                    #   this should be able to work if the names of columns to aggregate                          
-                    #         are changed, *except* for "complete" and "records.period"
-                    #         which are specified explicitly
-                    x3[x3$complete==0,!(names(x3) %in% c(j,"complete", "records.period"))] <- NA 
-
-                    #save a count of # complete records in the temporary gages data frame
-                    gages.temp[k,paste0("records.",j)]<-sum(x3$complete)
-                    gages.temp[k,paste0("first.",j)]<-year(min(x3[x3$complete==1,j], na.rm=T))
-                    gages.temp[k,paste0("last.",j)]<-year(max(x3[x3$complete==1,j], na.rm=T))
-                    
-                    #merge values back w/ date template, 
-                    #    so the right dates line up when added to the 3d matrix
-                    x4<-merge(template.date[[j]],x3,
-                                   by.x="date",by.y=j,all.x=T,all.y=F)
-
-                    #assign values to the gage's "column" in the 3d matrix
-                    #   loops through columns.  later replace this? 
-                    #   but I couldn't get apply to correctly assign the 1st and 3rd dimension and 
-                    #         for one "column" in the 2nd dimension (gage)
-                    #but change using procedure from weather_retrieve
-                    for (l in cols.flow) {
-                         q.matrices[[j]][,gages.spatial$site_no[k],l]<-x4[,l]
-                    }
-
-                    }#end loop periods
-
-
-          }#end check flag
-     }#end loop gages
-
-     
-     #save counts of how many records each gages has, for each period aggregated
-     q.matrices[["records"]]<-gages.temp  
-     
-     
-     ### write log
-     ##
-     #
-
-     orig.dir <- getwd()
-     setwd( file.path(cache.dir.global, "logs") )
-     log<-c("flow data retrieval log", format.Date(now()),"\r")
-     
-     #create lines slightly differently depending on whether there were any sights missing *all* rows 
-     if (length(missing)>0) {
-          log<-c(log,             
-               paste(length(gages.spatial$site_no[-missing]),"sites"),
-               paste(length(missing),"gages missing data, ignored"),
-               "\r","\r",
-               "gages missing all data",
-               gages.spatial$site_no[missing],
-               "\r","\r",
-               "gages used",
-               gages.spatial$site_no[-missing])
-          write.table(gages.spatial$site_no[missing],sep="/r",file="gages_missing_all_data.txt")
-          write.table(gages.spatial$site_no[-missing],sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
-          }
-     
-     else {
-          log<-c(log,             
-               paste(length(gages.spatial$site_no),"sites"),
-               "\r","\r",
-               "sites",
-               gages.spatial$site_no)
-          write.table(gages.spatial$site_no,sep="\r",file="gages_site_no.txt",row.names=F,col.names=F)
-          }
-     
-     save.log( text=log, filename="flow_retrieval_log", ext="txt" )
-     setwd(orig.dir)
-
-     ### finish up
-     ##  
-     #
-
-     rm( template.period, envir=.GlobalEnv )
-
-     
-     return(q.matrices)
-     
-     
-}
-```
-
 
 
 ```{r}
-#' @title col names for flow stats
-#' @description col names for flow stats
-#' @export
-#stats to save from flow
 
-create.cols.flow <- function( flow.pre.agg.function=(conteStreamflow::flow.pre.agg.function),
-                              flow.agg.function=(conteStreamflow::flow.agg.function) ) {
-     template.period <- get( "template.period", envir=.GlobalEnv )
-     temp <- flow.pre.agg.function(  data.frame( dates=as.Date(1:10, origin=now() ), val=1:10)  )
-     temp2 <- flow.agg.function( temp )
-     return(  names( temp2 )  )
-}
+flow_summarize <- function( x_calc, j, 
+                            cols_mean = "flow",
+                            cols_max  = "flow",
+                            cols_min = c( "flow","seven_day" ) ) {
+
+     #set up table   
+     x_summary <- x_calc %>% 
+               mutate( site_no=as.character(site_no) ) %>% 
+               group_by_( paste0(j,"_date") )  %>%     #group by date representing the period, 
+                                                       # here and in code blocks below 
+               summarize( site_no=first(site_no), n_days = n()  ) #count the number of 
+                                                                  #records in that period
 
 
+     #add each summary metric
+     if ( length(cols_mean) > 0 ) {
+          x_mean <- x_calc %>% 
+               group_by_( paste0(j,"_date") ) %>% 
+               summarize_each_( "mean", cols_mean ) 
+          x_mean <- setNames( x_mean, c(  names(x_mean[,1]),  paste0(names(x_mean[,-1]), "_mean") ))
+          x_summary <- merge( x_summary, x_mean, by=paste0(j,"_date") )
+     }
+     if ( length(cols_max) > 0 ) {
+          x_max <- x_calc %>% 
+               group_by_( paste0(j,"_date") ) %>% 
+               summarize_each_( "max", cols_max ) 
+          x_max <- setNames( x_max, c(  names(x_max[,1]),  paste0(names(x_max[,-1]), "_max") ))
+          x_summary <- merge( x_summary, x_max, by=paste0(j,"_date") )
+     }
+     if ( length(cols_min) > 0 ) {
+          x_min <- x_calc %>% 
+               group_by_( paste0(j,"_date") ) %>% 
+               summarize_each_( "min", cols_min ) 
+          x_min <- setNames( x_min, c(  names(x_min[,1]),  paste0(names(x_min[,-1]), "_min") ))
+          x_summary <- merge( x_summary, x_min, by=paste0(j,"_date") )
+     }
+     
+     #if flow_max is requested, also return the date of flow_max
+     if ( "flow" %in% cols_max ) {
+          x_max_date <- x_calc %>% 
+               group_by_( paste0(j,"_date") ) %>% 
+               summarize( flow_max_date= day_date[which.max(flow)] ) 
+          x_summary <- merge( x_summary, x_max_date, by=paste0(j,"_date") )
+     }
+     #(note: intentionally using merge rather than join to all fow SE)
+     
+     return(x_summary)
+     
+} 
 ```
 

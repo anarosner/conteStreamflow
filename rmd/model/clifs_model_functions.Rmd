@@ -1,0 +1,355 @@
+```{r}
+#' @title CliFSS model create model list
+#' @description creates a list of models, one for each period
+#' @param  df \code{data.frame} 
+#' @param  formula \code{character} 
+#' @return sort \code{boolean}
+#' @export
+
+clifs_create <- function( df, formula, model_type="lm", weight_function=NULL ) {
+#      model_temp <- vector( "list", length=12 ) 
+#      for (i in 1:12) {
+#           model_temp[[i]] <- lm( log(flow_max) ~ log(da_model_sqmi) + log(precip_raw_max) + 
+#                                   log(precip_sum_3_max) + log(precip_raw_total) +
+#                                   log(precip_e_total_lag1) + log(precip_e_total_lag2) +
+#                                   log(pet_total) + log(pet_total_lag1) +
+#                                   # tmax_mean + tmax_mean_lag1 +
+#                                    fwsopenwater + slope_pcnt, 
+#                              data=filter_(d_month_rain, paste0( "month==", i ) ),
+#                              na.action=na.exclude )
+#      }
+     
+     if (model_type=="lm") {
+          if (is.null(weight_function))
+               ml <- lapply(  1:12,
+                              function(j) lm( formula=as.formula(formula),
+                                              data=df[df[,"month"]==j,],
+                                              na.action=na.exclude ) ) 
+                                                  #change to na.omit? and merge by rowname?
+          else {
+               weights <- lapply(  1:12, function(j) weight_function(df[df[,"month"]==j,])  )
+               ml <- lapply(  1:12,
+                              function(j) lm( formula=as.formula(formula),
+                                              data=df[df[,"month"]==j,],
+                                              weights=weights[[j]],
+                                              na.action=na.exclude ) )
+#                ml <- lapply(  1:12,
+#                               function(j) lm( formula=as.formula(formula),
+#                                               data=df[df[,"month"]==j,],
+#                                               weights=weights_function(
+#                                                    df[df[,"month"]==j,weights_col]),
+#                                               na.action=na.exclude ) )
+          }
+     }
+          
+     else if (model_type=="glm") {
+          ml <- lapply(  1:12,
+                              function(j) glm( formula=as.formula(formula),
+                                              data=df[df[,"month"]==j,],
+                                              family=Gamma(link="log"),
+                                              na.action=na.exclude ) )
+#           glm( flow_mean ~ da_model_sqmi + precip_e_total +
+#                               precip_e_total_lag1 + precip_e_total_lag2 +
+#                               pet_total + pet_total_lag1 +
+#                               # tmax_mean + tmax_mean_lag1 +
+#                               fwsopenwater + slope_pcnt + surfcoarse, 
+#                          data=filter_(d_month_rain, paste0( "month==", i ) ), 
+#                          family=Gamma(link="log") )
+     }
+     
+     else if (model_type=="lmer") {
+          print("will create lmer models soon")
+     }
+     else 
+          stop("model.type not recognized")
+     return(ml)
+}
+
+```
+
+```{r}
+#' @title prints overall summary of CliFSSS model list performance for each period 
+#' @description prints summary of CliFSSS model performance for each period
+#' @param  ml \code{list} model list, of  \code{lm} or \code{merMod} class models
+#' @export
+
+# require(topmodel)
+# require(smwrBase)
+# require(smwrStats)
+
+clifs_summary<- function(ml) {
+     require(smwrBase)
+     require(smwrStats)
+     
+     s <- sapply(ml,function(m) round( c(
+          adj.rqr=summary(m)$adj.r.squared,
+          rsq=summary(m)$r.squared, 
+          n_obs=length(fitted.values(m)),
+          n_terms=length(coefficients(m)),
+          press=press(m), aic=AIC(m), 
+          max_vif=max(vif(m))), 3
+     ) )
+     s<-as.data.frame(t(s))
+     s$period <- 1:length(ml)
+     return(s) 
+}
+```
+
+```{r}
+#' @title CliFSSS model, updates model for specified months.  Other months remain as is
+#' @description CliFSSS model, updates model for specified months.  Other months remain as is
+#' @param  ml \code{list} model list, of  \code{lm} or \code{merMod} class models
+#' @param  periods \code{array} 
+#' @param  terms \code{character} terms to be appended to formulat (with + or - operator) 
+#' @param  df \code{data.frame} 
+#' @export
+
+clifs_update <- function( ml, periods, terms="", clear_terms=F, df ) {
+     
+     #note: updates independent variables only
+     # if you need to change dependent variable or weights, recommend creating a new model
+     # might add option to change weights, depending on whether it's advisable to have different weights for different months
+     if (clear_terms)
+          ind_var=""
+     else 
+          ind_var="."
+     ml[periods] <- lapply(  periods,
+                             function(j) update(  ml[[j]],
+                                                 formula=as.formula(paste0(
+                                                     ".~", ind_var, terms  ))  )  )
+     return(ml)
+}
+
+```
+
+```{r}
+#' @title prints summary of CliFSSS model performance, prints detailed summary of  model for each period 
+#' @description prints summary of CliFSSS model performance, prints detailed summary of  model for each period 
+#' @param  ml \code{list} model list, of  \code{lm} or \code{merMod} class models
+#' @param  periods \code{array} of characters 
+#' @param  generic \code{boolean} 
+#' @param  pause \code{boolean} defaults to T, should the output be paused between each period 
+#' @export
+
+clifs_periods_summary <- function(ml, periods=1:12, generic=T, pause=F) {
+
+     for (j in periods) {
+          print(paste0("++++++ Period  ",j,"  ++++++"))
+          m<-ml[[j]]
+          if ( generic ) {
+               print(summary( m ))
+          }
+          else {
+               coef <- as.data.frame(summary(m)$coefficients)
+               #                coef[,4] <- signif( coef[,4], digits=4)
+               coef[ coef[,4]<.01, 4 ] <- signif(coef[ coef[,4]<.01, 4 ], digits=4)
+               coef[ coef[,4]>=.01, 4 ] <- format(coef[ coef[,4]>=.01, 4 ], scientific=FALSE, digits=3)
+               #                coef[,4] <- format(coef[,4], trim = TRUE, scientific=T )
+               #                coef[,4] <- scientific( coef[,4], digits=4)
+               print( coef )
+               print(round(c (adj.rqr=summary(m)$adj.r.squared,
+                              rsq=summary(m)$r.squared ),3))
+               print( c(n.obs=length(fitted.values(m)),
+                        n.terms=length(coefficients(m)) ))
+               print(round(c( PRESS=press(m), AIC=AIC(m) ),0))
+               print(c( max.VIF=max(vif(m)) ))
+          }
+          if ( pause )
+               readline("press \"enter\" to continue")
+     }
+}
+
+```
+
+
+```{r}
+#' @title prints coefficients of CliFSS model 
+#' @description prints coefficients of CliFSS model  
+#' @export
+
+clifs_coefficients <- function( ml, by_variable=T ) {
+     
+     require(reshape2)
+     
+     all_coef <- NULL
+     for ( j in 1:length(ml) ) {
+          suppressMessages(   
+               temp <- melt( as.data.frame(t(  coefficients(ml[[j]])  )) )
+          )
+          temp$month <- j
+          if ( is.null(all_coef) )
+               all_coef <- temp
+          else
+               all_coef <- rbind( all_coef, temp)
+     }
+     all_coef$month <- as.numeric(all_coef$month)
+
+     if (by_variable) {
+          coef_table  <- dcast( all_coef, month ~ variable )
+          row.names(coef_table) <- month.name[as.numeric(row.names(coef_table))]
+     }
+     else {
+          coef_table <- dcast( all_coef, variable ~ month )
+          names(coef_table)[-1] <- month.name[as.numeric(names(coef_table)[-1])]       
+     }
+
+     return( coef_table )
+}
+     
+```
+
+```{r}
+          # ###quick and dirty of function for now
+          # #maybe later remove copy/paste and get better model names in there
+          # 
+          # 
+          # clifs.aic.compare <- function( all.ml, press=F, plot=F ) {
+          # #      print(length(all.ml))
+          # #      print(names(all.ml))
+          # #      print(names(all.ml[[1]]))
+          #      compare <- as.data.frame(matrix(as.numeric(names(all.ml[[1]])),ncol=1))
+          #      names(compare)[[1]]<-"period"
+          # 
+          #      for ( j in 1:length(all.ml) ) {
+          #           if (!press)
+          #                temp <-data.frame( clifs.summary(all.ml[[j]])[,"aic"] )
+          #           else
+          #                temp <-data.frame( clifs.summary(all.ml[[j]])[,"press"] )
+          #           if (is.null(compare)) {
+          #                compare <- temp
+          #                names(compare)[[1]] <- as.character(j)
+          #           }
+          #           else
+          #               compare[,as.character(j)] <- temp
+          #      }
+          #      
+          #      if (plot) {
+          #           dd <- suppressMessages( melt( compare, id.vars="period" ) )
+          #           names(dd)[[2]] <- "model"
+          #           if (!press) {
+          #                names(dd)[[3]] <- "AIC"
+          #                print( ggplot(dd, aes( x=period, y=AIC, colour=model ) ) + 
+          #                     geom_point() + geom_line() + scale_x_continuous(breaks=compare$period) )
+          #                }
+          #           else {
+          #                names(dd)[[3]] <- "press"
+          #                print( ggplot(dd, aes( x=period, y=AIC, colour=model ) ) + 
+          #                     geom_point() + geom_line() + scale_x_continuous(breaks=compare$period)) 
+          #           }
+          #      }
+          #      
+          # 
+          #      return(compare)
+          # }
+          # 
+
+
+```
+
+```{r}
+# df <- d_month_rain
+# row.names(df) <- paste(d_month_rain$site_no, d_month_rain$month_date, sep="_")
+# 
+# j<-5
+# temp <- as.data.frame( predict.lm( m[[j]], newdata=df, interval="prediction" ) )
+# temp2 <- exp(temp)
+# temp$row_id <- row.names(temp)
+# temp2$row_id <- row.names(temp2)
+# df$row_id <- row.names(df)
+# 
+# temp3 <- full_join( temp, temp2, by="row_id", suffices=c("_log","_real") )
+# temp3 <- full_join( df %>% 
+#                          mutate( flow_max_log=log(flow_max) )%>% 
+#                          select( row_id, site_no, month_date, flow_max, flow_max_log ), 
+#                     temp3,
+#                     by="row_id" )
+# 
+# head(temp3)
+
+# str(temp)
+# head(temp)
+# str(temp$fit)
+# str(temp$)
+# head(names(temp$fit),20)
+# sum(names(temp$fit)!=row.names(df),30)
+```
+
+```{r}
+#' @title generates predictions based for the CliFSS model 
+#' @description generates predictions based for the CliFSS model 
+#' @export
+clifs_predict_monthly <- function( m, df, model_type="lmer", id_col="DelinID", date_col="month_date", orig_col=NULL ) {
+     
+     if ( model_type=="lm" ) {
+          p <- NULL
+          for ( j in 1:12 ) {
+               if ( class(m[[j]]) != "lm" )
+                    stop( "Error: not all component models are lm objects" )
+               temp_p <- predict.lm( m[[j]], newdata=df[df$month==j,] )
+               temp <- data.frame( id=df[df$month==j,id_col], prediction_raw=temp_p )
+               names(temp)[1] <- id_col
+               temp[,date_col] <- df[df$month==j,date_col]
+               if( !is.null(orig_col) )
+                    temp[,orig_col] <- df[df$month==j,orig_col]
+               if (is.null(p))
+                    p <- temp
+               else
+                    p <- rbind( p, temp )
+                    
+          }
+          return( p )
+     }
+     else if ( model_type=="lm_log" ) {
+          # p <- NULL
+          # for ( j in 1:12 ) {
+          #      if ( class(m[[j]]) != "lm" )
+          #           stop( "Error: not all component models are lm objects" )
+          #      temp <- predict.lm( m[[j]], newdata=df[df$month==j,] )
+          #      if (is.null(p))
+          #           p <- temp
+          #      else
+          #           p <- rbind( p, temp )
+          #           
+          # }
+          # return( exp(p) )
+     }
+     
+     else if ( model_type=="glm") {p <- NULL
+     
+          for ( j in 1:12 ) {
+               if ( class(m[[j]])[1] != "glm" )
+                    stop( "Error: not all component models are glm objects" )
+               temp <- df[df$month==j,c("month_date","site_no","index","flow_max")]
+               temp$predicted <- predict.glm( m[[j]], newdata=df[df$month==j,] )
+               head(temp)
+               tail(temp)
+               temp2 <- data.frame(  fitted.values=m[[j]]$fitted.values, index=names(m[[j]]$fitted.values), stringsAsFactors=F )
+               temp2 <- left_join( temp, temp2, by="index" )
+               summary( temp2$predicted - temp2$flow_max )
+               View(temp2)
+
+               if (is.null(p))
+                    p <- temp
+               else
+                    p <- rbind( p, temp )
+                    
+          }
+          return( p )
+     }
+     
+     else if ( model_type=="lmer") {
+          # predict.merMod()
+          if ( class(m[[j]]) != "merMod" )
+               stop( "Error: not all component models are merMod lmer objects" )
+          stop( "lmer prediction not implement yet" )
+     }
+     
+     else
+          stop( "Unknown model type" )
+                    
+     
+}
+
+
+```
+

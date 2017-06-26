@@ -1,5 +1,6 @@
 ```{r purl}
-base.dir<-"C:/ALR/Models/conteStreamflow"
+# base.dir<-"C:/ALR/Models/conteStreamflow"
+base.dir<-"C:/ALR_repos/streamflow/conteStreamflow"
 setwd(base.dir)
 list.files()
 
@@ -67,6 +68,7 @@ library(roxygen2)
 
 setwd(base.dir)
 document()
+
 ```
 
 ```{r install package}

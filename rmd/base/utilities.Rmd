@@ -1,27 +1,3 @@
-```{r}
-
-#' @title Customization of summary function
-#' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports n records, min, mean, max, and several quantiles. 
-#' @param  v \code{numeric vector} values to summarize
-#' @param  hist \code{boolean} if TRUE, will plot a histogram, as well as output text to console
-#' @keywords summary
-#' @export
-
-summary.na<-function(v, hist=F) {
-     print(data.frame(num.records=length(v)))
-     print(data.frame(min=min(v,na.rm=T),mean=mean(v,na.rm=T),max=max(v,na.rm=T)))
-     print(quantile(v,na.rm = T,probs = c(.1,.25,.5,.75,.9)))
-     print(d<-data.frame(num.records.na=sum(is.na(v)),  num.records.infinite=sum(is.infinite(v)),  num.records.not.numeric=sum(!is.numeric(v))))
-     if (hist) {
-          o<-par()
-          layout(matrix(c(1,1,2),ncol = 3,nrow = 1, byrow = TRUE),widths=c(2,1))
-          hist(v)
-          barplot(as.matrix(d),horiz = F)
-          par<-o
-     }
-}
-```
-
 
 
 ```{r}
@@ -30,7 +6,7 @@ summary.na<-function(v, hist=F) {
 #' @keywords ls
 #' @export
 
-ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
+ls.objects <- function( pos=1, pattern, alpha=F, head=NULL ) {
      napply <- function(names, fn) sapply(names, function(x)
           fn(get(x, pos = pos)))
      names <- ls(pos = pos, pattern = pattern)
@@ -52,11 +28,29 @@ ls.objects <- function (pos = 1, pattern, alpha=F,head=FALSE, n=10) {
      out <- out[c("Name","Type", "PrettySize", "Rows", "Columns")]
      names(out) <- c("Name","Type", "Size", "Rows", "Columns")
      row.names(out)<-NULL
-     if (head)
-          out <- head(out, n)
+     if ( !is.null(head) ){
+          if ( head==TRUE )
+               out <- head(out, 10)
+          else
+               out <- head(out, head)
+     }
      out
 }
 ```
+
+```{r}
+#' @title see.missing
+#' @export
+
+see.missing <- function(x) {
+     if ( !is.null(attr(class(x),"package")) && attr(class(x),"package") == "sp")    
+          apply(x@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
+     else 
+          apply(x, MARGIN=2, FUN=function(x) sum(is.na(x)))
+}
+
+```
+
 
 ```{r}
 #' @title Simple capitalization function
@@ -126,86 +120,6 @@ merge.sp<-function(x, y, by=intersect(names(x), names(y)), by.x=by,
 }
 ```
 
-```{r}
-#' @title internal function to save log file
-#' @description saves log file in directory specified.  uses specified prefix.  reads names of existing logs in the directory to specify a number, incrementing it from the largest number of that file type.
-#' @param text  \code{character} text for writeLines 
-#' @param dir  \code{character} name of directory location 
-#' @param filename  \code{character} file name prefix 
-#' @return ext \code{character} file extension
-# no export
-
-save.log <- function(text, filename, ext="txt") {
-     #rough draft... to clean up
-     
-     #      ext="txt"
-#      filename="file"
-#      boo<-c("file001.txt","file002.txt","file005.txt","file011.txt","otherfile.txt")
-
-     cache.check()
-     
-     orig.dir <- getwd()
-     setwd(file.path(cache.dir.global,"logs"))
-     x<-list.files()
-     if ( length(x)==0 )
-          x6<-paste( filename, "001", ".", ext, collapse="", sep="" )
-     else {
-               
-          x2<-sapply(x, FUN=function(n) substr(n, start=1, stop=(nchar(n)-nchar(ext)-1-3)))
-          x3<-x[x2==filename]
-
-          if ( length(x3)==0 )
-                    x6<-paste( filename, "001", ".", ext, collapse="", sep="" )
-          else {
-               
-               x4<-sapply(X = x3, FUN = function(n) {
-                    start <- nchar(n) - (nchar(ext)+1) -3 +1
-                    as.numeric( substr( x=n, start=start, stop=(start+3-1)) ) }
-                    )
-               x5<-max(x4)+1
-               x6<-paste( filename, zeropad(x5, LEN = 3), ".", ext, collapse="", sep="" )
-          }
-     }
-
-     {
-     if ( is.data.frame(text) | is.matrix(text) )
-          write.csv( text, file=x6, row.names=F )
-     else                     #if (is.vector)
-          writeLines( text=text, con=x6 )
-     }
-     
-     setwd(orig.dir)
-}
-```
-
-
-```{r}
-#' @title non zero approximation
-#' @export
-
-non.zero<-function(x) {
-     vapply(x,FUN.VALUE=1,FUN=function(x1) {
-          if (is.na(x1) || is.nan(x1) || x1<=0)  
-               return(10^-6)
-          else return(x1)
-     })
-}
-```
-
-```{r}
-#' @title y or n to logical
-# no export
-
-as.logical.y.n <- function( x ) {
-     
-     if (  sum( !(x %in% c("y","n")) )>0  )
-          stop("Please only include values \'y\' or \'n\'")
-     x[x=="y"] <- T
-     x[x=="n"] <- F
-     return(x)
-}
-
-```
 
 ```{r }
 #' @title Multiplot (for ggplot)
@@ -246,36 +160,40 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 ```
 
+
 ```{r}
-#' @title see.missing
+
+#' @title Customization of summary function
+#' @description Customization of summary function that includes a summary of the number of values that are na, infinite, or not numeric.  Also reports n records, min, mean, max, and several quantiles. 
+#' @param  v \code{numeric vector} values to summarize
+#' @param  hist \code{boolean} if TRUE, will plot a histogram, as well as output text to console
+#' @keywords summary
 #' @export
 
-see.missing <- function(x) {
-     if ( !is.null(attr(class(x),"package")) && attr(class(x),"package") == "sp")    
-          apply(x@data, MARGIN=2, FUN=function(x) sum(is.na(x)))
-     else 
-          apply(x, MARGIN=2, FUN=function(x) sum(is.na(x)))
+summary.na<-function(v, hist=F) {
+     print(data.frame(num.records=length(v)))
+     print(data.frame(min=min(v,na.rm=T),mean=mean(v,na.rm=T),max=max(v,na.rm=T)))
+     print(quantile(v,na.rm = T,probs = c(.1,.25,.5,.75,.9)))
+     print(d<-data.frame(num.records.na=sum(is.na(v)),  num.records.infinite=sum(is.infinite(v)),  num.records.not.numeric=sum(!is.numeric(v))))
+     if (hist) {
+          o<-par()
+          layout(matrix(c(1,1,2),ncol = 3,nrow = 1, byrow = TRUE),widths=c(2,1))
+          hist(v)
+          barplot(as.matrix(d),horiz = F)
+          par<-o
+     }
 }
-
 ```
 
 ```{r}
-#' @title cols.change.name
+#' @title non zero approximation
 #' @export
-col.change.name <- function( df, col.old, col.new ) {
-     i<-which(names(df)==col.old)
-     names(df)[i]<-col.new
-     return(df)
+
+non.zero<-function(x) {
+     vapply(x,FUN.VALUE=1,FUN=function(x1) {
+          if (is.na(x1) || is.nan(x1) || x1<=0)  
+               return(10^-6)
+          else return(x1)
+     })
 }
 ```
-
-```{r}
-#' @title cols.remove
-#' @export
-cols.remove <- function( df, cols ) {
-     df<-df[,!(names(df) %in% cols)]
-     return(df)
-}
-
-```
-
